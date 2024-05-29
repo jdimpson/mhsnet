@@ -1,0 +1,132 @@
+
+
+
+Maintenance Procedures                                  NETBAD(8)
+
+
+
+NNNNAAAAMMMMEEEE
+     netbad - process failed network messages
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     ____bbbbiiiinnnn////nnnneeeettttbbbbaaaadddd [-_f_l_a_g_s] [_a_d_d_r_e_s_s...]
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_b_a_d interacts with  the  invoker  to  reroute  or  remove
+     messages  which have failed to progress through the network.
+     The failed message will have its details displayed, and  the
+     invoker  will be prompted for a command.  Type ???? to find out
+     possible commands.  Note that only  the  minimum  number  of
+     letters need be typed that will ensure a unique match with a
+     command name.  If the command is _r_e_r_o_u_t_e, then the  name  of
+     an  appropriate  link  will be requested - a null reply will
+     cause a link to be chosen automatically (but also see the ----LLLL
+     flag below).
+
+     If any addresses are  specified,  _n_e_t_b_a_d  will  only  select
+     messages so addressed.
+
+     The optional flags modify this behaviour:
+
+     ----cccc  Return the messages queued count in the exit status.
+
+     ----ddddeeeelllleeeetttteeee
+         Assume the answer `delete' to any questions.
+
+     ----hhhh  Show message headers.
+
+     ----kkkk  Show commands from message description file.
+
+     ----llll  Search  the  _p_e_n_d_i_n_g  directory  for  looping   messages
+         awaiting   operator   re-routing,  instead  of  the  _b_a_d
+         directory .  (See _n_e_t_r_e_r_o_u_t_e(8).)
+
+     ----pppp  Alternative name for ----llll.
+
+     ----rrrr  Search  the  _r_e_r_o_u_t_e  directory  for  messages  awaiting
+         automatic re-routing, instead of the _b_a_d directory .
+
+     ----ssss  Silent mode.  (For use with the ----cccc and/or ----yyyy flags.)
+
+     ----yyyy  Yes.  Assume a positive response to all queries.
+
+     ----AAAA _h_a_n_d_l_e_r
+         Restrict the selection to just messages of type _h_a_n_d_l_e_r.
+
+     ----LLLL _l_i_n_k
+         Force the _r_e_r_o_u_t_e command to use _l_i_n_k  as  the  advisory
+         link, instead of prompting for one.
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+
+
+
+
+Maintenance Procedures                                  NETBAD(8)
+
+
+
+     ----DDDD _d_e_s_t_i_n_a_t_i_o_n
+         Restrict the selection to  just  messages  addressed  to
+         _d_e_s_t_i_n_a_t_i_o_n.
+
+     ----RRRR _r_e_a_s_o_n
+         Set the  _s_t_o_p  _r_e_a_s_o_n  appended  to  messages  that  are
+         returned.
+
+     ----SSSS _s_o_u_r_c_e
+         Restrict the selection to just messages from _s_o_u_r_c_e.
+
+     ----TTTT[_l_e_v_e_l]
+         Turns on tracing at _l_e_v_e_l (default: 1).  If  tracing  is
+         not compiled in, this flag will have no effect.
+
+     ----UUUU _u_s_e_r
+         Restrict the selection to just messages from _u_s_e_r.
+
+     ----????  Explain argument options and exit.
+
+FFFFIIIILLLLEEEESSSS
+     _bad/*            Failed messages.
+     _lib/handlers     Names  of  common   handlers   and   their
+                       protocols.
+     _pending/*        Looping messages.
+     _reroute/*        Delayed messages.
+     _state/routefile  Routing  tables  for   resolving   address
+                       arguments.
+     */reroute.lock    Lockfile for _n_e_t_b_a_d.
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _n_e_t_q(1), _n_e_t_s_t_o_p(1), _n_e_t_w_o_r_k(7), _n_e_t_r_e_r_o_u_t_e(8).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    2
+
+
+

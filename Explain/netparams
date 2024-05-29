@@ -1,0 +1,8 @@
+
+	-a	Show all settable parameters.
+	-d	Show defaults.
+	-f	Show free space.
+	-l	Run licence check.
+	-n	Show version.
+	-v	Flag changed parameters if all selected.
+	-w	Don't warn about inconsistencies.

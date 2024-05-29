@@ -1,0 +1,348 @@
+.ds S1 NETMAP
+.ds S2 \fINetmap\fP
+.ds S3 \fInetmap\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 netmap
+.TH \*(S1 1 "\*(S4 1.14" \^
+.nh
+.SH NAME
+netmap \- show network state and routing tables
+.SH SYNOPSIS
+.BI \*(S6
+.RI [\- flags ]
+.RI [ region
+\&...]
+.SH DESCRIPTION
+\*(S2
+prints the network state information and routing tables.
+Its default action will print out an alphabetically sorted list of all
+known regions in the state file,
+together with their links.
+If any regions are mentioned in the arguments,
+the list is restricted to just those regions mentioned.
+.I Region
+can be any name resolvable by the routing tables,
+or the special name `world' which matches the global region.
+If only one region is named,
+and a state message has been received from it,
+then the details will be taken from the state message,
+(unless the flags \fB\-i\fP or \fB\-Y\fP are specified).
+Optional flags are:
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-R\ \fP\fIroutefile\fPX'u
+.TP "\*(tw"
+.BI \-a
+Print all regions without restriction.
+.TP
+.BI \-b
+The region selection is extended
+to include all regions contained in the ones mentioned.
+.TP
+.BI \-c
+Check the \s-1CRC\s0 on the state file.
+Also, terminate on errors (otherwise warning messages are generated).
+.TP
+.BI \-d
+Sort regions by distance if \fB\-Y\fP specified.
+.TP
+.BI \-f
+Print the
+.I forced
+route list.
+.TP
+.BI \-i
+Don't use an imported state message when printing region map.
+.TP
+.BI \-k
+Print the
+.I aliases
+for all (selected) regions.
+.TP
+.BI \-l
+Don't show links when printing region map.
+.TP
+.BI \-m
+Print the address maps.
+.TP
+.BI \-r
+Print the routing tables.
+.TP
+.BI \-s
+Print the region map.
+If no other flags are mentioned, this becomes the default action.
+.TP
+.BI \-t \fR[e|i]\fP
+Controls the printing of domain types.
+The default is no types,
+but this flag causes either external (\fBe\fP) [default],
+or internal (\fBi\fP)
+types to be prepended to all domain names.
+Unfortunately this means that any
+.I region
+arguments must also have types
+(except for names that can be fully resolved by the routing tables,
+see
+.IR netaddr (8)).
+.TP
+.BI \-v
+Be more verbose when printing the region map.
+This will cause regions without links to be included,
+as well as showing more details for each region and link.
+In particular, it will show any
+.I comment
+for the node owning the state message displayed.
+This flag will cause the typed region names to be shown for the routing tables,
+and will also show more details for the address maps.
+.TP
+.BI \-w
+Warn about inconsistencies.
+.TP
+.BI \-y
+Print link distances as times
+if \fB\-Y\fP selected.
+.TP
+.BI \-z
+The region selection becomes any region whose 
+.I visible
+region matches the ones mentioned.
+.TP
+.BI \-R \ routefile
+The route file name becomes
+.IR routefile .
+.TP
+.BI \-S \ statefile
+The state file name becomes
+.IR statefile .
+.TP
+.BI \-T \fR[\fPlevel\fR]\fP
+Turns on tracing at
+.I level
+(default: 1).
+If tracing is not compiled in,
+this flag will have no effect.
+.TP
+.BI \-Y \fR[All|Cheap|Fast]\fP
+For each selected region,
+show the route from
+.IR home .
+The nominal
+.I distance
+for each link in the route is also shown,
+in the form
+.BI [ <total> ; <distance> ].
+Both
+.I total
+and
+.I distance
+will be
+\fB*\fP
+if no real route is known.
+Note also,
+that the effect of any current `route' command is ignored by this option.
+If
+.I All
+is chosen,
+fast routes will be indicated by
+.IR (F) ,
+and cheap routes by
+.IR (C) .
+Only the first character of the qualifier is necessary.
+The default is
+.IR Fast .
+`Fast' applies to the route with the minimum `delay',
+`cheap' applies to the route with the minimum `cost'.
+These will be the same unless some link along the way
+has used
+.IR netstate 's
+`cost' command to change the default.
+This option also prints the costs for each link out of each region,
+in the form
+.BI [ <distance> ]
+(or
+.BI [ <distance> "(F)] [" <distance> "(C)]"
+if
+.I All
+is chosen).
+.TP
+.BI \-?
+Explain argument options and exit.
+.br
+.ne 6
+.SH EXAMPLES
+Print the untyped region routing tables, followed by the address maps:
+.PP
+.RS 2
+.ft CW
+\*(S6 -rm
+.ft
+.RE
+.PP
+Print the region map with verbose state descriptions
+for all locally recognized regions in the domain `Sydney University':
+.PP
+.RS 2
+.ft CW
+\*(S6 -bv 'Sydney University'
+.ft
+.RE
+.PP
+The above example will only work if your local site has
+.I mapped
+`Sydney University'
+to
+`ORG=su',
+so here is a more general example:
+.PP
+.RS 2
+.ft CW
+\*(S6 -bl PRMD=oz.COUNTRY=au
+.ft
+.RE
+.PP
+This will give a terse listing of all locally recognized regions in the
+private management domain of `oz' in Australia (a.k.a. ACSnet).
+You may omit the `\s-1PRMD\s0=' and `.\s-1COUNTRY\s0=au'
+if `oz' is a unique domain name in your routing tables.
+.PP
+Show details for a particular site:
+.PP
+.RS 2
+.ft CW
+\*(S6 -v munnari.oz.au
+.ft
+.RE
+.PP
+This will print details from the latest state message from `munnari'
+if one has been received, otherwise it will use the default data-base.
+.PP
+Show the route to the nearest region claiming global routing knowledge:
+.PP
+.RS 2
+.ft CW
+\*(S6 -Y world
+.ft
+.RE
+.PP
+Show typed names for all regions claiming global routing knowledge:
+.PP
+.RS 2
+.ft CW
+\*(S6 -zlti world
+.ft
+.RE
+.PP
+Produce a terse list of all sites and their routes ordered by time distance from `home':
+.PP
+.RS 2
+.ft CW
+\*(S6 -adlyY
+.ft
+.RE
+.SH "MAPS AND TABLES"
+.SS "State Map"
+If the \fB\-s\fP (default) option is selected,
+\*(S3
+prints out (a selected portion of) the statefile
+as a list of regions and their links.
+Links are printed on separate lines preceded by right arrows.
+.PP
+If the \fB\-v\fP (verbose) option was also selected,
+additional information is provided.
+First the region name is printed.
+Then the
+.I "visible region"
+is shown, if set.
+This is the region within which the named region propagates its state information,
+and within which it is capable of resolving addresses.
+The next few lines may contain flag settings
+such as \s-1HOME\s0 if the region contains
+.IR home ,
+or \s-1FOREIGN\s0 if only non-\*(S4 state messages have been received from it.
+Note that once a \*(S4 state message has been received from a node,
+no further non-\*(S4 state messages will be incorporated into the statefile.
+Next the
+.I comment
+data is shown, if available.
+The next line may show the date a state message was last received from the node.
+The lines for the links will be followed by any \fIlink\fP flags,
+or routing parameters for the link.
+(A link marked
+`(pseudo)'
+is for a region whose existence is known by the region it is pseudo-linked to,
+but insufficient routing information has been received locally to determine a real route.)
+.PP
+If the \fB\-Y\fP (show route) flag was selected,
+the last lines for each region will show the route from
+.IR home ,
+each preceded by the \fIweight\fP of the link and a left-arrow.
+.SS "Routing Table"
+The \fB\-r\fP option prints out the routing table in two sections.
+First the local links are listed,
+together with information on any
+flags and programs associated with each link
+if the \fB\-v\fP option is also selected.
+The next section is a sorted list of regions and shows,
+for each region,
+the link numbers for the fastest/cheapest route,
+and, if the \fB\-v\fP flag is in force,
+the links on which to forward broadcast messages addressed to it.
+This is in the form of a list of numbers that refer to
+the numbers printed for each link in the first section.
+An asterisk printed next to a
+.I fast
+link number implies that
+this is only one of a number of alternative equi-distant routes.
+An asterisk printed next to a
+.I cheap
+link number draws attention to the fact that it is different to the
+.I fast
+route.
+.SS "Address Table"
+The \fB\-m\fP option prints a number of address mapping tables.
+The `Region Forwarding Table' lists regions that are being 
+.I forwarded
+to other regions.
+The `Address Forwarding Table' lists addresses that are being 
+.I forwarded
+to other regions.
+The `Address Mapping Table' lists the value of addresses that are being
+.I mapped
+into other regions
+(which includes the
+.I aliases
+exported from other sites).
+If the \fB\-v\fP flag is also selected,
+the `Ordered Types' are shown \(em most significant first, and
+the `Type Name Table' shows all type names and their internal order.
+The last table is the `Region Vector'
+which shows all known domains at the level of each domain in the local address.
+.SS "Alias List"
+The \fB\-k\fP option prints a list of every known
+.IR alias ,
+local, exported, and imported,
+that is present in the
+.IR statefile .
+(These are also shown in the `Address Mapping Table' in the routing tables.)
+.SH FILES
+.PD 0
+.TP "\w'_state/statefileXX'u"
+_state/statefile
+Local state information for each region.
+.TP
+_state/routefile
+Routing tables and address maps.
+.TP
+_state/MSGS/*
+Imported state messages.
+.PD
+.SH "SEE ALSO"
+.IR \*(S5 (7),
+.IR netaddr (8),
+.IR netrequest (8),
+.IR netstate (8).
+.SH CAVEAT
+If you get errors when printing region maps without the \fB\-t\fP flag,
+try again using one of its variations.
+The errors may be due to the fact
+that stripping typing information from domains can lead to confusion.

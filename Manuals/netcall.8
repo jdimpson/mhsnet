@@ -1,0 +1,1620 @@
+.nr S3 1 \" 1 for ACSnet
+.ds S1 NETCALL
+.ds S2 \fINetcall\fP
+.ds S3 \fInetcall\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 _lib/VCcall
+.TH \*(S1 8 "\*(S4 1.43" \^
+.ds sT \v'-0.2v'\s-1*\s0\v'0.2v'
+.nh
+.SH NAME
+netcall \- create a virtual circuit to a remote host and start a network daemon
+.SH SYNOPSIS
+.BI \*(S6
+.RI [\- flags ]
+.RI [ link ]
+.sp
+.BI _bin/netcall
+.RI [ link ]
+.SH DESCRIPTION
+\*(S2
+is the default program used to set up a virtual circuit
+to another site to exchange spooled network messages.
+It is either invoked automatically by the routing program for links marked as
+.I auto-call
+(see \s-1AUTO_CALL LINKS\s0 below),
+or can be invoked directly, eg: by
+.IR netinit (8).
+The program
+.if t \f(CW_bin/netcall\fP
+.if n `_bin/netcall'
+is a shell program that starts a call to
+.I link
+by invoking
+.if t \f(CW\*(S6\fP
+.if n `\*(S6'
+from
+.I netinit.
+.PP
+Hosts may either have permanent connections to the network,
+or can be called at regular intervals, via whatever communication means
+that are available, possibly
+.SM X.25,
+.SM TCP/IP,
+.I auto-dial
+modems,
+or even direct connections over
+.SM RS-232
+circuits.
+For the sake of security,
+the remote host should have a
+.I login
+account configured with a
+.IR netshell (8)
+and a password (see also
+.IR netpasswd (8)).
+.PP
+An alternate program to set up a virtual circuit can be specified using the
+.I netstate
+command
+.BR caller .
+It will be invoked with the flags
+as noted below (those tagged with \*(sT),
+although the flag \fB-S\fP will only appear
+if a file named `call' containing a
+.I call-script
+exists in the target host's link directory.
+The call-script language is described later.
+.PP
+After opening the file containing the call-script,
+\*(S3
+changes its working directory to the target host's link directory
+(creating it if necessary)
+and proceeds to execute the call-script statements.
+.PP
+\*(S2
+interprets
+.I call-scripts
+written in a simple language.
+The
+.I call-script
+should be designed to understand the peculiarities
+of the connection process,
+.I "log in"
+to the remote account successfully,
+using statements from the language described below,
+and invoke a suitable virtual circuit transport daemon.
+.PP
+If a file named
+`callprog'
+exists in the link's operating directory,
+or if not there, then in the "_call" directory,
+it will be executed in the transport daemon's operating directory by
+.IR sh (1)
+before the message transport daemon is started.
+It will be passed three arguments:
+the name of the link,
+the name of the transport daemon,
+and the name of \*(S3.
+It will have standard input and output set to the virtual circuit.
+Note that if
+`callprog'
+has an owner other than
+.SM NETUSERNAME
+or a group other than
+.SM NETGROUPNAME,
+or is publicly writable,
+then it will be ignored.
+.PP
+On termination,
+\*(S3 writes a one line call status summary to the file
+.if n `SPOOLDIR/_call/log'.
+.if t \f(CWSPOOLDIR/_call/log\fP.
+.PP
+\*(S2's
+action may be modified by the following flags:
+.PP
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-H\fP\fI\ home\ address\*(sT\fPX'u
+.TP "\*(tw"
+.BI \-& \*(sT
+Fork, and run the call in the background.
+.TP
+.BI \-t
+Testing only \(em no links will be created.
+The linkname argument will create a spooling directory with the same name.
+.TP
+.BI \-p
+Ignore old
+.I "process id"
+in any existing lock file.
+.TP
+.BI \-u
+Don't let transport daemon signal link status changes.
+Otherwise, link status messages are sent to the router.
+This is the default if the
+`nochange'
+flag is set for the link.
+.TP
+.BI \-v
+Verbose \(em
+complains if another call is already active on
+.IR link .
+.TP
+.BI \-D " definition"
+Pre-define a symbol for the script.
+.I Definition
+must take the form
+.IB symbol = value
+as in:
+\f(CW-D\ linespeed=9600\fP
+If there are spaces in
+.I value
+then they must be quoted,
+as in:
+\f(CW-D\ args="-D512\ -X960"\fP
+.TP
+.BI \-H " home address" \*(sT
+Specifies the full network name of the host that
+\*(S3
+is running on.
+[Default: taken from the routing tables.]
+.TP
+.BI \-K "\ acct string"
+Optional string to be passed to the transport daemon to be appended to the 
+.I connect
+log on termination.
+Default: device name, or circuit type.
+.TP
+.BI \-L " link address" \*(sT
+Specifies the full network name for the target host that
+\*(S3
+is being invoked to call.
+[Default: taken from the routing tables.]
+.TP
+.BI \-N " link dir" \*(sT
+Specifies the pathname
+(relative to \f(CWSPOOLDIR\fP)
+for the directory for the target host.
+[Default: taken from the routing tables.]
+.TP
+.BI \-S " call-script" \*(sT
+The pathname of the call script to be interpreted.
+This will be interpreted relative
+the target host's link directory.
+If no file name
+.I call-script
+exists, and it doesn't start with a leading `/',
+then if
+.I call-script
+contains a `/', \*(S3 will try
+.if n `SPOOLDIR/\fIcall-script\fP',
+.if t \f(CWSPOOLDIR/\fP\fIcall-script\fP,
+otherwise \*(S3 will try
+.if n `SPOOLDIR/\fIlinkdir/call-script\fP',
+.if t \f(CWSPOOLDIR/\fP\fIlinkdir/call-script\fP,
+followed by
+.if n `SPOOLDIR/_call/\fIcall-script\fP',
+.if t \f(CWSPOOLDIR/_call/\fP\fIcall-script\fP,
+[Default: the file named
+`call'
+in the target host's link directory.]
+.TP
+.BI \-T n
+Activate tracing at level
+.IR n .
+If tracing is not compiled in,
+this flag will not produce
+.I trace
+output.
+This flag also controls the
+.I monitor
+level (see below).
+.TP
+.BI \-X " log-file"
+Use
+.I log-file
+(opened in
+.I append
+mode)
+for all
+.I stderr
+output.
+.TP
+.BI \-?
+Explain argument options and exit.
+.PP
+The optional non-flag argument may be used instead of both the
+.B \-L
+and
+.B \-N
+flags.
+In which case it can be any suitable address that uniquely identifies a particular link.
+.SH "CALL-SCRIPT LANGUAGE"
+A script to be interpreted by
+\*(S3
+consists of a series of statements that take the form:
+.PP
+.RS
+.ft CW
+[label:] command [parameter[,...]];
+.ft
+.RE
+.PP
+The term
+.I string
+indicates either a literal string of characters enclosed in double
+quotes or a string variable.
+The term
+.I pattern
+is also a
+.IR string
+containing a regular expression as for
+.IR egrep (1),
+but without alternation (\fB|\fP).
+The term
+.I integer
+indicates either a literal integer or an integer variable.
+Comments are enclosed between \fB/*\fP and \fB*/\fP.
+.PP
+Note that strings may be made to contain
+non-alphanumeric characters by using the escape sequence `\^\e\^n'
+(where `n' is one or more octal digits representing the \s-1ASCII\s0 value of the character).
+The more common cases may be encoded as follows:
+`\^\e\^b' (back-space - `\^\e\^10'),
+`\^\e\^t' (tab - `\^\e\^11'),
+`\^\e\^n' (new-line - `\^\e\^12'),
+`\^\e\^f' (form-feed - `\^\e\^14'),
+and
+`\^\e\^r' (carriage-return - `\^\e\^15').
+.PP
+The commands and optional parameters are as follows:
+.HP 4
+.BI call \ pathname
+.br
+A call script in the file
+.I pathname
+is invoked as a subroutine.
+Execution returns to the current script when the end of the
+subroutine script is reached.
+If no file name
+.I pathname
+exists, then \*(S3 will try
+alternate pathnames as for the \fB\-S\fP flag above.
+.HP
+.BI close
+.br
+The communication line is closed.
+.HP
+.BI crc " identifier string [string ...]"
+.br
+Set
+.I identifier
+to be the string value of the 16-bit \s-1CRC\s0
+of the concatenated string parameters.
+.HP
+.BI daemon \ pathname
+.br
+Specify an alternate virtual circuit transport daemon in
+.IR path name .
+If no program called
+.I pathname
+exists, and it doesn't start with a leading `/',
+then if
+.I pathname
+contains a `/', \*(S3 will try
+\f(CWSPOOLDIR/\fP\c
+.IR pathname ,
+otherwise \*(S3 will try
+\f(CWSPOOLDIR/_lib/\fP\c
+.IR pathname .
+.HP
+.BI device " function [argument ...]"
+.br
+Perform some operation defined by
+.I function
+on the currently open device
+(the same as that specified for an earlier
+.I open
+command).
+Optional arguments may be passed to
+.IR function .
+Common functions are:
+.PP
+.RS 4
+.if n .ds tw 4
+.if t .ds tw \w'\f(CW`offdelay`\fPX'u
+.TP "\*(tw"
+.if t \f(CW"break"\fP
+.if n "break"
+Output a
+.I break
+condition on an RS-232 line.
+.TP
+.if t \f(CW"cook"\fP
+.if n "cook"
+Turn off
+.I RAW
+mode.
+.TP
+.if t \f(CW"flush"\fP
+.if n "flush"
+Flush both input and output.
+.TP
+.if t \f(CW"local"\fP
+.if n "local"
+Ignore modem control signals (\c
+.I CLOCAL
+or
+.I LNOMDM
+mode).
+This flag may also be passed as a parameter to the
+.BI open
+command below.
+.TP
+.if t \f(CW"offdelay"\fP
+.if n "offdelay"
+Turn off the
+.SM O_NDELAY
+flag and unset
+.SM O_NDELAY
+mode for the circuit.
+This flag may also be passed as a parameter to the
+.BI open
+command below.
+.TP
+.if t \f(CW"ondelay"\fP
+.if n "ondelay"
+Turn on the
+.SM O_NDELAY
+flag
+and set
+.SM O_NDELAY
+mode for circuit.
+This flag may also be passed as a parameter to the
+.BI open
+command below.
+.TP
+.if t \f(CW"raw"\fP\fI [argument ...]\fP
+.if n "raw" [vmin [vtime]]
+Set device in
+.I RAW
+mode.
+The optional arguments are the
+.SM VMIN
+and
+.SM VTIME
+parameters for
+.SM "SYSTEM V"
+.I tty
+I/O,
+[default: "1" "0"].
+NB: if
+.SM VMIN
+is > 1, then
+.SM VTIME
+must be > 0 (and defaults to 1).
+A read will not be satisfied until at least
+.SM VMIN
+characters have been received or the timeout value
+.SM VTIME
+(in units of 1/10 of a second)
+has expired between characters.
+This allows fast bursts of input to be read efficiently.
+.TP
+.if t \f(CW"remote"\fP
+.if n "remote"
+Turn off `local' mode.
+This flag may also be passed as a parameter to the
+.BI open
+command below.
+.TP
+.if t \f(CW"speed"\fP\fI number\fP
+.if n "speed" number
+Set the speed of the device as per argument.
+.TP
+.if t \f(CW"stty"\fP\fI [argument ...]\fP
+.if n "stty" [argument ...]
+Run the
+.I stty (1)
+program on the line with the passed arguments.
+.TP
+.if t \f(CW"uucplock"\fP
+.if n "uucplock"
+Set a `uucp' style lock on the device
+if the parameter
+.SM UUCPLOCKS
+is set (see
+.SM PARAMETERS
+below).
+This function should only be used with `open' commands,
+and precludes the use of the
+.I execdaemon
+command (use
+.I forkdaemon
+instead).
+.TP
+.if t \f(CW"xonoff"\fP
+.if n "xonoff"
+Place the line in
+.SM XON/XOFF
+mode.
+.PP
+These functions are provided by device-specific code,
+and so not all functions are available with every device.
+.PP
+A string describing the result of the operation is placed in the
+variable
+.SM RESULT.
+The predefined strings
+.SM DEVOK
+(the function was successful)
+and
+.SM DEVFAIL
+(there was a fatal error,
+with the reason written to the log)
+are available to match
+against the
+.SM RESULT
+string.
+Any other value is a non-fatal reason returned by the function.
+.RE
+.HP 4
+.BI execdaemon " [arguments]"
+.br
+Execute the chosen transport daemon at this point.
+\*(S2 invokes the daemon directly, so there is no return
+\(em which implies there must be no outstanding locks.
+An optional set of arguments to be passed to the daemon may also be specified.
+If a file named `params' exists in the link directory,
+then it will be read for additional daemon arguments.
+.HP
+.BI expect " pattern label [[, pattern label] ...]"
+.br
+This command reads input from the communication line
+up to and including one of the characters appearing in the string variable
+.SM DELIMCHARS,
+and matches the resulting string against the list of patterns.
+[The default value for
+.SM DELIMCHARS
+is
+.if t \f(CW":\^\e\^n\^\e\^r"\fP.]
+.if n ":\^\e\^n\^\e\^r".]
+On a successful match,
+interpretation continues at the given label.
+If no match is found,
+the next string is read from the communication line,
+and so on.
+In order to prevent the script from `hanging' at this point,
+it is normal to include the
+.I built-in
+pattern
+.SM TIMEOUT
+with an appropriate label to allow processing to continue
+(see the
+.I timeout
+statement below).
+Other
+.I built-in
+patterns are:
+.PP
+.RS 4
+.if n .ds tw 4
+.if t .ds tw \w'\s-1TERMINATE\s0X'u
+.TP "\*(tw"
+.SM EOF
+Signals the reception of an `end-of-file' indication
+from the communication line.
+.TP
+.SM TERMINATE
+Signals that system termination has been requested.
+The script should clean up and exit.
+.PP
+The input line matched is available in the variable
+.SM INPUT.
+.RE
+.HP 4
+.BI fail " string ..."
+.br
+Terminate the interpretation of this script giving
+.I string
+as the termination message.
+.HP
+.BI forkcommand " command [arguments]"
+.br
+Execute
+.I command
+with optional arguments.
+If any device has been opened, it is passed to
+.I command
+on file descriptors 0 & 1.
+.I Command
+must be owned by the network, and not be publicly writable.
+.HP
+.BI forkdaemon " [arguments]"
+.br
+Execute the chosen transport daemon as a sub-process at this point.
+When the daemon terminates,
+control will return to the script after this statement.
+An optional set of arguments to be passed to the daemon may also be specified.
+If a file named `params' exists in the link directory,
+then it will be read for additional daemon arguments.
+.HP
+.BI match " string pattern label [[, pattern label] ...]"
+.br
+The string is matched against the patterns in order.
+If a match is found, control is transferred to the associated label.
+If no match occurs, the next statement is executed.
+Undefined strings can be matched with the
+.I built-in
+pattern
+.SM UNDEFINED.
+.HP
+.BI mode " argument ..."
+.br
+Optional arguments to be passed to the transport daemon.
+.HP
+.BI monitor " [integer]"
+.br
+Switch on debug monitoring.
+Three levels are normally provided,
+each of increasing verbosity.
+Level 1 will cause all output to the communications line to be echoed to
+.IR stderr .
+Level 2 will also cause all input from the communications line
+to be echoed to
+.IR stderr .
+Level 3 shows patterns being matched against input.
+[Default: toggle the level between \fB0\fP and \fB1\fP.]
+.HP
+.BI next \ label
+.br
+The next command to be interpreted will be after
+.IR label .
+.HP
+.BI open " device-name [argument ...]"
+.br
+A function is called to open the device specified by
+the string
+.IR device-name .
+Optional arguments may be passed to the function.
+This device stays open until a following
+.I close
+command,
+and is operated on by all other device-specific commands.
+Common
+.I device-names
+are:
+.PP
+.RS 4
+.TP 4
+.if t \f(CW"fd"\fP\fI number\fP
+.if n "fd" number
+Uses the file descriptor
+.I number
+opened before activation of \*(S3.
+If needed, the `device raw' command must be used.
+.TP
+.if t \f(CW"file"\fP\fI name\fP
+.if n "file" name
+Opens the file
+.I name
+for read/write.
+.TP
+.if t \f(CW"tcp"\fP\fI name server [port [source]]\fP
+.if n "tcp" name server [port [source]]
+Opens a \s-1TCP/IP\s0 circuit.
+The first argument is the target IP name,
+the second is the server name.
+The optional third argument specifies a port number
+[default `0' causes lookup in `/etc/services'].
+The optional fourth argument specifies a source address to
+.IR bind (2)
+a socket for an \s-1IP\s0 circuit.
+This is sometimes necessary when the source host has
+many \s-1IP\s0 interfaces, each with a different source \s-1IP\s0 address.
+An argument of `0' sets \s-1INADDR_ANY\s0,
+otherwise the argument should be a resolvable `Internet' address,
+or an `Internet' number.
+.TP
+.if t \f(CW"test"\fP\fI [device] [...]\fP
+.if n "test" [device] [...]
+Opens a test file for read/write.
+The first argument is optional and names a file to be opened,
+default: `/dev/null'.
+Other arguments are ignored.
+.TP
+.if t \f(CW"tty"\fP\fI device [function ...]\fP
+.if n "tty" device [function ...]
+Opens an RS-232 circuit.
+The first argument is the device name,
+other arguments can be the
+.I device
+functions described above.
+The device is automatically put into `raw' mode.
+If the open fails,
+it is retried if the `retry' command has been specified
+(after a delay set by the `timeout' command).
+.TP
+.if t \f(CW"udial"\fP\fI telno speed\fP
+.if n "udial" telno speed
+Connects using the \s-1UUCP\s0-compatible `dialler' service.
+The first argument is the telephone number,
+the second is the line speed.
+.TP
+.if t \f(CW"udp"\fP\fI name server [port [source]]\fP
+.if n "udp" name server [port]
+Opens a \s-1UDP/IP\s0 circuit.
+The first argument is the target IP name,
+the second is the server name.
+The optional third argument specifies a port number
+[default `0' causes lookup in `/etc/services'].
+The optional fourth argument specifies a source address to
+.IR bind (2)
+a socket for an \s-1IP\s0 circuit.
+This is sometimes necessary when the source host has
+many \s-1IP\s0 interfaces, each with a different source \s-1IP\s0 address.
+An argument of `0' [the default] sets \s-1INADDR_ANY\s0,
+otherwise the argument should be a resolvable `Internet' address,
+or an `Internet' number.
+.TP
+.if t \f(CW"x25"\fP\fI address controller line home\fP
+.if n "x25" address controller line home
+Opens an X.25 circuit.
+The first argument is the address,
+the second argument is the controller number,
+the third argument is the line number,
+and the final argument is the local node address.
+.PP
+A string describing the result of the operation is placed in the
+variable 
+.SM RESULT
+with values as for the
+.B device
+command.
+.RE
+.HP 4
+.BI read " identifier"
+.br
+The input is read up to and including
+one of the characters appearing in the string variable
+.SM DELIMCHARS,
+and returned in
+.IR identifier .
+.HP 4
+.BI readchar " identifier"
+.br
+The next character is read from input 
+and concatenated to the string in
+.IR identifier .
+.HP
+.BI retry " integer"
+.br
+Control any retry count in
+.I device
+and
+.I open
+commands.
+The value set here is available to device code
+via the global parameter \f(CWRetries\fP.
+.HP
+.BI return
+.br
+Return from current script.
+.HP
+.BI set " identifier string [string ...]"
+.br
+Give a variable a string value.
+.HP
+.BI set " identifier integer"
+.br
+Give a variable an integer value.
+.HP
+.BI shell " command [argument ...]"
+.br
+Execute the command and arguments using the command interpreter defined by the parameter
+.SM SHELL,
+usually
+.I /bin/sh
+(See
+.BI sh (1).)
+Note that the shell variable \s-1PATH\s0 is set to `/bin:/usr/bin',
+and that the command is run with the same
+.I uid
+and
+.I gid
+as \*(S3's invoker.
+.PP
+.RS 4
+The exit code is converted to a string which is placed in the variable 
+.SM RESULT.
+.RE
+.HP 4
+.BI shift " identifier separators string"
+.br
+The next string delineated by characters from the set
+.I separators
+(or the rest of the string if no separators)
+is moved from
+.I string
+into
+.IR identifier .
+.HP
+.BI sleep \ integer
+.br
+Go to sleep for
+.I integer
+seconds.
+.HP
+.BI slowwrite " string [string ...]"
+.br
+Send the
+.I string
+to the communication line.
+The difference between this command and
+.I write
+below, is that the characters of
+.I string
+are separated by approximately 67 milliseconds
+to give a write-rate of 15 chars./sec.
+This is for the benefit of some older modems
+which can't handle commands at full speed.
+.HP
+.BI test " identifier label"
+.br
+The value of integer variable
+.I identifier
+is decremented.
+If the result is less than or equal to zero, execution continues at
+.I label.
+.HP
+.BI timeout \ integer
+.br
+Set a timeout value in seconds.
+After a period of this length has elapsed without a character being
+received on the communication line,
+or a
+.I pattern
+being matched,
+the
+.I built-in
+pattern
+.SM TIMEOUT
+is generated as if it had come from the communication line.
+This value is also used to delay before retrying `device'
+commands.
+.HP
+.BI trace " string [string ...]"
+.br
+The
+.I string
+is written to the standard error file.
+.HP
+.BI write " string [string ...]"
+.br
+Send the
+.I string
+to the communication line.
+.PP
+Any transport daemon invoked by the script commands
+.I execdaemon
+or
+.I forkdaemon
+will automatically be given the arguments
+.BR \-H ,
+.BR \-L
+and
+.BR \-N
+as specified for \*(S3,
+as well as
+.BR \-fp ,
+in addition to any specified in the script.
+.SH "PREDEFINED VARIABLES"
+.if n .ds tw 4
+.if t .ds tw \w'\s-1DELIMCHARS\s0X'u
+.if \n(.lu<6i .ds tw 4
+.TP "\*(tw"
+.SM DELIMCHARS
+The set of characters used to delimit input for the
+.I read
+or
+.I expect
+commands.
+Default:
+.if t \f(CW":\^\e\^n\^\e\^r"\fP.
+.if n ":\^\e\^n\^\e\^r".
+.TP
+.SM DEVFAIL
+A string placed in the variable
+.SM RESULT
+by device operations to indicate failure.
+.TP
+.SM DEVOK
+A string placed in the variable
+.SM RESULT
+by device operations to indicate success.
+Any string other than this is an error condition.
+.TP
+.SM EOF
+A string returned by the
+.I read
+or
+.I expect
+commands to indicate the device is closing.
+.TP
+.SM HOMENAME
+Pre-defined to be the local site address.
+.TP
+.SM INPUT
+This variable always contains the last string passed to the
+.I read
+or
+.I expect
+commands.
+.TP
+.SM LINKDIR
+Pre-defined to be the directory name for the link being established.
+The full path name of the link directory is obtained
+by concatenating this string with
+.SM SPOOLDIR
+below.
+.TP
+.SM RESULT
+Contains the result of the last device command.
+.TP
+.SM SPOOLDIR
+Pre-defined to be the directory name of the network spool area
+(ends in '/').
+.TP
+.SM TERMINATE
+A string passed to the 
+.I read
+or
+.I expect
+commands to signal that system termination has been requested.
+.TP
+.SM TIMEOUT
+A string passed to the 
+.I read
+or
+.I expect
+commands to indicate that the timeout period has expired.
+.TP
+.SM UNDEFINED
+All string variables are initialised to this value.
+.TP
+.SM VERSION
+A string containing the distribution's version information.
+This is in the form:
+.br
+release serial date CPU-operating_system
+.SH "CALL PARAMETER NEGOTIATION"
+If the remote
+.I netshell
+is uncertain about your address,
+it will send the line
+.RS
+.ft CW
+QUERY HOMENAME
+.ft
+.RE
+and expect a reply
+.RS
+.ft CW
+HOMENAME <address>[ {CRC}]
+.ft
+.RE
+within 20 seconds.
+You should supply the string from the variable
+.SM HOMENAME
+in place of 
+.IR address .
+(See
+.IR netshell (8).)
+.PP
+If a network password has been set for your site
+.I netshell
+will send the line
+.RS
+.ft CW
+QUERY PASSWORD
+.ft
+.RE
+and expect a reply
+.RS
+.ft CW
+PASSWORD <password>[ {CRC}]
+.ft
+.RE
+within 20 seconds.
+.PP
+The call script must also negotiate
+the transport daemon parameters with the remote shell
+before invoking the transport daemon.
+The remote shell will send the line:
+.RS
+.ft CW
+SHELL STARTS 2V
+.ft
+.RE
+and expect the optional reply:
+.RS
+.ft CW
+VCCONF <arg> ... [ {CRC}]
+.ft
+.RE
+to which it will reply:
+.RS
+.ft CW
+QUERY DAEMON
+.ft
+.RE
+and expect the optional reply:
+.RS
+.ft CW
+DAEMON <daemon name> [ {CRC}]
+.ft
+.RE
+to which it will reply:
+.RS
+.ft CW
+QUERY PARAMS
+.ft
+.RE
+and expect the reply:
+.RS
+.ft CW
+PARAMS <daemon arg> ... [ {CRC}]
+.ft
+.RE
+to which it will reply:
+.RS
+.ft CW
+DAEMON STARTS DAEMON STARTS
+.ft
+.RE
+.PP
+The optional trailer for the
+\s-1HOMENAME\s0, \s-1PASSWORD\s0, \s-1VCCONF\s0, \s-1DAEMON\s0 and \s-1PARAMS\s0
+lines is a 16-bit \s-1CRC\s0 generated by the
+.B crc
+command.
+If it doesn't match, then the shell will ignore the line
+and prompt for another.
+.PP
+If the shell receives no \s-1PARAMS\s0 line within 20 seconds,
+it will reply with the message:
+.RS
+.ft CW
+DEFAULT DAEMON STARTS
+.ft
+.RE
+and invoke the transport daemon with the following
+.I worst-case
+parameters:
+.RS
+.ft CW
+-c -B -D16 -R300 -S10 -X30
+.ft
+.RE
+Ie:
+cooked mode,
+batch mode,
+16 byte packets,
+maximum run time of 5 minutes,
+minimum speed of 10 bytes/second,
+and expected throughput of 30 bytes/second.
+(See
+.IR netdaemon (8).)
+.SH EXAMPLES
+The following script establishes a virtual circuit via an
+.I RS-232
+.I tty
+device, and invokes a permanent transport daemon for it.
+.PP
+.nf
+.ft CW
+.if \n(.lu<6i .ps -2
+/*
+**	Invoke from eg:
+**	\*(S6 -D linespeed=9600 \e
+**		-D localdmnargs="-D512 -X960" \e
+**		-D ttydevice=/dev/ttya \e
+**		-S /path/scriptname \e
+**		linkname
+**
+**	(Should be run from both ends.)
+*/
+	open "tty" ttydevice "local";
+	match RESULT DEVOK openok;
+	fail "Can't open " ttydevice ", reason: " RESULT;
+openok:
+	device "speed" linespeed;
+	device "flush";
+	execdaemon localdmnargs;
+.if \n(.lu<6i .ps
+.ft
+.fi
+.PP
+Other examples can be found in the \f(CW_call\fP directory with the filename suffix `\f(CW.cs\fP',
+and some are listed below.
+They all `import' parameters that must be set via
+\f(CW\-D\ \fR\fIparam\fR\f(CW=\fR\fIvalue\fR
+arguments to \*(S3.
+The following parameters are common to all scripts:
+.PP
+.PD 0
+.TP "\w'\f(CWremotedmnargsXX\fP'u"
+\f(CWdmnargs\fP
+Sets both \f(CWlocaldmnargs\fP and \f(CWremotedmnargs\fP below.
+.TP
+\f(CWlocaldmnargs\fP
+If the local transport daemon will have different parameters to the remote,
+set this to be the local transport daemon parameters instead of \f(CWdmnargs\fP above.
+.TP
+\f(CWremotedmnargs\fP
+If the remote transport daemon will have different parameters to the local,
+set this to be the remote transport daemon parameters instead of \f(CWdmnargs\fP above.
+.PD
+.SS fd.cs
+This is a call-script for controlling connections
+using a pre-assigned `tty' type file-descriptor for the virtual circuit.
+The script uses the indicated file-descriptor for the circuit to a remote site,
+and starts a daemon to communicate over it.
+It imports the following parameters:
+.PP
+.PD 0
+.TP "\w'\f(CWremotedmnargsXX\fP'u"
+\f(CWdmnname\fP
+Optional daemon name [default: \f(CWVCdaemon\fP].
+.TP
+\f(CWfd\fP
+A number between 0 and 9 representing the file-descriptor.
+.TP
+\f(CWlinespeed\fP
+Optional speed for virtual circuit.
+.PD
+.SS hayes_0.cs
+This is a call-script for controlling Hayes compatible modems.
+It calls other call-scripts
+(named `hayes_*.cs')
+to control the various stages of the connection process.
+It imports the following parameters:
+.PP
+.PD 0
+.TP "\w'\f(CWremotedmnargsXX\fP'u"
+\f(CWcook\fP
+Optional daemon parameter to turn on circuit
+.I cooking
+(usually `-c').
+.TP
+\f(CWdialstrings\fP
+String(s) to cause modem to dial remote site in the format
+.IB number @ speed[ | ...].
+.TP
+\f(CWdmnname\fP
+Optional daemon name [default: \f(CWVCdaemon\fP].
+.TP
+\f(CWfixedspd\fP
+Optional flag to indicate modem does not change speed to match connection.
+.TP
+\f(CWloginstr\fP
+The login name at the remote site.
+.TP
+\f(CWlongterm\fP
+Optional seconds for slow transport daemon terminate [default: 5].
+.TP
+\f(CWmodems\fP
+Modem(s) attached to device(s) in the format
+.IB type @ device[ | ...].
+.TP
+\f(CWmyscript\fP
+Optional name for additional call script
+to be run after the modem connects,
+but before the unix login sequence is processed.
+This can be used to log into terminal servers etc.
+.TP
+\f(CWnoisy\fP
+Optional parameter set to `true' for noisy lines (small packets, low throughput).
+.TP
+\f(CWpasswdstr\fP
+An optional password required by the remote login account.
+.TP
+\f(CWpermanent\fP
+Optional parameter set to `true' for non-batch mode connections.
+.TP
+\f(CWpriority\fP
+Optional parameter set to the maximum message priority to be transmitted.
+.TP
+\f(CWsun3\fP
+Optional parameter set to `true' if making a connection to a site running
+.SM "SUN III."
+.PD
+.SS ip.cs
+This is a call-script for controlling connections using the `Internet Protocol'.
+It imports the following parameters:
+.PP
+.PD 0
+.TP "\w'\f(CWremotedmnargsXX\fP'u"
+\f(CWdmnname\fP
+Optional daemon name [default: \f(CWVCdaemon\fP].
+.TP
+\f(CWpasswdstr\fP
+An optional network password if set for the calling region at the remote site.
+(See:
+.IR netpasswd (8).)
+.TP
+\f(CWport\fP
+Needed if there is no file equivalent to `\f(CW/etc/services\fP'
+to select the port from the server name.
+.TP
+\f(CWserver\fP
+The name of the IP server used to select a port (eg: \f(CWmhsnet\fP).
+.TP
+\f(CWservice\fP
+Either \f(CWtcp\fP or \f(CWudp\fP.
+.TP
+\f(CWsource\fP
+Needed if there is more than one local IP address (for multiple networks).
+.TP
+\f(CWtarget\fP
+The IP name of the remote site.
+.PD
+.PP
+For \s-1IP\s0 type connections,
+suitable entries should be made in the `/etc/services' file:
+.PP
+.RS
+.nf
+.ft CW
+mhsnet 1988/udp # \*(S4 connections
+mhsnet 1989/tcp # \*(S4 connections
+.ft
+.fi
+.RE
+.PP
+Note that if the \s-1IP\s0 name of the local site is different from
+its \*(S4 address, then the remote site must install an alias for
+the \s-1IP\s0 name to `map' it to the \*(S4 address.
+See the `map' command in
+.IR netstate (8).
+.SS login.cs
+This is a call-script for starting links to directly connected sites,
+eg: a direct RS-232 connection with a
+.IR login .
+It imports the following parameters:
+.PP
+.PD 0
+.TP "\w'\f(CWremotedmnargsXX\fP'u"
+\f(CWlinespeed\fP
+Speed for device interface.
+.TP
+\f(CWloginstr\fP
+The login name at the remote site.
+.TP
+\f(CWpasswdstr\fP
+An optional password required by the remote login account.
+.TP
+\f(CWttydevice\fP
+The special device attached to the remote site.
+.PD
+.SS tty.cs
+This is a call-script for starting links to directly connected sites,
+eg: a direct RS-232 connection without a
+.IR login .
+The same script must be run from the other end to start the companion transport daemon.
+It imports the following parameters:
+.PP
+.PD 0
+.TP "\w'\f(CWremotedmnargsXX\fP'u"
+\f(CWlinespeed\fP
+Speed for device interface.
+.TP
+\f(CWttydevice\fP
+The special device attached to the remote site.
+.PD
+.SS x25.cs
+This is a call-script for making connections via an X.25 service.
+It imports the following parameters:
+.PP
+.PD 0
+.TP "\w'\f(CWremotedmnargsXX\fP'u"
+\f(CWaddress\fP
+X.25 address for remote node.
+.TP
+\f(CWcontroller\fP
+X.25 controller number [default 0].
+.TP
+\f(CWhome\fP
+Local node name.
+.TP
+\f(CWline\fP
+X.25 controller line number [default 0].
+.PD
+.SS udial.cs
+This script uses the
+.IR dial (3)
+C library routine to establish a \s-1UUCP\s0 style connection.
+This should be entirely compatible with
+.IR cu (1),
+.IR uucp (1)
+etc.
+The success of this call will depend on
+the configuration files for \s-1UUCP\s0,
+located in
+.if t \f(CW/usr/lib/uucp\fP.
+.if n `/usr/lib/uucp'.
+In particular
+.if t \f(CWL-devices\fP
+.if n `L-devices'
+(`Devices' and `Callers' in Honey-Dan-Ber \s-1UUCP\s0)
+needs to be set up to describe the autocall units and direct lines to be used.
+The script imports the following parameters:
+.PP
+.PD 0
+.TP "\w'\f(CWremotedmnargsXX\fP'u"
+\f(CWlinespeed\fP
+Speed for device interface.
+.TP
+\f(CWloginstr\fP
+The login name at the remote site.
+.TP
+\f(CWpasswdstr\fP
+An optional password required by the remote login account.
+.TP
+\f(CWtelno\fP
+The telephone number used to connect to the remote site.
+.PD
+.if \n(S3 \{\
+.SH "SUN III CONNECTIONS"
+Call scripts are provided for making calls to sites
+running the old version of the software,
+which can be identified by the fact that they all end in
+.if n `\&...3.cs'.
+.if t \f(CW\&...3.cs\fP.
+They take the same parameters as their equivalent script above,
+except for
+.if n `udp3.cs'
+.if t \f(CWudp3.cs\fP
+which is specific to using
+.if n `ENdaemon'
+.if t \f(CWENdaemon\fP
+over \s-1UDP/IP\s0 connections,
+and
+.if n `tcp3.cs'
+.if t \f(CWtcp3.cs\fP
+which is specific to using
+.if n `NNdaemon'
+.if t \f(CWNNdaemon\fP
+or
+.if n `PNdaemon'
+.if t \f(CWPNdaemon\fP
+over \s-1TCP/IP\s0 connections.
+.PP
+Note that the \s-1SUN III\s0 software
+cannot manage transport daemon parameter negotiation,
+so that any non-default transport daemon parameters must be pre-set in a
+.if t \f(CWparams\fP
+.if n `params'
+file at the called site.
+.PP
+For \s-1IP\s0 type connections,
+suitable entries should be made in the `/etc/services' file:
+.PP
+.RS
+.nf
+.ft CW
+acsnet 1986/udp # \s-1SUN III UDP\s0 connections
+acsnet 1986/tcp # \s-1SUN III TCP\s0 connections
+.ft
+.fi
+.RE\}
+.SH "AUTO-CALL LINKS"
+You may arrange for a connection to a link to be established automatically
+by setting the
+.I call
+flag for a link with the
+.I flag
+command to
+.IR netstate (8).
+This will cause the routing program to initiate the call
+whenever a message is spooled for the link
+and there is no active transport daemon.
+The router's default action will be to invoke 
+.IR netcontrol (8)
+to start a call for the link using the arguments:
+.if t \f(CWstart \fP\fIlink\fP
+.if n `start <link>'
+where
+.I link
+is the type-less name of the link.
+Alternatively,
+you may install a special call-script under the name
+.if t \f(CWcall\fP
+.if n `call'
+in the link's spooling directory,
+which will be passed to \*(S3 via the \fB-S\fP flag.
+A third possibility is to specify an alternate calling program via
+.IR netstate 's
+.I caller
+command.
+.SH PARAMETERS
+On starting,
+\*(S3 reads the parameter file `_params/daemon'.
+This file can contain the following optional parameters:
+.TP 4
+.SM NICEDAEMON
+The
+.IR nice (2)
+value for the transport daemon
+[default: system dependant].
+.TP
+.SM UUCPLCKDIR
+The place to create lockfiles
+[default: system dependant].
+.TP 4
+.SM UUCPLCKPRE
+The pre-fix used for lockfiles in
+.SM UUCPLCKDIR
+[default: `LCK..'].
+.TP
+.SM UUCPLOCKS
+Set this to \fB1\fP to cause \*(S3 to activate 
+.SM UUCP
+locking in response to the
+.if t \f(CWuucplock\fP.
+.if n `uucplock'.
+function.
+\fB0\fP turns off locking [default: \fB1\fP].
+.TP
+.SM UUCPLOWERDEV
+Set this to \fB1\fP if `uucp' lock files
+must have the last char of the `tty' name forced to lower-case,
+common in SCO versions where `tty' names have an upper-case char
+to indicate dial-out copy of a modem line,
+[default: system dependant].
+.TP
+.SM UUCPMLOCKDEV
+Set this to \fB1\fP if `uucp' lock files
+are named after the major/minor device numbers,
+rather than the `tty' name in `/dev',
+[default: system dependant].
+.TP
+.SM UUCPSTRPID
+Set this to \fB1\fP if lockfiles contain the `pid'
+as a string rather than a binary integer
+[default: system dependant].
+.TP
+.SM VCDAEMON
+The name of the default transport daemon
+[default:
+.if t \f(CWSPOOLDIR/_lib/VCdaemon\fP].
+.if n `SPOOLDIR/_lib/VCdaemon'].
+.SH FILES
+.PD 0
+.TP "\w'\fIlinkdir\fP/cmds/lockXX'u"
+_call
+Default directory searched for call scripts.
+.TP
+_call/*.cs
+Call scripts.
+.TP
+_call/call*
+Shell programs to invoke \*(S3 with parameters appropriate to various types of connection.
+(See
+.IR netcallers (8).)
+.TP
+_call/callprog
+Optional default shell program.
+.TP
+_call/log
+Every call writes one final status line to this file.
+.TP
+_lib/VCdaemon
+Default
+.I virtual-circuit
+message transport daemon.
+.TP
+_state/routefile
+Routing tables for resolving addresses.
+.TP
+\fIlinkdir\fP/call
+Default
+.I call-script
+for circuit establishment.
+.TP
+\fIlinkdir\fP/callprog
+Optional shell program.
+.TP
+\fIlinkdir\fP/cmds/lock
+Lockfile established to prevent simultaneous calls for this link.
+.TP
+\fIlinkdir\fP/params
+Optional parameters for message transport daemon.
+.TP
+_params/daemon
+Alternate parameters for the message transport daemon.
+.PD
+.SH BUGS
+\*(S2 runs as `root',
+so it is not possible to use 
+.I netcontrol
+to inform
+.I netinit
+(which runs with the network id)
+to stop a call while \*(S3 is active.
+Instead use
+.if n `netcontrol status'
+.if t \f(CWnetcontrol status\fP
+to find the process id, and then use
+.if n `kill <pid>'
+.if t \f(CWkill \fP\fIpid\fP
+to terminate it.
+.SH "SEE ALSO"
+.IR sh (1),
+.IR stty (1),
+.IR \*(S5 (7),
+.IR netcallers (8),
+.IR netcontrol (8),
+.IR netdaemon (8),
+.IR netinit (8),
+.IR netpasswd (8),
+.IR netshell (8),
+.IR netstate (8).
+.SH DIAGNOSTICS
+.if n .ds tw 4
+.if t .ds tw \w'device\ name\ not\ specified\ in\ openX'u
+.TP "\*(tw"
+attempt to write null string
+The
+.I write
+command was called with an empty string.
+.TP
+Can't "execdaemon" with locked device
+An attempt has been made to use the
+.I execdaemon
+command while the circuit device is still locked.
+This means there would be no way to unlock the device when the call terminates.
+Use
+.I forkdaemon
+instead.
+.TP
+cannot compile pattern
+An irregular expression has been passed as a pattern to the
+.I expect
+or
+.I match
+commands.
+.TP
+Could not bind
+The 
+.IR bind (2)
+system call returned the error shown.
+.TP
+Could not connect
+The 
+.IR connect (2)
+system call returned the error shown.
+.TP
+could not find IP address for:
+The 
+.IR gethostbyname (3)
+library routine returned the error shown.
+.TP
+could not find my inet address
+The
+.SM EXCELAN
+routine
+.IR rhost (3)
+returned an error.
+.TP
+Could not gethostname
+The
+.IR gethostname (3)
+subroutine returned the error shown.
+.TP
+Could not getsockname
+The
+.IR getsockname (3)
+subroutine returned the error shown.
+.TP
+Could not recvfrom
+The
+.IR recvfrom (2)
+system call returned the error shown.
+.TP
+Could not sendto
+The
+.IR sendto (2)
+system call returned the error shown.
+.TP
+Could not socket
+The
+.IR socket (2)
+system call returned the error shown.
+.TP
+daemon mode?
+Null parameter passed to the
+.I mode
+command.
+.TP
+daemon name?
+Null parameter passed to the
+.I daemon
+command.
+.TP
+device control?
+Null parameter passed to the
+.I device
+command.
+.TP
+device name not specified in open
+Null parameter passed to the
+.I open
+command.
+.TP
+device not open
+A device command has been issued when there is no open device.
+.TP
+device already open
+An second open command has been issued before a close.
+.TP
+file descriptor number?
+The file descriptor parameter for the 
+.I fd
+device must be between 0 and 9.
+.TP
+home address?
+The X.25 device needs the `home' address specified in the third argument.
+.TP
+line speed?
+The 
+.I udial
+device needs a line speed as the second parameter.
+.TP
+No permission
+The invoker does not have `network super-user' privileges.
+.TP
+no strings specified
+A command needing parameters has been invoked with none.
+.TP
+phone number?
+The 
+.I udial
+device needs a phone number as the first parameter.
+.TP
+recvfrom() timed out
+The remote end of a
+.SM UDP/IP
+circuit didn't respond
+to the circuit setup request within the interval set by a
+.I timeout
+command.
+.TP
+retries must be >= 0
+The
+.I retry
+command requires a positive integer
+.TP
+Service not available
+The `udp' or `tcp' device type isn't available.
+.TP
+sleep period is 0
+The 
+.I sleep
+command requires a positive integer.
+.TP
+too few parameters for "shift"
+The
+.I shift
+command needs at least three parameters.
+.TP
+unknown service:
+The
+.IR getservbyname (3)
+routine returned an error for the parameters shown.
+.PP
+Other errors are those returned by sub-processes,
+eg:
+.IR netdaemon (8).

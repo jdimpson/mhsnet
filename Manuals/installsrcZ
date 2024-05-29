@@ -1,0 +1,42 @@
+#!/bin/sh
+
+case "$ISPOOLDIR" in
+'')	ISPOOLDIR=/usr/spool/MHSnet	;;
+esac
+
+STRIP=
+case $0 in
+*s)	STRIP=STRIP=1			;;
+esac
+
+case "$SUN3" in
+'')	SUN3=				;;
+*)	SUN3=SUN3=$SUN3			;;
+esac
+
+COMPRESS=
+GZIP=
+PACK=
+case $0 in
+*Z|*Zs)		COMPRESS=COMPRESS=1	;;
+*gz|*gzs)	GZIP=GZIP=1		;;
+*z|*zs)		PACK=PACK=1		;;
+esac
+
+case "$CHGRP" in
+'')	CHGRP=chgrp	;;
+esac
+case "$CHMOD" in
+'')	CHMOD=chmod	;;
+esac
+case "$CHOWN" in
+'')	CHOWN=chown	;;
+esac
+
+make MANGROUPNAME=$NETGROUPNAME MANUSERNAME=$NETUSERNAME \
+	$COMPRESS $GZIP $PACK $STRIP $SUN3 \
+	INSDIR=$ISPOOLDIR/_man \
+	CHGRP=$CHGRP \
+	CHMOD=$CHMOD \
+	CHOWN=$CHOWN \
+	directories install

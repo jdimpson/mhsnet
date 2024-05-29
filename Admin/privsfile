@@ -1,0 +1,27 @@
+#
+#	Example "_lib/privsfile".
+#
+#	This is a comment line.
+#	(Note that empty lines are ignored.)
+
+*:	*	# Turn on everything for these:
+root:
+daemon:
+
+*:	-WORLD	# Following are network super-users:
+kre:
+bob:
+
+*:	-BROADCAST	# Mortals can't broadcast,
+	-OTHERHANDLERS	# use weird handlers,
+	-SU		# manipulate network messages,
+	@COUNTRY=au	# or send messages outside the country.
+tom:
+jane:	+OTHERHANDLERS	# (except for Jane,
+			# who is testing a new handler).
+
+#	Staff are restricted to particular networks.
+staff::	@PRMD=mhs\,PRMD=edu
+
+#	The rest may only receive or send within XYZ.
+*:	-*; SEND, RECEIVE, MULTICAST, @ORG=xyz

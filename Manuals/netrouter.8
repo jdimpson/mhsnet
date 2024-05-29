@@ -1,0 +1,330 @@
+.nr S3 1 \" 1 for ACSnet
+.ds S1 NETROUTER
+.ds S2 \fINetrouter\fP
+.ds S3 \fInetrouter\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 _lib/router
+.TH \*(S1 8 "\*(S4 1.22" \^
+.nh
+.SH NAME
+netrouter \- routing daemon for network messages
+.SH SYNOPSIS
+.BI \*(S6
+.RI [\- flags \|]
+.SH DESCRIPTION
+\*(S2
+is the routing daemon for network messages awaiting local delivery and/or onward transmission.
+Command files for these messages are placed in the routing daemon's command directory
+.if n `_route'
+.if t \f(CW_route\fP
+where \*(S3 processes them in lexicographic order.
+Each message has its header updated with transmission time and route,
+then its destination address is examined for actions.
+Matches with the local address cause local delivery to the handler named in the header.
+Unsatisfied addresses cause the message to be queued for onward transmission on each link
+lying on a route to one of the destinations.
+.PP
+If a sub-router has been specified for the handler for a message
+(see
+.IR nethandlers (5)),
+then the message is passed to a sub-router for asynchronous local delivery,
+otherwise it is delivered synchronously.
+In either case the message handler is started with an alarm scheduled after 1 hour (see
+.IR alarm (2),
+and \fB\-A\fP below).
+Handlers that expect to take a long time processing messages
+should be invoked from a sub-router,
+and handlers expecting to take more than 1 hour should cancel the alarm.
+.PP
+If a link
+.I filter
+has been specified for the link a message arrived on,
+or is about to depart on,
+then \*(S3 invokes the indicated filter in the directory
+.SM SPOOLDIR.
+Message handlers are also invoked in
+.SM SPOOLDIR,
+see
+.IR network (7)
+for further details on how these programs are invoked.
+.PP
+If a message is about to depart on a link marked
+.I auto-call
+then \*(S3 will start the call automatically.
+If a special
+.I caller
+program has been specified for the link,
+then that process will be invoked with appropriate parameters
+(see
+.IR network (7)).
+Alternatively, if a call program exists in the link's spool directory,
+then it will be passed to
+.IR netcall (8).
+If neither of the above conditions are true,
+then \*(S3's default action is to invoke
+.IR netcontrol (8)
+with the arguments:
+.if t \f(CWstart \fP\fIlinkname\fP
+.if n `start \fIlinkname\fP'
+where
+.I linkname
+is the full untyped name of the link.
+.PP
+\*(S2
+maintains a
+.I lock
+file in its command directory to prevent multiple invocations, and a
+.I log
+file to record significant events and error conditions.
+The
+.I lock
+file is also used by message senders to obtain a process \s-1ID\s0
+with which to signal \*(S3 when a new message is queued for routing.
+\*(S2 also scans the command directory periodically for new messages to process.
+.PP
+\*(S2 interprets some file names as commands.
+If \*(S3 encounters a file named
+.SM STOP
+in the routing directory,
+it will be unlinked and \*(S3 will terminate after the current scan
+\(em see 
+.IR netwindup (8).
+If \*(S3 encounters a file named
+.SM DROP
+in the routing directory,
+it will be unlinked and \*(S3 will ignore all broadcast state messages
+until either the routing queue becomes empty, or it encounters a file named
+.SM NODROP.
+Similarly
+.SM TRACE
+and
+.SM NOTRACE
+affect tracing (cf: \fB\-T\fP below).
+.PP
+The optional flags are:
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-M\fP\fI\ maxretsize\fPX'u
+.TP "\*(tw"
+.BI \-a
+Causes \*(S3 to return all messages with illegal addresses.
+Otherwise these messages are passed to `loophandler'.
+.TP
+.BI \-f
+Prevents \*(S3 from forking off a child on invocation to run in the background,
+and returning from the parent.
+This flag also causes \*(S3 to send its parent a
+.SM SIGTERM
+if it dies with an error
+(and the parent's process
+.SM ID
+is not 1).
+.TP
+.BI \-o
+Causes \*(S3 to make one pass of the routing directory, then exit.
+.TP
+.BI \-r
+Turns off the writing of non-essential reports to the log file.
+.TP
+.BI \-s
+Causes \*(S3 to become a
+.I sub-router
+running in the directory named by the \fBD\fP flag.
+Messages found there will be delivered to handlers,
+but not routed to further destinations.
+.TP
+.BI -x
+Turns off the writing of routing statistics to the log file.
+.TP
+.BI \-A \ seconds
+Change the alarm for child processes (including handlers)
+from the default [1 hour] to
+.IR seconds .
+.TP
+.BI \-B \ duration
+Limited duration router.
+\*(S2 will terminate as soon as queue has been empty for
+.I duration
+seconds.
+.TP
+.BI \-D \ directory
+Causes \*(S3 to use this directory instead of the default
+[\f(CW_route\fP].
+.TP
+.BI \-L \ loopcount
+This determines the maximum number of times
+a message can traverse a given link
+before being passed to the administration for intervention
+.ie \n(S3 [default: 2].
+.el [default: 3].
+.TP
+.BI \-M \ maxretsize
+Messages that are being returned to their origin with an error indication are truncated to
+.I maxretsize
+[default: 10000].
+.TP
+.BI \-N \ N
+Causes \*(S3 to run as
+.I parallel
+router number
+.IR N .
+If this flag is used for any, then it must be used for
+.BR all
+routers, each with a different
+.IR N ,
+and one of them must have \fB\-N1\fP.
+.I N
+value 0 is the same as 1.
+.TP
+.BI \-P \ pid
+Parent router process \s-1ID\s0 (\c
+.I sub-router
+only).
+.TP
+.BI \-Q " queue_size\fR[\fP" : "low\fR]\fP"
+Maximum size of the message routing queue before broadcast state messages are ignored
+[default: infinite].
+Broadcast state messages are processed again once the queue size falls to
+.I low
+[default: 0].
+.TP
+.BI \-R \ routefile
+An alternate name for the routing tables file
+[default: \f(CW_state/routefile\fP].
+.TP
+.BI \-S \ scanrate
+This alters the rate at which \*(S3 scans the routing directory for new messages
+[default: 60 seconds].
+.TP
+.BI \-T \fR[\fPlevel\fR]\fP
+Turns on tracing at
+.I level
+(default: 1).
+If tracing is not compiled in,
+this flag will have no effect.
+.TP
+.BI "\-?"
+Explain argument options and exit.
+.SH "PS LISTING"
+\*(S2
+alters its argument list to indicate current status.
+The result has three fields:
+program name, state, and current command-file / handler name if active.
+On BSD systems, the
+.IR ps (1)
+output shows the altered argument list.
+.SH FILES
+.PD 0
+.TP "\w'_stats/AccumulatedXX'u"
+_bad/*
+Messages awaiting operator intervention via
+.IR netbad (8).
+.TP
+_handlers/*
+Names of local handlers that messages can be addressed to.
+Messages addressed to any other handlers are returned to their source.
+.TP
+_lib/handlers
+This file is consulted periodically for legal handlers and their parameters.
+The handler parameter used by \*(S3 is
+.I nice
+which, if present, is used to indicate that a 
+.I sub-router
+should be started to process messages for this handler asynchronously.
+Handlers not mentioned here but existing in the
+.I handlers
+directory are invoked with the default
+.I nice
+value
+[\s-1NICEHANDLERS\s0].
+.TP
+_pending
+Directory where looping messages or messages with bad addresses are spooled.
+.TP
+_reroute
+Directory where messages awaiting re-routing are spooled.
+.TP
+_route/lock
+Lock file created by \*(S3 on startup to prevent multiple invocations.
+.TP
+_route/log
+Log file for special event messages from \*(S3.
+It needs to be truncated from time-to-time.
+.TP
+_route/[0-9]*
+Messages awaiting routing.
+.TP
+_route/\fIhandler\fP/*
+Messages queued for local delivery by a sub-router specific to this handler.
+.TP
+_route/DROP
+If a file with this name is encountered,
+\*(S3 will start to ignore all broadcast state messages until the routing queue becomes empty,
+or it encounters a file called
+.if t \f(CW_route/NODROP\fP.
+.if n `_route/NODROP'.
+.TP
+_route/NOTRACE
+If a file with this name is encountered,
+then it will be unlinked and the trace level (cf: \fB\-T\fP)
+will be set to 0.
+.TP
+_route/STOP
+If a file with this name is encountered,
+\*(S3 will make one further pass of the routing directory for messages to route,
+and then terminate after unlinking the file.
+See 
+.IR netwindup (8).
+.TP
+_route/TRACE
+If a file with this name is encountered,
+then it will be unlinked and the trace level (cf: \fB\-T\fP)
+will be increased by 1.
+However, if the file contains a string,
+it will be used to match the contents of each message header,
+(\s-1ID\s0, source, destination, or handler)
+and tracing will be increased by 3 levels during processing of matched messages.
+.TP
+_state/routefile
+Routing tables for resolving message addresses,
+and finding link details.
+.TP
+_stats/Accumulated
+\*(S2
+writes statistics for each message in this file, if it exists.
+.TP
+_work
+Directory for temporary files.
+.TP
+\fIlinkdir\fP/call
+Link-specific call script for
+.IR netcall (8).
+.TP
+\fIlinkdir\fP/cmds
+Directory for out-bound message command files.
+.TP
+\fIlinkdir\fP/out
+Directory for out-bound message data files.
+.PD
+.SH DIAGNOSTICS
+Serious errors cause \*(S3 to terminate after sending mail to
+.SM NCC_ADMIN.
+.PP
+Any message commands files that cause an error will be moved to the directory
+.if t \f(CW_bad\fP
+.if n `_bad'
+and the the program
+.if t \f(CWbadhandler\fP
+.if n `badhandler'
+invoked to send mail to
+.SM NCC_ADMIN.
+.SH "SEE ALSO"
+.IR netq (1),
+.IR nethandlers (5),
+.IR netparams (5),
+.IR \*(S5 (7),
+.IR netcall (8),
+.IR netchange (8),
+.IR netcontrol (8),
+.IR netinit (8),
+.IR netwindup (8).

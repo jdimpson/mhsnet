@@ -1,0 +1,462 @@
+
+
+
+User Commands                                          NETFILE(1)
+
+
+
+NNNNAAAAMMMMEEEE
+     netfile - send files via network
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     _n_e_t_f_i_l_e [-[aaaa][cccc]] [-NNNN _n_a_m_e]  _u_s_e_r_s[@@@@_d_e_s_t_i_n_a_t_i_o_n_s]  ...   [----]
+     [_f_i_l_e ...]
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_f_i_l_e inserts messages containing files into  the  network
+     to be transmitted to users at remote destinations.
+
+     Both _u_s_e_r_s and _d_e_s_t_i_n_a_t_i_o_n_s may be  comma  separated  lists,
+     together they are known as an _a_d_d_r_e_s_s.  An _a_d_d_r_e_s_s binds the
+     _u_s_e_r_s to the _d_e_s_t_i_n_a_t_i_o_n_s and causes the network to generate
+     the minimal number of message copies to deliver the files to
+     each of the users at the specified destinations.   There  is
+     no  limit  to  the  number of separate addresses that may be
+     specified, but note that  the  first  non-flag  argument  is
+     always  assumed  to be an address.  Subsequent arguments are
+     also assumed to be addresses if  they  contain  any  of  the
+     address  delimiters and don't exist as files.  The delimiter
+     `::::' may be used instead of `@@@@'.  A _d_e_s_t_i_n_a_t_i_o_n may  also  be
+     specified   as   ****...._d_e_s_t_i_n_a_t_i_o_n,   for   _b_r_o_a_d_c_a_s_t   routing,
+     _d_e_s_t_i_n_a_t_i_o_n!!!!_d_e_s_t_i_n_a_t_i_o_n...   for  _e_x_p_l_i_c_i_t  routing,  or  as
+     _d_e_s_t_i_n_a_t_i_o_n,,,,_d_e_s_t_i_n_a_t_i_o_n...   for _m_u_l_t_i_c_a_s_t routing, although
+     these modes may be restricted to privileged  users  at  some
+     sites.
+
+     Destinations  are  usually  the  names  of  regions  in  the
+     network,  where  a region consists of domain names separated
+     by  periods,  as  in  _d_o_m_a_i_n_1...._d_o_m_a_i_n_2...._d_o_m_a_i_n_3.   Where   the
+     destination  specifies  a single site, a period (`....') may be
+     used instead of an `@@@@' or  `::::'.   Region  addresses  may  be
+     shortened  to  exclude those domains which are common to the
+     origin and destination, and there  may  be  other  shorthand
+     forms  available  at  your  local  site  for  commonly  used
+     destinations - check with your  local  administration.   See
+     below for a full syntax for addresses.
+
+     On arrival, files are spooled for users to be collected  via
+     the command _n_e_t_g_e_t(1).
+
+     The optional parameters have meanings as follows:
+
+     ----aaaa  Requests that correct delivery of the  message  to  each
+         destination  be  acknowledged.   The sender will receive
+         the acknowledgement by mail.
+
+     ----cccc  Requests that _e_n_d-_t_o-_e_n_d data checking be performed.   A
+         CRC will be generated at the source, and checked at each
+         destination.  If there is any error, the sender will  be
+         notified by mail, and the message will not be delivered.
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+
+
+
+
+User Commands                                          NETFILE(1)
+
+
+
+     ----FFFF _n_a_m_e
+         _N_a_m_e will be interpreted explicitly as a file name.
+
+     ----NNNN _n_a_m_e
+         If _n_e_t_f_i_l_e is used as a filter, then this  flag  may  be
+         used  to  provide  a name for its input.  The default is
+         _s_t_d_i_n.  Otherwise, the next (or only) _f_i_l_e argument will
+         be re-named to _n_a_m_e.
+
+     ----   Data will be read from standard input at this point.
+
+     ----????  Explain argument options and exit.
+
+     If a _f_i_l_e argument is _n_u_l_l, it will cause an error,  but  if
+     it  is  the  name of a directory, it will be ignored after a
+     warning message.  If no files are specified,  data  will  be
+     read from _s_t_d_i_n.
+
+     To use _n_e_t_f_i_l_e, you must be validated  for  network  message
+     privileges  by  your  local  system  supervisor,  unless the
+     destination is  a `local' node.
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEESSSS
+     Send _f_i_l_e to _p_e_r_s_o_n at _r_e_g_i_o_n with end-to-end CRC check  and
+     a request for an acknowledgement of delivery:
+
+       netfile -ac person.region file
+
+     Send  some  program  sources  to  two  people  both  at  two
+     different sites:
+
+       netfile jill,tom@region1,region2 *.[ch]
+
+     Make up a _t_a_r file and send it  to  two  people  each  at  a
+     different site:
+
+       tar cf - * |
+       netfile jill@region1 tom@region2 -N tar
+
+SSSSYYYYSSSSTTTTEEEEMMMM OOOOPPPPTTTTIIIIOOOONNNNSSSS
+     There are other flags primarily for use  by  programs  using
+     _n_e_t_f_i_l_e to pump messages into the network:
+
+     ----dddd  Prevents this  message  from  triggering  the  auto-call
+         mechanism if present.
+
+     ----iiii  Causes _n_e_t_f_i_l_e  to  ignore  syntax  errors  in  multiple
+         addresses,  provided  at  least  one of the addresses is
+         correct.
+
+     ----mmmm  Messages over a  certain  size  (normally  set  by  site
+         administrators  to  be  2  megabytes),  are  split  into
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    2
+
+
+
+
+
+
+User Commands                                          NETFILE(1)
+
+
+
+         multiple smaller messages that are sent individually and
+         re-assembled  at the destination.  This doesn't occur if
+         the destination is directly connected to the origin,  or
+         if  this  flag  is  used.  Only works for network _s_u_p_e_r-
+         _u_s_e_r_s.
+
+     ----nnnn  Prevents the message  receiving  handler  notifying  the
+         recipient(s) via mail.
+
+     ----oooo  Turns off message queueing optimization by  size.   This
+         message  will  instead  be  sent  as  though it were the
+         largest in its priority group.
+
+     ----qqqq  Report the unique message ID generated on _s_t_d_o_u_t.
+
+     ----rrrr  Requests that errors at destinations should be  ignored,
+         otherwise  any  error  causes  the  whole  message to be
+         returned with an explanation.
+
+     ----ssss  Don't issue warnings on stderr.
+
+     ----uuuu  Stops the usage message from being produced on _s_t_d_e_r_r if
+         there is any argument error.
+
+     ----xxxx  Set  reverse  charging  for  message.   Only  works  for
+         network _s_u_p_e_r-_u_s_e_r_s.
+
+     ----AAAA _h_a_n_d_l_e_r
+         The  message  will  be  passed   to   _h_a_n_d_l_e_r   at   the
+         destination.  Standard file transfer handlers are: _f_i_l_e_r
+         (the  default),  _m_a_i_l_e_r,  and  _p_r_i_n_t_e_r.   If  any  other
+         handler  is  named,  it  must  be  registered  for  file
+         transfer protocol  (see  _n_e_t_h_a_n_d_l_e_r_s(5)),  and  it  must
+         exist  at both source and destination unless the ----rrrr flag
+         is used, or the invoker has OTHERHANDLERS permission, in
+         which  case  it need only exist at the destination.  The
+         use of non-standard handlers is normally  restricted  to
+         users with special network privileges.
+
+     ----BBBB _a_d_d_r_e_s_s
+         An explicit way of specifying an address.
+
+     ----DDDD _d_e_s_t_i_n_a_t_i_o_n
+         An explicit way of specifying a destination list.
+
+     ----EEEE _f_l_a_g_s
+         The string will be made available to the handler at  the
+         destination   as   the   header   environment   variable
+         ENV_FLAGS. Note that if the _f_l_a_g_s start with  `-',  then
+         there must be no space after ----EEEE.
+
+     ----IIII _I_D
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    3
+
+
+
+
+
+
+User Commands                                          NETFILE(1)
+
+
+
+         Insert  a  message  ID  into  the  environment  variable
+         ENV_ID.
+
+     ----MMMM _s_i_z_e
+         Large messages will be split into  parts  not  exceeding
+         this  size.   _S_i_z_e must be in the range 8192 to 2097152,
+         unless the invoker has special network privileges.
+
+     ----NNNN _n_a_m_e
+         The name of the first file in the  message  will  become
+         _n_a_m_e.
+
+     ----OOOO[_o_r_i_g_i_n]
+         Renames the source of the message  to  be  _o_r_i_g_i_n  which
+         must  be  a  legal  address, unless the flag ----rrrr is used.
+         Note that _o_r_i_g_i_n, if present, may not be preceded  by  a
+         space.   This  flag  is restricted to the network _s_u_p_e_r-
+         _u_s_e_r.
+
+     ----PPPP _p_r_i_o_r_i_t_y
+         Set the message priority in the range `1' (high) to  `9'
+         (low).   Normal  message  priorities  are  determined by
+         message  size,  with  smaller  messages  having   higher
+         priority.  Messages with priorities greater than `4' are
+         routed via the cheapest route, other messages taking the
+         fastest  route.   Non-privileged  users  may  only lower
+         their message's priority.
+
+     ----QQQQ _a_d_d_r_e_s_s
+         Specifies   a   restricted   address   of    the    form
+         _u_s_e_r@@@@_d_e_s_t_l_i_s_t.
+
+     ----RRRR[_a_d_d_r_e_s_s]
+         Specifies a source address of the form  _s_e_n_d_e_r[[[[@@@@_s_o_u_r_c_e]]]]....
+         Renames  the sender of the message to be _s_e_n_d_e_r.  If the
+         @@@@_s_o_u_r_c_e part is present,  the  source  address  is  also
+         changed,  as  for  the  ----OOOO flag.  _S_o_u_r_c_e must be a legal
+         address, unless the flag ----rrrr is used.  Note that  _s_e_n_d_e_r,
+         if  present,  may not be preceded by a space.  This flag
+         is restricted to the network _s_u_p_e_r-_u_s_e_r.
+
+     ----SSSS[_s_e_n_d_e_r]
+         Renames the sender of the message to  be  _s_e_n_d_e_r.   Note
+         that _s_e_n_d_e_r, if present, may not be preceded by a space.
+         This flag  is  restricted  to  the  network  _s_u_p_e_r-_u_s_e_r.
+         Super-users  (_u_i_d  == 0) may inform _n_e_t_f_i_l_e what name to
+         use as the message sender (instead of `root') by setting
+         one   of   the   environment   variables   LNAME=_s_e_n_d_e_r,
+         LOGNAME=_s_e_n_d_e_r, or USER=_s_e_n_d_e_r.
+
+     ----TTTT[_l_e_v_e_l]
+         Turns on tracing at _l_e_v_e_l (default: 1).  If  tracing  is
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    4
+
+
+
+
+
+
+User Commands                                          NETFILE(1)
+
+
+
+         not compiled in, this flag will have no effect.
+
+     ----UUUU _u_s_e_r
+         An explicit way of specifying a single _u_s_e_r.
+
+     ----VVVV _p_r_i_v-_u_s_e_r
+         Informs _n_e_t_f_i_l_e to use _p_r_i_v-_u_s_e_r rather than the invoker
+         to  calculate  the  network  permissions  for  following
+         arguments.  This  flag  is  restricted  to  the  network
+         _s_u_p_e_r-_u_s_e_r.
+
+     ----XXXX _f_i_l_e
+         The file named will  be  transmitted  _i_n-_p_l_a_c_e  (without
+         being  copied  first).  If the file is on the same file-
+         system as MHSnet, then it will be linked into the  spool
+         area, othwerise it will be referenced directly (in which
+         case it musn't be removed until  the  message  has  been
+         transmitted).  CCCCaaaavvvveeeeaaaatttt: the file name must be a full path
+         name; the file must be readable by the message transport
+         system   (ie:   it  should  probably  have  public  read
+         permission).
+
+     ----YYYY _t_r_a_v_e_l-_t_i_m_e
+         Specifies that the message has already  been  travelling
+         for  _t_r_a_v_e_l-_t_i_m_e  seconds.  Useful for messages arriving
+         from gateways.
+
+     ----ZZZZ _t_i_m_e-_t_o-_d_i_e
+         The message will be discarded on any route  which  takes
+         more than _t_i_m_e-_t_o-_d_i_e seconds before delivery.
+
+     If a destination is specified, but no user, then the message
+     is sent to the person with the same name as the invoker.
+
+AAAADDDDDDDDRRRREEEESSSSSSSSEEEESSSS
+     The full syntax for an address is:
+
+       address   ::= userlist{<@@@@>|<::::>|<....>}destlist
+       userlist  ::= <user>[<,,,,><user>...]
+       destlist  ::= multicast|explicit|broadcast|dest
+       multicast ::=                 {explicit|broadcast|dest}<,,,,>
+                 {explicit|broadcast|dest}...
+       explicit  ::= {broadcast|dest}<!!!!>{broadcast|dest}...
+       broadcast ::= <****><....>dest
+       dest      ::= <alias>|domain[<....>domain...]
+       domain    ::= [<type><====>]<domain_name>
+
+     NB: the only safe way to include an arcane  foreign  network
+     address  within  a user's address is to use a single ----UUUU flag
+     followed by a single ----DDDD flag, eg:
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    5
+
+
+
+
+
+
+User Commands                                          NETFILE(1)
+
+
+
+       -U 'node1!person@node2.ARPA:node3,node4' \
+       -D destination
+
+     On the other hand, if you can guarantee that the  string  is
+     terminated  with  a  legal destination, and you wish to take
+     advantage of the multi-cast addressing for a single message,
+     then you should use a series of ----QQQQ flags, eg:
+
+       -Q 'node1!person@node2.ARPA:node3,node4@destination'
+
+SSSSYYYYSSSSTTTTEEEEMMMM EEEEXXXXAAAAMMMMPPPPLLLLEEEESSSS
+     Send  a  message  containing  mail  from  `jill'  at  _s_o_u_r_c_e
+     (perhaps  the  _s_i_t_e-_n_a_m_e  of  the  originating computer), to
+     `tom' at _d_e_s_t, at a fixed priority (these  parameters  could
+     be used by a mail program to send network mail):
+
+     ... | netfile -oP3 -Amailer -NMail -Qtom@dest -Rjill@source
+
+     Backup a small file system:
+
+       umount /dev/fs; chown daemon /dev/rfs
+       netfile backups@region -X /dev/rfs
+
+FFFFIIIILLLLEEEESSSS
+     _lib/handlers    Names  of  registered  handlers  and  their
+                      protocols (see _n_e_t_h_a_n_d_l_e_r_s(5)).
+     _lib/localnodes  Optional list  of  legal  sites  for  users
+                      without explicit network validation.
+     _lib/printsites  Legal destinations for print jobs.
+     _lib/privsfile   Privileges   for   network    users    (see
+                      _n_e_t_p_r_i_v_s(5)).
+     _route/*         Message description commands for routing.
+     _state/routefile Routing tables for resolving addresses.
+     _work/*          Spooled messages.
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _n_e_t_f_e_t_c_h(1), _n_e_t_g_e_t(1), _n_e_t_p_r_i_v_s(1), _t_a_r(1), _n_e_t_h_a_n_d_l_e_r_s(5),
+     _n_e_t_p_r_i_v_s(5).  _n_e_t_w_o_r_k(7), _n_e_t_h_a_n_d_l_e_r_s(8), _n_e_t_m_s_g(8).
+
+DDDDIIIIAAAAGGGGNNNNOOOOSSSSTTTTIIIICCCCSSSS
+     Most diagnostics indicate that you were attempting something
+     illegal, so consult the local network supervisor for further
+     advice.
+
+     illegal <message> site
+         The network doesn't believe that  the  selected  message
+         type  can  be  serviced  at the destination named.  This
+         information  is  obtained  from  the  optional   address
+         validation    list    in    the   _h_a_n_d_l_e_r_s   file   (see
+         _n_e_t_h_a_n_d_l_e_r_s(8)).
+
+     illegal handler
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    6
+
+
+
+
+
+
+User Commands                                          NETFILE(1)
+
+
+
+         You have used the ----AAAA flag and the requested  handler  is
+         registered  for  a different protocol, or you don't have
+         permission to  use  this  handler,  or  the  handler  is
+         unregistered and you haven't specified ----rrrr.
+
+     illegal user format
+         The invoker has an address restriction, and the  address
+         shown contains illegal characters (`@' or `%').
+
+     No file specified, reading standard input...
+         The first address  supplied  is  also  the  name  of  an
+         existing  file.   (Try prefixing the address with ----BBBB, or
+         using ----uuuu.)
+
+     no permission
+         You aren't validated to use the network,  or  to  use  a
+         privileged network option.  This information is obtained
+         from the optional user network privileges  list  in  the
+         _n_e_t_p_r_i_v_s file (see _n_e_t_p_r_i_v_s(1)).
+
+     no routefile
+         _N_e_t_f_i_l_e was unable  to  read  the  routing  tables  into
+         memory.
+
+     not enough space
+         The file system holding the network spool area  has  too
+         little  space  left to spool another message.  Try again
+         later (or try the ----XXXX flag).
+
+BBBBUUUUGGGGSSSS
+     Because of the semantics of non-flag address arguments, if a
+     file  name  containing  any  of the legal address separators
+     appears immediately after a legal  address,  but  the  named
+     file  doesn't  exist, then _n_e_t_f_i_l_e will attempt to interpret
+     the name as an address.  Use of the  ----FFFF  flag  for  filename
+     arguments avoids this problem.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    7
+
+
+

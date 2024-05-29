@@ -1,0 +1,62 @@
+.ds S1 NETCHECKQ
+.ds S2 \fINetcheckq\fP
+.ds S3 \fInetcheckq\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 netcheckq
+.TH \*(S1 8 "\*(S4 1.2" \^
+.nh
+.SH NAME
+netcheckq \- check queue and start call if non-empty
+.SH SYNOPSIS
+.BI \*(S6
+.RB [ \-m ]
+.IR link \ ...
+.SH DESCRIPTION
+\*(S2
+checks the message queue for each
+.IR link ,
+and for each inactive queue that contains
+.I mail
+or
+.I file
+messages,
+initiates a call.
+The optional argument
+.B \-m
+causes mail to be sent to
+.SM NCC_ADMIN
+instead of starting a call.
+.PP
+\*(S2 uses
+.IR netq (1)
+to search the queues,
+and
+.IR netcontrol (8)
+to start each call.
+.PP
+\*(S2 is a shell-script,
+so can be easily modified to change the search criteria.
+.SH EXAMPLES
+An entry for
+.if t \f(CWinitfile\fP
+.if n `initfile'
+that checks the queues for `link1' and `link2' every 15 minutes:
+.PP
+.RS 2
+.ft CW
+check-queue	"15 * * * *"	_bin/\*(S6 link1 link2
+.RE
+.SH FILES
+.PD 0
+.TP "\w'_lib/initfileXX'u"
+_lib/initfile
+Description of network processes to be run by
+.IR netinit (8).
+.PD
+.SH "SEE ALSO"
+.IR netmail (1),
+.IR netq (1),
+.IR netcontrol (8),
+.IR netinit (8),
+.IR netparams (8).

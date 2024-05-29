@@ -1,0 +1,91 @@
+.ds S1 CUT
+.ds S2 \fICut\fP
+.ds S3 \fIcut\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 cut
+.TH \*(S1 1 "\*(S4 1.3" \^
+.nh
+.SH NAME
+cut \- cut columns from data
+.SH SYNOPSIS
+.BI \*(S6
+.RB [\-[ n ][ s ]]
+.RB [\- c\c
+.IR cols ]
+.BR | [\- f\c
+.IR fields ]
+.BI [ file \ ...]
+.SH DESCRIPTION
+\*(S2
+selects fields from each line of the input files [default:
+.IR stdin ].
+The fields can be selected by character position (\fB\-c\fP),
+or be delimited by separator characters (\fB\-f\fP),
+\(em but not both.
+.P
+Field positions are specified by comma-separated lists of inclusive ranges,
+(either a single position, or two positions separated by `\-'),
+with values from `0' through `\fB$\fP'.
+The ranges need not be specified in order, but it is an error to have overlapping ranges.
+Eg: 0,3-5,$ \(em which selects the first, the fourth through sixth, and the last field.
+.P
+The optional parameters have meanings as follows:
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-c\fP[\fIcount\fP]X'u
+.TP "\*(tw"
+.BI \-c \fR[\fPlist\fR]\fP
+Puts \*(S3 into 
+.I column
+mode, and selects the given columns.
+.TP
+.BI \-d chars
+Sets the delimiter characters for
+.I field
+mode.
+Fields are separated by contiguous bytes from
+.IR chars .
+The first byte of
+.I chars
+is used for the output field separator,
+unless the \fB\-n\fP option has been chosen.
+[Default: `<space><tab>']
+.TP
+.BI \-f \fR[\fPlist\fR]\fP
+Puts \*(S3 into 
+.I field
+mode, and selects the given fields.
+.TP
+.BI \-n
+Turns off empty line removal.
+Otherwise empty lines are squeezed out.
+.TP
+.BI \-s
+Turns off multi-separator squeezing and treats each separator as starting a new field.
+Otherwise contiguous separator characters are treated as one and replaced by the first separator on output.
+.TP
+.BI \-t char
+Set a single separator character.
+(Overrides \fB\-d\fP above.)
+.SH EXAMPLES
+Select login names and uids:
+.PP
+.RS 2
+.ft CW
+.nf
+\*(S6 -t: -f0,2 /etc/passwd
+.fi
+.ft
+.RE
+.PP
+Kill all processes belonging to a user:
+.PP
+.RS 2
+.ft CW
+.nf
+kill -9 `ps -ef | grep <user> | \*(S6 -f2` # SYS5
+.br
+kill -9 `ps -aux | grep <user> | \*(S6 -f1` # BSD
+.fi
+.ft
+.RE

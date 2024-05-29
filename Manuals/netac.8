@@ -1,0 +1,69 @@
+.ds S1 NETAC
+.ds S2 \fINetac\fP
+.ds S3 \fInetac\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 _bin/netac
+.TH \*(S1 8 "\*(S4 1.5" \^
+.nh
+.SH NAME
+netac \- network transport daemon accounting
+.SH SYNOPSIS
+.BI \*(S6
+.RI [\- flags ]
+.IR link
+.BI [ "log ..." ]
+.SH DESCRIPTION
+\*(S2
+is a shell program that searches transport daemon logs
+for connection statistics and summaries them.
+The first argument names the link to be summarised,
+further arguments name log files in the link's despooling directory [default: `log'].
+.PP
+The flags are as follows:
+.PP
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-k\fP \fIkbytes\fPX'u
+.TP "\*(tw"
+.BI \-f " file"
+Take statistics from an alternate file.
+If 
+.I file
+is `\-', then read from
+.IR stdin .
+.TP
+.BI \-k " kbytes"
+Selects only those connections that transferred more than 
+.I kbytes
+thousand bytes.
+.TP
+.BI \-m " mins"
+Selects only those connections that lasted more than
+.I mins
+minutes.
+.TP
+.BI \-r
+Causes a throughput rate to be calculated for the total time logged.
+.SH EXAMPLE
+Print connection statistics from all log files for link to `tmx.mhs.oz.au':
+.RS 2
+.ft CW
+.ps -2
+.nf
+netac -r tmx.mhs.oz.au '*log'
+.fi
+.ps
+.ft
+.RE
+.ne 3
+.SH FILES
+.PD 0
+.TP "\w'<link>/*logXX'u"
+\fIlink\fP/*log
+Log files for current and previous connections.
+.PD
+.SH "SEE ALSO"
+.IR \*(S5 (7),
+.IR netcac (8),
+.IR netdaemon (8),
+.IR netstatspr (8).

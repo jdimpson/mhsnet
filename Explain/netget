@@ -1,0 +1,20 @@
+
+	-1	Only get first file (with same name as argument.)
+	-a	Select files for all users (sort by user) (network super-user only.)
+	-b	Truncate all files names to last part.
+	-c	Check data CRC if present.
+	-d	Create directories as needed.
+	-e	Sort files by delivery time.
+	-f	Set (unset) file forwarding for invoker.
+	-k	Keep files.
+	-l	List files and exit.
+	-m	Sort files by modify time (default.)
+	-n	Sort files by name.
+	-o	Write files to standard output.
+	-r	Reverse sort order.
+	-s	Silent.
+	-t	Sort files by transmit time.
+	-u	Don't reset modify time of files.
+	-v	Verbose.
+	-x	Report number of files found in exit status.
+	-y	Assume answer `yes' to questions.

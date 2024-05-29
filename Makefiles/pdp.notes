@@ -1,0 +1,45 @@
+From daved@physiol.physiol.su.oz Tue May 16 12:22:10 1989
+Received: by physiol.su.oz (5.51/4.7)
+	id AA20857; Tue, 16 May 89 12:25:41 +1000
+Date: Tue, 16 May 89 12:25:41 +1000
+From: daved (Dave Davey)
+Message-Id: <8905160225.AA20857@physiol.su.oz>
+To: piers@cluster.cs
+Subject: MHS
+
+I've just spent a few minutes cleaning up our mhs sources.
+I've solved the three major pdp compilation problems as follows:
+	1. long identifiers:
+		Include/global.h includes Include/shortnames.h if SHORTNAMES
+		is defined througn CONFIG.
+	2. Compiler rejecting AddCmd(A,B,(C=d, E)):
+		changed the make .c.o rule to do a sed on $*.c > x.c etc.
+	3. map text size too long:
+		created a pdp.mk makefile for state and route parts of map
+		that uses cpp to leave out appropriate functions, without
+		touching map.c
+
+In other words, I think I can now compile mhs for the pdp without touching
+your source, except for the following proposals.
+
+I'd like to propose that the top Makefile contain provision for a macro
+to denote a target machine (I used TARGET which I can set to pdp11), for
+those cases where the sources are being compiled on a cpu other than the
+one on which they will be installed.  I anticipate we will eventually do
+the same thing for the APC-IV's.  $(TARGET) can be tested in two critical
+places:
+	1. Makefiles/Site
+		if TARGET is not null, the output of the test programs
+		must be imported from the target.  I called this output
+		*-test.$(TARGET),  and can supply you with a revised script
+		that gives output to the effect "you must run ... on a $TARGET
+		and install the output as Makefiles/....$(TARGET).
+		(I'll send it to you in any case).
+	2. Control/Makefile to call make with the pdp map makefile if
+		applicable.
+In addition:
+	3. Makefile
+		provide a mechanism for an additional makefile to contain
+		the .c.o definition that could be passed to make as a -f
+		argument for the SOURCES makes.  I have not done this
+		but it would be easy.

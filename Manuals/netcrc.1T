@@ -1,0 +1,66 @@
+
+
+
+User Commands                                           NETCRC(1)
+
+
+
+NNNNAAAAMMMMEEEE
+     netcrc - print 32-bit CRC of data in file(s)
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     nnnneeeettttccccrrrrcccc [-[aaaa][bbbb][oooo][xxxx]] [----] [_f_i_l_e ...]
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_c_r_c performs a 32-bit Cyclic Redundancy  Check  over  the
+     data  from  the files named in the arguments, and prints the
+     result as a decimal number.  The output base can be selected
+     by flags.
+
+     The optional parameters have meanings as follows:
+
+     ----aaaa  The output base becomes `ASCII coded'.
+
+     ----bbbb  The output base becomes binary.
+
+     ----oooo  The output base becomes octal.
+
+     ----xxxx  The output base becomes hexadecimal.
+
+     ----   Read data from _s_t_d_i_n at this point.
+
+     Any other argument is assumed to be the name of a file whose
+     contents  are  read  and  checked.  If no file is named, and
+     there is no explicit _s_t_d_i_n flag,  then  data  is  read  from
+     _s_t_d_i_n.
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEESSSS
+     Produce hexadecimal CRC of  three  files,  the  second  from
+     _s_t_d_i_n:
+
+       cat file2 | netcrc -x file1 - file3
+
+CCCCRRRRCCCC
+     The Cyclic Redundancy Check calculation  uses  the  Ethernet
+     polynomial:
+
+       x^32+x^26+x^23+x^22+x^16+x^12+x^11+x^10+x^8+x^7+x^5+x^4+x^2+x+1
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _s_u_m(1), _w_c(1).
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6               Last change: 1.3                        1
+
+
+

@@ -1,0 +1,26 @@
+#	Copyright 2012 Piers Lauder
+
+#	This file is part of MHSnet.
+
+#	MHSnet is free software: you can redistribute it and/or modify
+#	it under the terms of the GNU General Public License as published by
+#	the Free Software Foundation, either version 3 of the License, or
+#	(at your option) any later version.
+
+#	MHSnet is distributed in the hope that it will be useful,
+#	but WITHOUT ANY WARRANTY; without even the implied warranty of
+#	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#	GNU General Public License for more details.
+
+#	You should have received a copy of the GNU General Public License
+#	along with MHSnet.  If not, see <http://www.gnu.org/licenses/>.
+
+This is version 2 of the MHSnet software.
+
+Start by printing "Documents/install.mm",
+and all the manual entries in Manuals/*.[1-8]
+
+Please report bugs/omissions to me, and also any
+suggestions for fixes/improvements will be welcome.
+
+Piers Lauder		<pierslauder@gmail.com>

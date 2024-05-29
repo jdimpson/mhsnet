@@ -1,0 +1,14 @@
+# Handler  Description Protocol Rstrct  Quality Order	Nice   Address	Timeout
+stater		State	0	1	0	1	10:60
+filer		Files	1	0	-	-	15:60
+mailer		Mail	1	0	3	1	5:60	@	300
+printer		Print	1	0	-	-	15:60
+reporter	News	-	0	9	1	15:60
+fileserver	FileRq	-	0	6	1
+finger		Finger	-	0	-	-	15:60
+ftpserver	FTPreq	-	0	6	1	15:60
+httpserver	URLreq	-	0	6	1	15:60
+peeper		DNSreq	-	0	-	-	6:60
+peter		Who	-	0
+qlooker		Queues	-	0	-	-	15:60
+llooker		Links	-	0	-	-	15:60

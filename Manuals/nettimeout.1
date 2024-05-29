@@ -1,0 +1,46 @@
+.ds S1 NETTIMEOUT
+.ds S2 \fINettimeout\fP
+.ds S3 \fInettimeout\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 nettimeout
+.TH \*(S1 1 "1.3" \^
+.nh
+.SH NAME
+nettimeout \- timeout a command
+.SH SYNOPSIS
+.B \*(S6
+.RI [ \-w ]
+.I timeout
+.I cmd
+.RI [ arg ...]
+.SH DESCRIPTION
+.I \*(S2
+runs a command after setting a timeout, in the manner of
+.IR time (1).
+The timeout is specified in seconds,
+followed by the command and its arguments
+which are passed to a new process group via
+.IR sh(1).
+The optional parameter causes a time-stamped message to be printed if the command times out.
+.PP
+If the command completes within the specified time,
+\*(S3
+just exits with the same exit code as that returned by the command.
+Otherwise
+\*(S3
+kills the command process group with SIGTERM and exits with code
+.SM EX_NOINPUT
+[66].
+(Persistent commands are sent a
+.SM SIGKILL
+after 2 seconds.)
+.SH EXAMPLES
+.ft CW
+\*(S6 -w 2 sleep 3
+.br
+echo $?
+.ft
+.SH SEE ALSO
+sh(1),
+time(1).

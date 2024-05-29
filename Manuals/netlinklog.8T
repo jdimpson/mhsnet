@@ -1,0 +1,66 @@
+
+
+
+Maintenance Procedures                              NETLINKLOG(8)
+
+
+
+NNNNAAAAMMMMEEEE
+     netlinklog - show network link logs
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     nnnneeeettttlllliiiinnnnkkkklllloooogggg _l_i_n_k_n_a_m_e|_r_e_g_i_o_n|_a_d_d_r_e_s_s ...
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_l_i_n_k_l_o_g prints out  call  and  transmission  reports  for
+     links to other nodes directly connected to this one based on
+     the contents of the links' log files.  If a  region  or  its
+     alias  or  a  complex address is named, then _n_e_t_l_i_n_k_l_o_g will
+     show details of each link on the  shortest  path(s),  unless
+     the  regions  are  directly  connected to this one, in which
+     case _n_e_t_l_i_n_k_l_o_g will always show the direct link.
+
+     The data for each link are printed in  three  sections,  the
+     first  from logs of calls to the sites, the second from logs
+     of calls from the sites, and the third  from  the  transport
+     daemon  logs.   The  last  10  lines  from the call logs are
+     printed, followed by the last  22  lines  of  the  transport
+     daemon logs.
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEESSSS
+     Show the status of the last connection to `site':
+
+       _n_e_t_l_i_n_k_l_o_g site | more
+
+FFFFIIIILLLLEEEESSSS
+     _call/log         Log of all calls made to other sites,  one
+                       line per call.
+     _call/*shell.log  Logs of calls received from other sites.
+     _call/_n_o_d_e.log    Log of last call made to _n_o_d_e,  containing
+                       output from call script.
+     _state/routefile  Routing tables for finding links.
+     _l_i_n_k_n_a_m_e/*log     Log information from transport daemon  for
+                       _l_i_n_k_n_a_m_e.
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _m_o_r_e(1), _n_e_t_l_i_n_k(1), _n_e_t_c_a_l_l(8), _n_e_t_d_a_e_m_o_n(8), _n_e_t_s_h_e_l_l(8).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+

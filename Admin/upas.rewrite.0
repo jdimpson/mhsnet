@@ -1,0 +1,5 @@
+^[Pp][Oo][Ss][Tt][Mm][Aa][Ss][Tt][Ee][Rr]$	"/bin/mail -F \s root" "" "" ACSnet cs.su.oz.au
+
+^[^@:.,]+$
+
+^.*$	"/usr/spool/MHSnet/_bin/netfile -Amailer -oP3 -NMail -O\h -S\u &" "" "" ACSnet cs.su.oz.au

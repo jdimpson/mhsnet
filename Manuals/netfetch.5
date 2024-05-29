@@ -1,0 +1,166 @@
+.ds S1 NETFETCH
+.ds S2 \fINetfetch\fP
+.ds S3 \fInetfetch\fP
+.ds S4 MHSnet
+.ds S5 network
+.TH \*(S1 5 "\*(S4 1.11" \^
+.nh
+.SH NAME
+netfetch \- format of network file availability register
+.SH SYNOPSIS
+.BI \s-1SPOOLDIR\s0/_lib/publicfiles
+.SH DESCRIPTION
+This file contains a list of publicly accessible directories
+containing files that may be requested from remote sites,
+together with permissions specifying
+which users at which sites may access them.
+It is scanned by the file service handler,
+.IR fileserver ,
+before servicing a request.
+The name of this file may be changed dynamically
+by altering the value of the handler parameter
+\s-1PUBLICFILES\s0
+in the parameter file
+\f(CW_params/fileserver\fP
+(see
+.IR netparams (5)).
+.PP
+The permissions file contains records terminated by newlines.
+There are two fields in each record,
+separated by <space> or <tab>,
+in the following format:
+.PP
+.ft CW
+.if \n(.lu<6i .ti -1c
+[<user>@]<address><space>[<space>...]<full_path_name>
+.ft
+.PP
+Either
+.I <user>
+or
+.I <address>
+may be \f(CW*\fP, which matches any value.
+.I Fileserver
+reads this file, forwards, looking for a match of
+.I <user>
+and
+.I <address>
+with those of the remote user who is making the request.
+The first line that matches (ie: the first line for which either the
+.I <user>
+part is the name of the remote user, or is missing, or is equal to
+.IR <user> ,
+and the
+.I <address>
+part either matches the name of the remote host, or is \f(CW*\fP)
+ends the search.
+The
+.I <address>
+may be any legal network address, such as a 
+.I multicast
+or
+.I broadcast
+address.
+The
+.I <full_path_name>
+on that line is used as the name of the directory containing
+files that this particular user may access.
+If no line in the permissions file matches,
+or if the line that does match does not contain a
+.I <full_path_name>,
+then the remote user is denied access.
+.PP
+In any case,
+users are permitted access to files relative to the final directory only,
+and may not use a path that commences with \fB/\fP,
+or that contains `\fB.\^.\fP' anywhere within it.
+Furthermore,
+they will only be allowed to fetch files that are either publicly readable,
+or that are readable by the user or group used by the file service handler:
+\s-1SERVERUSER\s0 and \s-1SERVERGROUP\s0
+(which may be altered in the file service handler parameter file
+in the same way as \s-1PUBLICFILES\s0 above).
+.PP
+An example might be:
+.PP
+.nf
+.ft CW
+.ta \w'network@*.ORG=coMM'u
+network@*.ORG=co	/usr/spool/MHSnet
+friend@neighbour	/
+enemy@*
+*	/usr/spool/MHSnet/_public
+.DT
+.ft
+.fi
+.PP
+This allows requests from the user \fInetwork\fP
+at any site within the organisation `co'
+to access publicly readable files in your spool directory
+(such as \fI_stats/Accumulated\fP
+\(em but not network messages,
+which are always mode 0600 owned by \s-1NETUSERNAME\s0).
+\fIFriend@neighbour\fP is allowed to access any files on your system,
+provided that \s-1SERVERUSER\s0 or \s-1SERVERGROUP\s0 has
+read permissions on the requested files.
+\fIEnemy\fP is not permitted any access at all,
+whatever host he happens to be using,
+as there is no path specified for him.
+All others can access files in the public directory only.
+.PP
+Once this file is created, you should make sure that any
+directories it names exist, and have suitable permissions.
+.PP
+You should also make sure that the user \s-1SERVERUSER\s0
+exists in your password file, and that \s-1SERVERGROUP\s0
+is in your group file.
+.PP
+It is recommended that a recursive directory listing be prepared
+and placed in a compressed file in the top-level public directory
+to prevent requesters having to make
+large recursive verbose listing requests themselves.
+This file is usually called something like
+.if t \f(CWls-lRt.Z\fP
+.if n `ls-lRt.Z'
+You may disable recursive listing requests entirely by setting 
+.SM FILESERVER_NOLR
+to 1 in
+.if t \f(CW_params/fileserver\fP.
+.if n `_params/fileserver'.
+Otherwise, you can limit the size of listing requests
+by setting the desired maximum number of bytes allowed in the parameter
+.SM FILESERVER_MAXL.
+You can also change the maximum length of pathnames shown by setting
+.SM FILESERVER_MAXC
+to something other than the default [80].
+.PP
+If files are changing frequently, then you should set
+.SM FILESERVER_NOX
+to prevent `in-place' file transmission,
+and instead force copies to be made.
+.PP
+If you wish,
+the file service handler will keep statistics
+of all files fetched from your site.
+You should define the \s-1FILESERVERLOG\s0 parameter,
+and make sure the file exists and is writable by \s-1SERVERUSER\s0,
+as otherwise the handler will quietly avoid producing any statistics.
+.SH FILES
+.PD 0
+.TP "\w'\f(CW_stats/fileserverlog\fPXX'u"
+\f(CW_lib/publicfiles\fP
+Publicly accessible files list.
+.TP
+\f(CW_params/fileserver\fP
+Parameter file for the file service handler.
+.TP
+\f(CW_stats/fileserverlog\fP
+Optional log of all file service requests.
+.PD
+.SH "SEE ALSO"
+.IR netfetch (1),
+.IR netfile (1),
+.IR netget (1),
+.IR netparams (5),
+.IR \*(S5 (7).
+.br

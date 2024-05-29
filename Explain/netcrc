@@ -1,0 +1,5 @@
+
+	-a	Output base is `ASCII coded'.
+	-b	Output base is binary.
+	-o	Output base is octal.
+	-x	Output base is hexadecimal.

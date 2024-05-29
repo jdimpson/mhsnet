@@ -1,0 +1,45 @@
+.ds S1 NETCONFIG
+.ds S2 \fINetconfig\fP
+.ds S3 \fInetconfig\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 _bin/netconfig
+.TH \*(S1 8 "\*(S4 1.4" \^
+.nh
+.SH NAME
+netconfig \- start network configuration program
+.SH SYNOPSIS
+.BI \*(S6
+.SH DESCRIPTION
+\*(S2
+should be run with `root' privileges to configure the network,
+and start or restart operation.
+\*(S2
+is a shell script that changes to the network directory
+.if n `_config'
+.if t \f(CW_config\fP
+and executes the menu-driven configuration programs.
+These programs help create the various network control files,
+such as the site and link details,
+and incorporate them into network operations.
+.SH FILES
+.PD 0
+.TP "\w'_state/commandsfileXX'u"
+_lib/initfile
+Network control instructions used by
+.IR netinit (8).
+.TP
+_state/commandsfile
+Site details describing local network topology to control
+.IR netstate (8).
+.PD
+.SH "SEE ALSO"
+.IR \*(S5 (7),
+.IR netcontrol (8),
+.IR netinit (8),
+.IR netstart (8),
+.IR netstate (8),
+.IR netwindup (8).
+.SH CAVEAT
+If you manually edit either of the files above,
+then you should be aware that reusing \*(S3 will overwrite your changes.

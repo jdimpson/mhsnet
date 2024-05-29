@@ -1,0 +1,198 @@
+
+
+
+Maintenance Procedures                              NETCONTROL(8)
+
+
+
+NNNNAAAAMMMMEEEE
+     netcontrol - communicate with network control program
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     ____bbbbiiiinnnn////nnnneeeettttccccoooonnnnttttrrrroooollll [-_f_l_a_g_s] [_c_o_m_m_a_n_d] [_r_e_g_e_x]
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_c_o_n_t_r_o_l is used to send commands to _n_e_t_i_n_i_t(8).  Commands
+     are transmitted via a file, normally _lib/netinit.args.
+
+     _N_e_t_c_o_n_t_r_o_l will pause while _n_e_t_i_n_i_t processes  the  command,
+     after  which  _n_e_t_i_n_i_t  will  print  any  reply or diagnostic
+     directly to the file specified by _n_e_t_c_o_n_t_r_o_l, and then  send
+     a signal to _n_e_t_c_o_n_t_r_o_l to terminate.
+
+     The optional flags are:
+
+     ----ffff  Force  communication  with  _n_e_t_i_n_i_t,  even  if   another
+         instance  of  _n_e_t_c_o_n_t_r_o_l  is  active.  If the _c_o_m_m_a_n_d is
+         "shutdown", then any errors will  cause  _n_e_t_i_n_i_t  to  be
+         sent  the  SIGTERM  signal,  otherwise  this will merely
+         cause _n_e_t_c_o_n_t_r_o_l to try  to  establish  the  lock  three
+         times.
+
+     ----ssss  Silent - don't report result of command.
+
+     ----vvvv  Validate lock file time.
+
+     ----LLLL _d_i_r_e_c_t_o_r_y
+         This flag cause _n_e_t_c_o_n_t_r_o_l to check the  lockfile  named
+         by concatenating SPOOLDIR with _d_i_r_e_c_t_o_r_y and `lock', and
+         returning the status of the  daemon  in  the  exit  code
+         (non-zero  if  the  daemon  is  inactive).  If ----ssss is not
+         specified, the process ID of any active daemon  will  be
+         printed,  together  with  the nodename in parentheses if
+         running on a different node to the invoker.   If  ----vvvv  is
+         specified,  the  exit  code  will  be  non-zero  if  the
+         lockfile modify time appears  to  pre-date  system  boot
+         (based on return value of the _t_i_m_e_s(2) system call), and
+         if ----ssss is  not  specified,  a  warning  message  will  be
+         printed.
+
+     ----FFFF _f_i_l_e
+         _F_i_l_e becomes the output file for communicating with  the
+         invoker.  By default this is `/dev/tty', unless it isn't
+         publicly writable, in which  case  the  default  becomes
+         `_lib/netinit.reply'   which   is  then  copied  to  the
+         invoker's terminal by _n_e_t_c_o_n_t_r_o_l.
+
+     ----TTTT[_l_e_v_e_l]
+         Turns on tracing at _l_e_v_e_l (default: 1).  If  tracing  is
+         not compiled in, this flag will have no effect.
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+
+
+
+
+Maintenance Procedures                              NETCONTROL(8)
+
+
+
+     The command can be:
+
+     ccccuuuurrrrttttaaaaiiiillll _r_e_g_e_x
+         Network processes specified by _r_e_g_e_x will be  marked  as
+         not to be restarted.
+
+     kkkkiiiillllllll _r_e_g_e_x
+         Network processes specified by  _r_e_g_e_x  will  be  sent  a
+         SIGKILL and marked as not to be restarted.
+
+     nnnneeeewwwwlllloooogggg
+         _n_e_t_i_n_i_t will close the current logfile, and create a new
+         one.
+
+     ssssccccaaaannnn
+         _n_e_t_i_n_i_t will re-read  the  _i_n_i_t_f_i_l_e.   Active  processes
+         that  are  not  in  the new file will be _s_t_o_pped and new
+         processes will be noted but not enabled.  Processes  for
+         which  the  information  (command  arguments  etc.)  has
+         changed will have the new information included,  but  it
+         won't take effect until the process is next restarted.
+
+     sssshhhhuuuuttttddddoooowwwwnnnn
+         All network processes will be sent  a  SIGTERMINATE  and
+         _n_e_t_i_n_i_t will also terminate.  This command is assumed if
+         _n_e_t_c_o_n_t_r_o_l is invoked under the name  _s_h_u_t_d_o_w_n  with  no
+         _c_o_m_m_a_n_d argument.
+
+     ssssttttaaaarrrrtttt _r_e_g_e_x
+         Network processes matching _r_e_g_e_x will be enabled.
+
+     ssssttttaaaattttuuuussss [_r_e_g_e_x]
+         Report on  the  status  of  network  processes  matching
+         _r_e_g_e_x.   Status  of  all network processes controlled by
+         _n_e_t_i_n_i_t will be reported if the  regular  expression  is
+         omitted.
+
+     ssssttttoooopppp _r_e_g_e_x
+         Network  processes  matching  _r_e_g_e_x  will  be   sent   a
+         SIGTERMINATE and marked as not to be restarted.
+
+     ttttrrrraaaacccceeeeooooffffffff
+         Turn off tracing.
+
+     ttttrrrraaaacccceeeeoooonnnn [_l_e_v_e_l]
+         Turn on tracing at _l_e_v_e_l. If _l_e_v_e_l is  ommitted,  it  is
+         incremented by one.
+
+     vvvvssssttttaaaattttuuuussss [_r_e_g_e_x]
+         Verbose  report  on  the  status  of  network  processes
+         matching   _r_e_g_e_x.    Status  of  all  network  processes
+         controlled by _n_e_t_i_n_i_t will be reported  if  the  regular
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    2
+
+
+
+
+
+
+Maintenance Procedures                              NETCONTROL(8)
+
+
+
+         expression is omitted.
+
+     _r_e_g_e_x is a limited regular expression in the style of  _e_d(1)
+     and  will  be matched against the _p_r_o_c_e_s_s-_i_d of each process
+     mentioned in `_lib/initfile' (see _n_e_t_i_n_i_t(_8)).
+
+     Note that network processes such  as  _n_e_t_c_a_l_l(8)  which  run
+     under  different  UIDs  to  _n_e_t_c_o_n_t_r_o_l  can not be _k_i_l_led or
+     _s_t_o_pped.
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEESSSS
+     Stop all outbound calls:
+
+       _bin/netcontrol stop '^call'
+
+     Start the routing process:
+
+       _bin/netcontrol start router
+
+     Test the network is active:
+
+       if _bin/netcontrol -s status
+       then
+            echo active
+       fi
+
+     Test the router process is active:
+
+       if _bin/netcontrol -sL _route
+       then
+            echo active
+       fi
+
+FFFFIIIILLLLEEEESSSS
+     _l_i_n_k/cmds/lock      Lockfiles checked by _s_h_u_t_d_o_w_n command.
+     _lib/lock           Lockfile maintained by _n_e_t_i_n_i_t.
+     _lib/control.lock   Lockfile to prevent conflicts.
+     _lib/netinit.args   Arguments being sent to _n_e_t_i_n_i_t.
+     _lib/netinit.reply  Result being returned to _n_e_t_c_o_n_t_r_o_l  (if
+                         terminal    is    unwriteable,   or   ----FFFF
+                         specified).
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _n_e_t_w_o_r_k(7), _n_e_t_i_n_i_t(8), _n_e_t_s_t_a_r_t(8), _n_e_t_w_i_n_d_u_p(8).
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    3
+
+
+

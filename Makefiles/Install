@@ -1,0 +1,1771 @@
+#
+#	Copyright 2012 Piers Lauder
+
+#	This file is part of MHSnet.
+
+#	MHSnet is free software: you can redistribute it and/or modify
+#	it under the terms of the GNU General Public License as published by
+#	the Free Software Foundation, either version 3 of the License, or
+#	(at your option) any later version.
+
+#	MHSnet is distributed in the hope that it will be useful,
+#	but WITHOUT ANY WARRANTY; without even the implied warranty of
+#	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#	GNU General Public License for more details.
+
+#	You should have received a copy of the GNU General Public License
+#	along with MHSnet.  If not, see <http://www.gnu.org/licenses/>.
+
+#
+#	SCCSID	@(#)Install	1.90 06/08/28
+#
+#	This is a makefile to install the network.
+#
+#	It must be used via "Makefile" with the flags:-
+#	"directories"	to create the directories
+#	"special"	to create the data files
+#	"install[12]"	to install the binaries
+#	"config"	to install configuration
+#
+
+TRANSFORMS	= -e '/^SPOOLDIR=/s;=[^ ]*;=$(SPOOLDIR);' \
+		  -e '/^NETUSERNAME=/s;=[^ ]*;=$(NETUSERNAME);' \
+		  -e '/^NETGROUPNAME=/s;=[^ ]*;=$(NETGROUPNAME);' \
+		  -e '/^INSBIN=/s;=[^ ]*;=$(INSBIN);' \
+		  -e '/^SENDMAIL=/s;=[^ ]*;=$(SENDMAIL);' \
+		  -e '/^SHELL=/s;=[^ ]*;=$(SHELL);' \
+		  -e '/^echo=/s;=[^ ]*;=$(ECHO);' \
+		  -e '/^chown=/s;=[^ ]*;=$(CHOWN);' \
+		  -e '/^.!.bin.sh/s;/bin/sh;$(SHELL);'
+
+SED		= sed $(TRANSFORMS)
+
+INSCONFIG	= $(ISPOOLDIR)/$(CONFDIR)
+INSHANDLERS	= $(ISPOOLDIR)/$(HANDLERSDIR)
+INSLIB		= $(ISPOOLDIR)/$(LIBDIR)
+INSSBIN		= $(ISPOOLDIR)/$(BINDIR)
+INSSTATS	= $(ISPOOLDIR)/$(STATSDIR)
+SUN3INSLIB	= $(SUN3SPOOLDIR)/$(SUN3LIBDIR)
+
+INSTALL1	= \
+		$(INSBIN)/$(FETCHFILE) \
+		$(INSBIN)/$(FORWARD) \
+		$(INSBIN)/$(GETFILE) \
+		$(INSBIN)/$(LINKSTATS) \
+		$(INSBIN)/$(MAPP) \
+		$(INSBIN)/$(QUEUE) \
+		$(INSBIN)/$(SENDFILE) \
+		$(INSBIN)/$(SENDMAIL) \
+		$(INSBIN)/$(WHOIS) \
+		$(INSBIN)/netdis \
+		$(INSBIN)/netfinger \
+		$(INSBIN)/netftp \
+		$(INSBIN)/nethttp \
+		$(INSBIN)/netprivs \
+		$(INSSBIN)/netac \
+		$(INSSBIN)/netaddr \
+		$(INSSBIN)/netcac \
+		$(INSSBIN)/netcall \
+		$(INSSBIN)/netchecklink \
+		$(INSSBIN)/netcheckq \
+		$(INSSBIN)/netcmds \
+		$(INSSBIN)/netcon \
+		$(INSSBIN)/netcrc \
+		$(INSSBIN)/netdatenum \
+		$(INSSBIN)/nethandlers \
+		$(INSSBIN)/nethdr \
+		$(INSSBIN)/nethosts \
+		$(INSSBIN)/netincorp \
+		$(INSSBIN)/netlink3 \
+		$(INSSBIN)/netlinkdata \
+		$(INSSBIN)/netlinklog \
+		$(INSSBIN)/netmailsh \
+		$(INSSBIN)/netnovis \
+		$(INSSBIN)/netparams \
+		$(INSSBIN)/netpasswd \
+		$(INSSBIN)/netpath \
+		$(INSSBIN)/netpeeper \
+		$(INSSBIN)/netrl \
+		$(INSSBIN)/netrq \
+		$(INSSBIN)/netsort \
+		$(INSSBIN)/netstatspr \
+		$(INSSBIN)/netstatus \
+		$(INSSBIN)/nettestcrc \
+		$(INSSBIN)/nettimeout \
+		$(INSHANDLERS)/filer \
+		$(INSHANDLERS)/fileserver \
+		$(INSHANDLERS)/handler \
+		$(INSHANDLERS)/mailer \
+		$(INSHANDLERS)/printer \
+		$(INSHANDLERS)/reporter \
+		$(INSHANDLERS)/stater
+
+INSTALL2	= \
+		$(INSLIB)/$(STATEP) \
+		$(INSLIB)/badhandler \
+		$(INSLIB)/call_term \
+		$(INSLIB)/changestate \
+		$(INSLIB)/checkmsgsdb \
+		$(INSLIB)/convdirs.sh \
+		$(INSLIB)/crypfilter.sh \
+		$(INSLIB)/daily \
+		$(INSLIB)/deliver \
+		$(INSLIB)/deliver.py \
+		$(INSLIB)/dropfilter.sh \
+		$(INSLIB)/filter \
+		$(INSLIB)/filter43 \
+		$(INSLIB)/finger.sh \
+		$(INSLIB)/ftpserver.sh \
+		$(INSLIB)/handler.sh \
+		$(INSLIB)/handlers.dist \
+		$(INSLIB)/HTdaemon \
+		$(INSLIB)/httpget \
+		$(INSLIB)/httpget.py \
+		$(INSLIB)/httpserver.sh \
+		$(INSLIB)/llooker.sh \
+		$(INSLIB)/loophandler \
+		$(INSLIB)/monthly \
+		$(INSLIB)/netcontrol \
+		$(INSLIB)/netinit \
+		$(INSLIB)/nightly \
+		$(INSLIB)/NNdaemon \
+		$(INSLIB)/peter.sh \
+		$(INSLIB)/peeper.sh \
+		$(INSLIB)/pressfilter.sh \
+		$(INSLIB)/purge \
+		$(INSLIB)/qlooker.sh \
+		$(INSLIB)/request \
+		$(INSLIB)/reroute \
+		$(INSLIB)/router \
+		$(INSLIB)/sendmsg \
+		$(INSLIB)/spooler \
+		$(INSLIB)/start \
+		$(INSLIB)/SMTP.sh \
+		$(INSLIB)/Sun3_4 \
+		$(INSLIB)/Sun4_3 \
+		$(INSLIB)/tcplisten \
+		$(INSLIB)/UUCP.sh \
+		$(INSLIB)/VCcall \
+		$(INSLIB)/VCdaemon \
+		$(INSLIB)/VCshell \
+		$(INSLIB)/weekly \
+		$(INSLIB)/windup \
+		$(INSSTATS)/turn-acct \
+		$(SUN3INSLIB)/stater \
+		$(INSCONFIG)/answeryes \
+		$(INSCONFIG)/menu
+
+DIRECTORIES	= \
+		$(ISPOOLDIR) \
+		$(ISPOOLDIR)/$(ROUTINGDIR) \
+		$(ISPOOLDIR)/$(WORKDIR) \
+		$(ISPOOLDIR)/$(PARAMSDIR) \
+		$(INSHANDLERS) \
+		$(INSLIB) \
+		$(INSBIN) \
+		$(INSSBIN) \
+		$(ISPOOLDIR)/$(STATEDIR) \
+		$(ISPOOLDIR)/$(BADDIR) \
+		$(ISPOOLDIR)/$(CALLDIR) \
+		$(ISPOOLDIR)/$(EXPLAINDIR) \
+		$(ISPOOLDIR)/$(FILESDIR) \
+		$(ISPOOLDIR)/$(FORWARDINGDIR) \
+		$(ISPOOLDIR)/$(MPMSGSDIR) \
+		$(ISPOOLDIR)/$(PENDINGDIR) \
+		$(ISPOOLDIR)/$(REROUTEDIR) \
+		$(INSCONFIG) \
+		$(INSSTATS)
+
+COMMANDSFILE	= $(ISPOOLDIR)/$(STATEDIR)/example.cmds
+CONNECTLOG	= $(ISPOOLDIR)/$(STATSDIR)/connect
+ENDPROG		= $(ISPOOLDIR)/$(CALLDIR)/example.endprg
+INITFILE	= $(ISPOOLDIR)/$(LIBDIR)/example.init
+ROUTEFILE	= $(ISPOOLDIR)/$(STATEDIR)/routefile
+SHELLPROG	= $(ISPOOLDIR)/$(CALLDIR)/example.shlprg
+STATEFILE	= $(ISPOOLDIR)/$(STATEDIR)/statefile
+STATSFILE	= $(ISPOOLDIR)/$(STATSDIR)/Accumulated
+PRIVSFILE_EX	= $(ISPOOLDIR)/$(LIBDIR)/example.privs
+PUBLICFILES_EX	= $(ISPOOLDIR)/$(LIBDIR)/example.public
+
+SPECIALFILES	= \
+		$(COMMANDSFILE) \
+		$(ENDPROG) \
+		$(INITFILE) \
+		$(PRIVSFILE_EX) \
+		$(PUBLICFILES_EX) \
+		$(SHELLPROG)
+
+#	Include these to turn on statistics by default
+#		$(STATSFILE)
+#		$(CONNECTLOG)
+
+install:	$(INSTALL1) $(INSTALL2)
+install1:	$(INSTALL1)
+install2:	$(INSTALL2)
+
+$(INSCONFIG)/configmhs:	Config/configmhs $(FRC)
+		$(SED) -e '1s;/bin/sh;$(SHELL);' <Config/configmhs >$(INSCONFIG)/configmhs
+		@-set -x; \
+		cd $(INSCONFIG); \
+		$(CHOWN) $(NETUSERNAME) configmhs; \
+		$(CHGRP) $(NETGROUPNAME) configmhs; \
+		$(CHMOD) 700 configmhs
+		@-set -x; \
+		cd $(INSSBIN); \
+		$(RM) netconfig 2>/dev/null; \
+		sed -e '1s;.*;#!$(SHELL);' -e '2d' -e '/^)/d' <$(INSCONFIG)/configmhs >netconfig; \
+		$(CHOWN) $(NETUSERNAME) netconfig; \
+		$(CHGRP) $(NETGROUPNAME) netconfig; \
+		$(CHMOD) 700 netconfig
+
+$(INSCONFIG)/installmhs:	Config/installmhs $(FRC)
+		$(SED) -e '1s;/bin/sh;$(SHELL);' <Config/installmhs >$(INSCONFIG)/installmhs
+		@-set -x; \
+		cd $(INSCONFIG); \
+		$(CHOWN) $(NETUSERNAME) installmhs; \
+		$(CHGRP) $(NETGROUPNAME) installmhs; \
+		$(CHMOD) 700 installmhs
+
+$(INSBIN)/$(FETCHFILE):	$(BIN)/fetchfile $(FRC)
+		$(CP) $(BIN)/fetchfile $(INSBIN)/NEW$(FETCHFILE)
+		@-set -x; \
+		cd $(INSBIN); \
+		$(STRIP) NEW$(FETCHFILE); \
+		$(CHOWN) $(NETUSERNAME) NEW$(FETCHFILE); \
+		$(CHGRP) $(NETGROUPNAME) NEW$(FETCHFILE); \
+		$(CHMOD) $(CHMODSUMODE),go=x$(CHMODMODE_T) NEW$(FETCHFILE); \
+		$(MV) $(FETCHFILE) OLD$(FETCHFILE) 2>/dev/null; \
+		$(MV) NEW$(FETCHFILE) $(FETCHFILE); \
+		$(RM) OLD$(FETCHFILE) 2>/dev/null; \
+		cd $(INSSBIN); \
+		if $(LN) $(INSBIN)/$(FETCHFILE) NEWnetfetch 2>/dev/null; then :; \
+		else $(CP) $(INSBIN)/$(FETCHFILE) NEWnetfetch; \
+		$(CHOWN) $(NETUSERNAME) NEWnetfetch; \
+		$(CHGRP) $(NETGROUPNAME) NEWnetfetch; \
+		$(CHMOD) $(CHMODSUMODE),go=x$(CHMODMODE_T) NEWnetfetch; \
+		fi; \
+		$(MV) netfetch OLDnetfetch 2>/dev/null; \
+		$(MV) NEWnetfetch netfetch; \
+		$(RM) OLDnetfetch 2>/dev/null
+
+$(INSBIN)/$(FORWARD):	$(BIN)/forward $(FRC)
+		$(CP) $(BIN)/forward $(INSBIN)/NEW$(FORWARD)
+		@-set -x; \
+		cd $(INSBIN); \
+		$(STRIP) NEW$(FORWARD); \
+		$(CHOWN) $(NETUSERNAME) NEW$(FORWARD); \
+		$(CHGRP) $(NETGROUPNAME) NEW$(FORWARD); \
+		$(CHMOD) $(CHMODSUMODE),go=x$(CHMODMODE_T) NEW$(FORWARD); \
+		$(MV) $(FORWARD) OLD$(FORWARD) 2>/dev/null; \
+		$(MV) NEW$(FORWARD) $(FORWARD); \
+		$(RM) OLD$(FORWARD) 2>/dev/null; \
+		cd $(INSSBIN); \
+		if $(LN) $(INSBIN)/$(FORWARD) NEWnetforward 2>/dev/null; then :; \
+		else $(CP) $(INSBIN)/$(FORWARD) NEWnetforward; \
+		$(CHOWN) $(NETUSERNAME) NEWnetforward; \
+		$(CHGRP) $(NETGROUPNAME) NEWnetforward; \
+		$(CHMOD) $(CHMODSUMODE),go=x$(CHMODMODE_T) NEWnetforward; \
+		fi; \
+		$(MV) netforward OLDnetforward 2>/dev/null; \
+		$(MV) NEWnetforward netforward; \
+		$(RM) OLDnetforward 2>/dev/null
+
+$(INSBIN)/$(GETFILE):	$(BIN)/getfile $(FRC)
+		$(CP) $(BIN)/getfile $(INSBIN)/NEW$(GETFILE)
+		@-set -x; \
+		cd $(INSBIN); \
+		$(STRIP) NEW$(GETFILE); \
+		$(CHOWN) $(SU) NEW$(GETFILE); \
+		$(CHGRP) $(NETGROUPNAME) NEW$(GETFILE); \
+		$(CHMOD) $(CHMODSUMODE),go=x$(CHMODMODE_T) NEW$(GETFILE); \
+		$(MV) $(GETFILE) OLD$(GETFILE) 2>/dev/null; \
+		$(MV) NEW$(GETFILE) $(GETFILE); \
+		$(RM) OLD$(GETFILE) 2>/dev/null; \
+		cd $(INSSBIN); \
+		if $(LN) $(INSBIN)/$(GETFILE) NEWnetget 2>/dev/null; then :; \
+		else $(CP) $(INSBIN)/$(GETFILE) NEWnetget; \
+		$(CHOWN) $(SU) NEWnetget; \
+		$(CHGRP) $(NETGROUPNAME) NEWnetget; \
+		$(CHMOD) $(CHMODSUMODE),go=x$(CHMODMODE_T) NEWnetget; \
+		fi; \
+		$(MV) netget OLDnetget 2>/dev/null; \
+		$(MV) NEWnetget netget; \
+		$(RM) OLDnetget 2>/dev/null
+
+$(INSBIN)/$(LINKSTATS):	$(BIN)/linkstats $(FRC)
+		$(CP) $(BIN)/linkstats $(INSBIN)/NEW$(LINKSTATS)
+		@-set -x; \
+		cd $(INSBIN); \
+		$(STRIP) NEW$(LINKSTATS); \
+		$(CHOWN) $(NETUSERNAME) NEW$(LINKSTATS); \
+		$(CHGRP) $(NETGROUPNAME) NEW$(LINKSTATS); \
+		$(CHMOD) $(CHMODSUMODE),go=x$(CHMODMODE_T) NEW$(LINKSTATS); \
+		$(MV) $(LINKSTATS) OLD$(LINKSTATS) 2>/dev/null; \
+		$(MV) NEW$(LINKSTATS) $(LINKSTATS); \
+		$(RM) OLD$(LINKSTATS) 2>/dev/null; \
+		cd $(INSSBIN); \
+		if $(LN) $(INSBIN)/$(LINKSTATS) NEWnetlink 2>/dev/null; then :; \
+		else $(CP) $(INSBIN)/$(LINKSTATS) NEWnetlink; \
+		$(CHOWN) $(NETUSERNAME) NEWnetlink; \
+		$(CHGRP) $(NETGROUPNAME) NEWnetlink; \
+		$(CHMOD) $(CHMODSUMODE),go=x$(CHMODMODE_T) NEWnetlink; \
+		fi; \
+		$(MV) netlink OLDnetlink 2>/dev/null; \
+		$(MV) NEWnetlink netlink; \
+		$(RM) OLDnetlink 2>/dev/null
+
+$(INSBIN)/$(MAPP):	$(BIN)/map $(FRC)
+		$(CP) $(BIN)/map $(INSBIN)/NEW$(MAPP)
+		@-set -x; \
+		cd $(INSBIN); \
+		$(STRIP) NEW$(MAPP); \
+		$(CHOWN) $(NETUSERNAME) NEW$(MAPP); \
+		$(CHGRP) $(NETGROUPNAME) NEW$(MAPP); \
+		$(CHMOD) $(CHMODSUMODE),go=x$(CHMODMODE_T) NEW$(MAPP); \
+		$(MV) $(MAPP) OLD$(MAPP) 2>/dev/null; \
+		$(MV) NEW$(MAPP) $(MAPP); \
+		$(RM) OLD$(MAPP) 2>/dev/null; \
+		cd $(INSSBIN); \
+		if $(LN) $(INSBIN)/$(MAPP) NEWnetmap 2>/dev/null; then :; \
+		else $(CP) $(INSBIN)/$(MAPP) NEWnetmap; \
+		$(CHOWN) $(NETUSERNAME) NEWnetmap; \
+		$(CHGRP) $(NETGROUPNAME) NEWnetmap; \
+		$(CHMOD) $(CHMODSUMODE),go=x$(CHMODMODE_T) NEWnetmap; \
+		fi; \
+		$(MV) netmap OLDnetmap 2>/dev/null; \
+		$(MV) NEWnetmap netmap; \
+		$(RM) OLDnetmap netroute 2>/dev/null; \
+		$(LN) netmap netroute
+
+$(INSBIN)/$(QUEUE):	$(BIN)/queue $(FRC)
+		$(CP) $(BIN)/queue $(INSBIN)/NEW$(QUEUE)
+		@-set -x; \
+		cd $(INSBIN); \
+		$(STRIP) NEW$(QUEUE); \
+		$(CHOWN) $(NETUSERNAME) NEW$(QUEUE); \
+		$(CHGRP) $(NETGROUPNAME) NEW$(QUEUE); \
+		$(CHMOD) $(CHMODSUMODE),go=x$(CHMODMODE_T) NEW$(QUEUE); \
+		$(MV) $(QUEUE) OLD$(QUEUE) 2>/dev/null; \
+		$(MV) NEW$(QUEUE) $(QUEUE); \
+		$(MV) $(STOP) OLD$(STOP) 2>/dev/null; \
+		$(RM) OLD$(QUEUE) OLD$(STOP) 2>/dev/null 2>/dev/null; \
+		$(LN) $(QUEUE) $(STOP); \
+		cd $(INSSBIN); \
+		if $(LN) $(INSBIN)/$(QUEUE) NEWnetq 2>/dev/null; then :; \
+		else $(CP) $(INSBIN)/$(QUEUE) NEWnetq; \
+		$(CHOWN) $(NETUSERNAME) NEWnetq; \
+		$(CHGRP) $(NETGROUPNAME) NEWnetq; \
+		$(CHMOD) $(CHMODSUMODE),go=x$(CHMODMODE_T) NEWnetq; \
+		fi; \
+		$(MV) netq OLDnetq 2>/dev/null; \
+		$(MV) NEWnetq netq; \
+		$(MV) ../$(LIBDIR)/checkbad ../$(LIBDIR)/OLDcheckbad 2>/dev/null; \
+		$(RM) OLDnetq netstop netbad ../$(LIBDIR)/OLDcheckbad 2>/dev/null 2>/dev/null; \
+		$(LN) netq netstop; \
+		$(LN) netq netbad; \
+		$(LN) netq ../$(LIBDIR)/checkbad
+
+$(INSBIN)/$(SENDFILE):	$(BIN)/sendfile $(FRC)
+		$(CP) $(BIN)/sendfile $(INSBIN)/NEW$(SENDFILE)
+		@-set -x; \
+		cd $(INSBIN); \
+		$(STRIP) NEW$(SENDFILE); \
+		$(CHOWN) $(SU) NEW$(SENDFILE); \
+		$(CHGRP) $(NETGROUPNAME) NEW$(SENDFILE); \
+		$(CHMOD) $(CHMODSUMODE),go=x NEW$(SENDFILE); \
+		$(MV) $(SENDFILE) OLD$(SENDFILE) 2>/dev/null; \
+		$(MV) NEW$(SENDFILE) $(SENDFILE); \
+		$(RM) OLD$(SENDFILE) 2>/dev/null; \
+		cd $(INSSBIN); \
+		if $(LN) $(INSBIN)/$(SENDFILE) NEWnetfile 2>/dev/null; then :; \
+		else $(CP) $(INSBIN)/$(SENDFILE) NEWnetfile; \
+		$(CHOWN) $(SU) NEWnetfile; \
+		$(CHGRP) $(NETGROUPNAME) NEWnetfile; \
+		$(CHMOD) $(CHMODSUMODE),go=x NEWnetfile; \
+		fi; \
+		$(MV) netfile OLDnetfile 2>/dev/null; \
+		$(MV) NEWnetfile netfile; \
+		$(MV) ../$(LIBDIR)/sendfile ../$(LIBDIR)/OLDsendfile 2>/dev/null; \
+		$(RM) OLDnetfile ../$(LIBDIR)/OLDsendfile 2>/dev/null; \
+		$(LN) netfile ../$(LIBDIR)/sendfile
+
+$(INSBIN)/$(SENDMAIL):	$(BIN)/sendmail $(FRC)
+		$(CP) $(BIN)/sendmail $(INSBIN)/NEW$(SENDMAIL)
+		@-set -x; \
+		cd $(INSBIN); \
+		$(STRIP) NEW$(SENDMAIL); \
+		$(CHOWN) $(NETUSERNAME) NEW$(SENDMAIL); \
+		$(CHGRP) $(NETGROUPNAME) NEW$(SENDMAIL); \
+		$(CHMOD) $(CHMODMODE),go=x NEW$(SENDMAIL); \
+		$(MV) $(SENDMAIL) OLD$(SENDMAIL) 2>/dev/null; \
+		$(MV) NEW$(SENDMAIL) $(SENDMAIL); \
+		$(RM) OLD$(SENDMAIL) 2>/dev/null; \
+		cd $(INSSBIN); \
+		if $(LN) $(INSBIN)/$(SENDMAIL) NEWnetmail 2>/dev/null; then :; \
+		else $(CP) $(INSBIN)/$(SENDMAIL) NEWnetmail; \
+		$(CHOWN) $(NETUSERNAME) NEWnetmail; \
+		$(CHGRP) $(NETGROUPNAME) NEWnetmail; \
+		$(CHMOD) $(CHMODMODE),go=x NEWnetmail; \
+		fi; \
+		$(MV) netmail OLDnetmail 2>/dev/null; \
+		$(MV) NEWnetmail netmail; \
+		$(RM) OLDnetmail 2>/dev/null
+
+$(INSBIN)/$(WHOIS):	$(BIN)/whois $(FRC)
+		$(CP) $(BIN)/whois $(INSBIN)/NEW$(WHOIS)
+		@-set -x; \
+		cd $(INSBIN); \
+		$(STRIP) NEW$(WHOIS); \
+		$(CHOWN) $(NETUSERNAME) NEW$(WHOIS); \
+		$(CHGRP) $(NETGROUPNAME) NEW$(WHOIS); \
+		$(CHMOD) $(CHMODMODE),go=x$(CHMODMODE_T) NEW$(WHOIS); \
+		$(MV) $(WHOIS) OLD$(WHOIS) 2>/dev/null; \
+		$(MV) NEW$(WHOIS) $(WHOIS); \
+		$(RM) OLD$(WHOIS) 2>/dev/null; \
+		cd $(INSSBIN); \
+		if $(LN) $(INSBIN)/$(WHOIS) NEWnetwhois 2>/dev/null; then :; \
+		else $(CP) $(INSBIN)/$(WHOIS) NEWnetwhois; \
+		$(CHOWN) $(NETUSERNAME) NEWnetwhois; \
+		$(CHGRP) $(NETGROUPNAME) NEWnetwhois; \
+		$(CHMOD) $(CHMODMODE),go=x$(CHMODMODE_T) NEWnetwhois; \
+		fi; \
+		$(MV) netwhois OLDnetwhois 2>/dev/null; \
+		$(MV) NEWnetwhois netwhois; \
+		$(RM) OLDnetwhois 2>/dev/null
+
+$(INSBIN)/netdis: $(BIN)/dis $(FRC)
+		$(CP) $(BIN)/dis $(INSBIN)/NEWnetdis
+		@-set -x; \
+		cd $(INSBIN); \
+		$(STRIP) NEWnetdis; \
+		$(CHOWN) $(NETUSERNAME) NEWnetdis; \
+		$(CHGRP) $(NETGROUPNAME) NEWnetdis; \
+		$(CHMOD) $(CHMODMODE),go=x$(CHMODMODE_T) NEWnetdis; \
+		$(MV) netdis OLDnetdis 2>/dev/null; \
+		$(MV) NEWnetdis netdis; \
+		$(RM) OLDnetdis 2>/dev/null; \
+		cd $(INSSBIN); \
+		if $(LN) $(INSBIN)/netdis NEWnetdis 2>/dev/null; then :; \
+		else $(CP) $(INSBIN)/netdis NEWnetdis; \
+		$(CHOWN) $(NETUSERNAME) NEWnetdis; \
+		$(CHGRP) $(NETGROUPNAME) NEWnetdis; \
+		$(CHMOD) $(CHMODMODE),go=x$(CHMODMODE_T) NEWnetdis; \
+		fi; \
+		$(MV) netdis OLDnetdis 2>/dev/null; \
+		$(MV) NEWnetdis netdis; \
+		$(RM) OLDnetdis 2>/dev/null
+
+$(INSBIN)/netfinger:	Admin/netfinger.sh $(FRC)
+		$(SED) <Admin/netfinger.sh >$(INSBIN)/netfinger
+		@-set -x; \
+		cd $(INSBIN); \
+		$(CHOWN) $(NETUSERNAME) netfinger; \
+		$(CHGRP) $(NETGROUPNAME) netfinger; \
+		$(CHMOD) $(CHMODMODE),go=rx$(CHMODMODE_T) netfinger; \
+		cd $(INSSBIN); \
+		$(RM) netfinger 2>/dev/null; \
+		if $(LN) $(INSBIN)/netfinger netfinger 2>/dev/null; then :; \
+		else $(CP) $(INSBIN)/netfinger netfinger; \
+		$(CHOWN) $(NETUSERNAME) netfinger; \
+		$(CHGRP) $(NETGROUPNAME) netfinger; \
+		$(CHMOD) $(CHMODMODE),go=rx$(CHMODMODE_T) netfinger; \
+		fi
+
+$(INSBIN)/netftp:	Admin/ftp.sh $(FRC)
+		$(SED) <Admin/ftp.sh >$(INSBIN)/netftp
+		@-set -x; \
+		cd $(INSBIN); \
+		$(CHOWN) $(NETUSERNAME) netftp; \
+		$(CHGRP) $(NETGROUPNAME) netftp; \
+		$(CHMOD) $(CHMODMODE),go=rx$(CHMODMODE_T) netftp; \
+		cd $(INSSBIN); \
+		$(RM) netftp 2>/dev/null; \
+		if $(LN) $(INSBIN)/netftp netftp 2>/dev/null; then :; \
+		else $(CP) $(INSBIN)/netftp netftp; \
+		$(CHOWN) $(NETUSERNAME) netftp; \
+		$(CHGRP) $(NETGROUPNAME) netftp; \
+		$(CHMOD) $(CHMODMODE),go=rx$(CHMODMODE_T) netftp; \
+		fi
+
+$(INSBIN)/nethttp:	Admin/http.sh $(FRC)
+		$(SED) <Admin/http.sh >$(INSBIN)/nethttp
+		@-set -x; \
+		cd $(INSBIN); \
+		$(CHOWN) $(NETUSERNAME) nethttp; \
+		$(CHGRP) $(NETGROUPNAME) nethttp; \
+		$(CHMOD) $(CHMODMODE),go=rx$(CHMODMODE_T) nethttp; \
+		cd $(INSSBIN); \
+		$(RM) nethttp 2>/dev/null; \
+		if $(LN) $(INSBIN)/nethttp nethttp 2>/dev/null; then :; \
+		else $(CP) $(INSBIN)/nethttp nethttp; \
+		$(CHOWN) $(NETUSERNAME) nethttp; \
+		$(CHGRP) $(NETGROUPNAME) nethttp; \
+		$(CHMOD) $(CHMODMODE),go=rx$(CHMODMODE_T) nethttp; \
+		fi
+
+$(INSBIN)/netprivs:	$(BIN)/showprivs $(FRC)
+		$(CP) $(BIN)/showprivs $(INSBIN)/NEWnetprivs
+		@-set -x; \
+		cd $(INSBIN); \
+		$(STRIP) NEWnetprivs; \
+		$(CHOWN) $(NETUSERNAME) NEWnetprivs; \
+		$(CHGRP) $(NETGROUPNAME) NEWnetprivs; \
+		$(CHMOD) $(CHMODSUMODE),go=x$(CHMODMODE_T) NEWnetprivs; \
+		$(MV) netprivs OLDnetprivs 2>/dev/null; \
+		$(MV) NEWnetprivs netprivs; \
+		$(RM) OLDnetprivs 2>/dev/null; \
+		cd $(INSSBIN); \
+		if $(LN) $(INSBIN)/netprivs NEWnetprivs 2>/dev/null; then :; \
+		else $(CP) $(INSBIN)/netprivs NEWnetprivs; \
+		$(CHOWN) $(NETUSERNAME) NEWnetprivs; \
+		$(CHGRP) $(NETGROUPNAME) NEWnetprivs; \
+		$(CHMOD) $(CHMODSUMODE),go=x$(CHMODMODE_T) NEWnetprivs; \
+		fi; \
+		$(MV) netprivs OLDnetprivs 2>/dev/null; \
+		$(MV) NEWnetprivs netprivs; \
+		$(RM) OLDnetprivs 2>/dev/null
+
+$(INSCONFIG)/answeryes: $(BIN)/answeryes $(FRC)
+		$(CP) $(BIN)/answeryes $(INSCONFIG)/answeryes
+		@-set -x; \
+		cd $(INSCONFIG); \
+		$(STRIP) answeryes; \
+		$(CHOWN) $(NETUSERNAME) answeryes; \
+		$(CHGRP) $(NETGROUPNAME) answeryes; \
+		$(CHMOD) $(CHMODMODE),go=x$(CHMODMODE_T) answeryes; \
+		$(RM) answerno getans getdefans 2>/dev/null; \
+		$(LN) answeryes answerno; \
+		$(LN) answeryes getans; \
+		$(LN) answeryes getdefans
+
+$(INSCONFIG)/menu: $(BIN)/menu $(FRC)
+		$(CP) $(BIN)/menu $(INSCONFIG)/menu
+		@-set -x; \
+		cd $(INSCONFIG); \
+		$(STRIP) menu; \
+		$(CHOWN) $(NETUSERNAME) menu; \
+		$(CHGRP) $(NETGROUPNAME) menu; \
+		$(CHMOD) $(CHMODMODE),go=x$(CHMODMODE_T) menu
+
+$(INSSBIN)/netac:	Admin/ac.sh $(FRC)
+		$(SED) <Admin/ac.sh >$(INSSBIN)/netac
+		@-set -x; \
+		cd $(INSSBIN); \
+		$(CHOWN) $(NETUSERNAME) netac; \
+		$(CHGRP) $(NETGROUPNAME) netac; \
+		$(CHMOD) $(CHMODMODE),go=rx$(CHMODMODE_T) netac
+
+$(INSSBIN)/netaddr:	$(BIN)/address $(FRC)
+		$(CP) $(BIN)/address $(INSSBIN)/NEWnetaddr
+		@-set -x; \
+		cd $(INSSBIN); \
+		$(STRIP) NEWnetaddr; \
+		$(CHOWN) $(NETUSERNAME) NEWnetaddr; \
+		$(CHGRP) $(NETGROUPNAME) NEWnetaddr; \
+		$(CHMOD) $(CHMODMODE),go=x NEWnetaddr; \
+		$(MV) netaddr OLDnetaddr 2>/dev/null; \
+		$(MV) NEWnetaddr netaddr; \
+		$(MV) ../$(LIBDIR)/address ../$(LIBDIR)/OLDaddress 2>/dev/null; \
+		$(RM) OLDnetaddr ../$(LIBDIR)/OLDaddress 2>/dev/null; \
+		$(LN) netaddr ../$(LIBDIR)/address
+
+$(INSSBIN)/netcac:	Admin/connect.sh $(FRC)
+		$(SED) <Admin/connect.sh >$(INSSBIN)/netcac
+		@-set -x; \
+		cd $(INSSBIN); \
+		$(CHOWN) $(NETUSERNAME) netcac; \
+		$(CHGRP) $(NETGROUPNAME) netcac; \
+		$(CHMOD) $(CHMODMODE),go=rx$(CHMODMODE_T) netcac
+
+$(INSSBIN)/netcall:	Admin/netcall.sh $(FRC)
+		$(SED) <Admin/netcall.sh >$(INSSBIN)/netcall
+		@-set -x; \
+		cd $(INSSBIN); \
+		$(CHOWN) $(NETUSERNAME) netcall; \
+		$(CHGRP) $(NETGROUPNAME) netcall; \
+		$(CHMOD) $(CHMODMODE),go=rx$(CHMODMODE_T) netcall
+
+$(INSSBIN)/netchecklink:	Admin/checklink.sh $(FRC)
+		$(SED) <Admin/checklink.sh >$(INSSBIN)/netchecklink
+		@-set -x; \
+		cd $(INSSBIN); \
+		$(CHOWN) $(NETUSERNAME) netchecklink; \
+		$(CHGRP) $(NETGROUPNAME) netchecklink; \
+		$(CHMOD) $(CHMODMODE),go=rx$(CHMODMODE_T) netchecklink
+
+$(INSSBIN)/netcheckq:	Admin/checkq.sh $(FRC)
+		$(SED) <Admin/checkq.sh >$(INSSBIN)/netcheckq
+		@-set -x; \
+		cd $(INSSBIN); \
+		$(CHOWN) $(NETUSERNAME) netcheckq; \
+		$(CHGRP) $(NETGROUPNAME) netcheckq; \
+		$(CHMOD) $(CHMODMODE),go=rx$(CHMODMODE_T) netcheckq
+
+$(INSSBIN)/netcmds:	$(BIN)/showcmds $(FRC)
+		$(CP) $(BIN)/showcmds $(INSSBIN)/NEWnetcmds
+		@-set -x; \
+		cd $(INSSBIN); \
+		$(STRIP) NEWnetcmds; \
+		$(CHOWN) $(NETUSERNAME) NEWnetcmds; \
+		$(CHGRP) $(NETGROUPNAME) NEWnetcmds; \
+		$(CHMOD) $(CHMODMODE),g=x,o=$(CHMODMODE_T) NEWnetcmds; \
+		$(MV) netcmds OLDnetcmds 2>/dev/null; \
+		$(MV) NEWnetcmds netcmds; \
+		$(RM) OLDnetcmds 2>/dev/null
+
+$(INSSBIN)/netcon: $(BIN)/log $(FRC)
+		$(CP) $(BIN)/log $(INSSBIN)/netcon
+		@-set -x; \
+		cd $(INSSBIN); \
+		$(STRIP) netcon; \
+		$(CHOWN) $(NETUSERNAME) netcon; \
+		$(CHGRP) $(NETGROUPNAME) netcon; \
+		$(CHMOD) $(CHMODMODE),go=x$(CHMODMODE_T) netcon
+
+$(INSSBIN)/netcrc: $(BIN)/crc $(FRC)
+		$(CP) $(BIN)/crc $(INSSBIN)/netcrc
+		@-set -x; \
+		cd $(INSSBIN); \
+		$(STRIP) netcrc; \
+		$(CHOWN) $(NETUSERNAME) netcrc; \
+		$(CHGRP) $(NETGROUPNAME) netcrc; \
+		$(CHMOD) $(CHMODMODE),go=x$(CHMODMODE_T) netcrc
+
+$(INSSBIN)/netdatenum: $(BIN)/datenum $(FRC)
+		$(CP) $(BIN)/datenum $(INSSBIN)/netdatenum
+		@-set -x; \
+		cd $(INSSBIN); \
+		$(STRIP) netdatenum; \
+		$(CHOWN) $(NETUSERNAME) netdatenum; \
+		$(CHGRP) $(NETGROUPNAME) netdatenum; \
+		$(CHMOD) $(CHMODMODE),go=x$(CHMODMODE_T) netdatenum
+
+$(INSSBIN)/nethandlers:	$(BIN)/showhandlers $(FRC)
+		$(CP) $(BIN)/showhandlers $(INSSBIN)/NWnethandlers
+		@-set -x; \
+		cd $(INSSBIN); \
+		$(STRIP) NWnethandlers; \
+		$(CHOWN) $(NETUSERNAME) NWnethandlers; \
+		$(CHGRP) $(NETGROUPNAME) NWnethandlers; \
+		$(CHMOD) $(CHMODMODE),go=x$(CHMODMODE_T) NWnethandlers; \
+		$(MV) nethandlers ODnethandlers 2>/dev/null; \
+		$(MV) NWnethandlers nethandlers; \
+		$(RM) ODnethandlers 2>/dev/null
+
+$(INSSBIN)/nethdr:	$(BIN)/showhdr $(FRC)
+		$(CP) $(BIN)/showhdr $(INSSBIN)/NEWnethdr
+		@-set -x; \
+		cd $(INSSBIN); \
+		$(STRIP) NEWnethdr; \
+		$(CHOWN) $(NETUSERNAME) NEWnethdr; \
+		$(CHGRP) $(NETGROUPNAME) NEWnethdr; \
+		$(CHMOD) $(CHMODSUMODE),g=x,o=$(CHMODMODE_T) NEWnethdr; \
+		$(MV) nethdr OLDnethdr 2>/dev/null; \
+		$(MV) NEWnethdr nethdr; \
+		$(RM) OLDnethdr 2>/dev/null
+
+$(INSSBIN)/nethosts:	Admin/hosts.sh $(FRC)
+		$(SED) <Admin/hosts.sh >$(INSSBIN)/nethosts
+		@-set -x; \
+		cd $(INSSBIN); \
+		$(CHOWN) $(NETUSERNAME) nethosts; \
+		$(CHGRP) $(NETGROUPNAME) nethosts; \
+		$(CHMOD) $(CHMODMODE),go=rx$(CHMODMODE_T) nethosts
+
+$(INSSBIN)/netincorp:	Admin/incorp.sh $(FRC)
+		$(SED) <Admin/incorp.sh >$(INSSBIN)/netincorp
+		@-set -x; \
+		cd $(INSSBIN); \
+		$(CHOWN) $(NETUSERNAME) netincorp; \
+		$(CHGRP) $(NETGROUPNAME) netincorp; \
+		$(CHMOD) $(CHMODMODE),go=rx$(CHMODMODE_T) netincorp
+
+$(INSSBIN)/netlink3:	$(BIN)/NNlink $(FRC)
+		@-case "$(SUN3)" in ''|0) ;; *) \
+			set -x; \
+			$(CP) $(BIN)/NNlink $(INSSBIN)/NEWnetlink3; \
+			cd $(INSSBIN); \
+			$(STRIP) NEWnetlink3; \
+			$(CHOWN) $(NETUSERNAME) NEWnetlink3; \
+			$(CHGRP) $(NETGROUPNAME) NEWnetlink3; \
+			$(CHMOD) $(CHMODSUMODE),go=x$(CHMODMODE_T) NEWnetlink3; \
+			$(MV) netlink3 OLDnetlink3 2>/dev/null; \
+			$(MV) NEWnetlink3 netlink3; \
+			$(RM) OLDnetlink3 2>/dev/null;; \
+		esac
+
+$(INSSBIN)/netlinkdata:	$(BIN)/VCstats $(FRC)
+		$(CP) $(BIN)/VCstats $(INSSBIN)/NEWnetlinkdata
+		@-set -x; \
+		cd $(INSSBIN); \
+		$(STRIP) NEWnetlinkdata; \
+		$(CHOWN) $(NETUSERNAME) NEWnetlinkdata; \
+		$(CHGRP) $(NETGROUPNAME) NEWnetlinkdata; \
+		$(CHMOD) $(CHMODMODE),g=x,o=$(CHMODMODE_T) NEWnetlinkdata; \
+		$(MV) netlinkdata OLDnetlinkdata 2>/dev/null; \
+		$(MV) NEWnetlinkdata netlinkdata; \
+		$(RM) OLDnetlinkdata 2>/dev/null
+
+$(INSSBIN)/netlinklog:	Admin/checklog.sh $(FRC)
+		$(SED) <Admin/checklog.sh >$(INSSBIN)/netlinklog
+		@-set -x; \
+		cd $(INSSBIN); \
+		$(CHOWN) $(NETUSERNAME) netlinklog; \
+		$(CHGRP) $(NETGROUPNAME) netlinklog; \
+		$(CHMOD) $(CHMODMODE),go=rx$(CHMODMODE_T) netlinklog
+
+$(INSSBIN)/netmailsh:	Admin/netmail.sh $(FRC)
+		$(SED) <Admin/netmail.sh >$(INSSBIN)/netmailsh
+		@-set -x; \
+		cd $(INSSBIN); \
+		$(CHOWN) $(NETUSERNAME) netmailsh; \
+		$(CHGRP) $(NETGROUPNAME) netmailsh; \
+		$(CHMOD) $(CHMODMODE),go=rx$(CHMODMODE_T) netmailsh
+
+$(INSSBIN)/netnovis:	Admin/novis.sh $(FRC)
+		$(SED) <Admin/novis.sh >$(INSSBIN)/netnovis
+		@-set -x; \
+		cd $(INSSBIN); \
+		$(CHOWN) $(NETUSERNAME) netnovis; \
+		$(CHGRP) $(NETGROUPNAME) netnovis; \
+		$(CHMOD) $(CHMODMODE),go=rx$(CHMODMODE_T) netnovis
+
+$(INSSBIN)/netparams:	$(BIN)/showparams $(FRC)
+		$(CP) $(BIN)/showparams $(INSSBIN)/NEWnetparams
+		@-set -x; \
+		cd $(INSSBIN); \
+		$(STRIP) NEWnetparams; \
+		$(CHOWN) $(NETUSERNAME) NEWnetparams; \
+		$(CHGRP) $(NETGROUPNAME) NEWnetparams; \
+		$(CHMOD) $(CHMODSUMODE),go=x$(CHMODMODE_T) NEWnetparams; \
+		$(MV) netparams OLDnetparams 2>/dev/null; \
+		$(MV) NEWnetparams netparams; \
+		$(RM) OLDnetparams 2>/dev/null
+
+$(INSSBIN)/netpasswd:	$(BIN)/passwd $(FRC)
+		$(CP) $(BIN)/passwd $(INSSBIN)/NEWnetpasswd
+		@-set -x; \
+		cd $(INSSBIN); \
+		$(STRIP) NEWnetpasswd; \
+		$(CHOWN) $(NETUSERNAME) NEWnetpasswd; \
+		$(CHGRP) $(NETGROUPNAME) NEWnetpasswd; \
+		$(CHMOD) $(CHMODSUMODE),go=x$(CHMODMODE_T) NEWnetpasswd; \
+		$(MV) netpasswd OLDnetpasswd 2>/dev/null; \
+		$(MV) NEWnetpasswd netpasswd; \
+		$(RM) OLDnetpasswd 2>/dev/null
+
+$(INSSBIN)/netpath:	$(BIN)/revpath $(FRC)
+		$(CP) $(BIN)/revpath $(INSSBIN)/NEWnetpath
+		@-set -x; \
+		cd $(INSSBIN); \
+		$(STRIP) NEWnetpath; \
+		$(CHOWN) $(NETUSERNAME) NEWnetpath; \
+		$(CHGRP) $(NETGROUPNAME) NEWnetpath; \
+		$(CHMOD) $(CHMODMODE),go=x$(CHMODMODE_T) NEWnetpath; \
+		$(MV) netpath OLDnetpath 2>/dev/null; \
+		$(MV) NEWnetpath netpath; \
+		$(RM) OLDnetpath 2>/dev/null
+
+$(INSSBIN)/netpeeper:	Admin/netpeeper.sh $(FRC)
+		$(SED) <Admin/netpeeper.sh >$(INSSBIN)/netpeeper
+		@-set -x; \
+		cd $(INSSBIN); \
+		$(CHOWN) $(NETUSERNAME) netpeeper; \
+		$(CHGRP) $(NETGROUPNAME) netpeeper; \
+		$(CHMOD) $(CHMODMODE),go=rx$(CHMODMODE_T) netpeeper
+
+$(INSSBIN)/netrl:	Admin/netrl.sh $(FRC)
+		$(SED) <Admin/netrl.sh >$(INSSBIN)/netrl
+		@-set -x; \
+		cd $(INSSBIN); \
+		$(CHOWN) $(NETUSERNAME) netrl; \
+		$(CHGRP) $(NETGROUPNAME) netrl; \
+		$(CHMOD) $(CHMODMODE),go=rx$(CHMODMODE_T) netrl
+
+$(INSSBIN)/netrq:	Admin/netrq.sh $(FRC)
+		$(SED) <Admin/netrq.sh >$(INSSBIN)/netrq
+		@-set -x; \
+		cd $(INSSBIN); \
+		$(CHOWN) $(NETUSERNAME) netrq; \
+		$(CHGRP) $(NETGROUPNAME) netrq; \
+		$(CHMOD) $(CHMODMODE),go=rx$(CHMODMODE_T) netrq
+
+$(INSSBIN)/netsort:	Admin/domsort.sh $(FRC)
+		$(SED) <Admin/domsort.sh >$(INSSBIN)/netsort
+		@-set -x; \
+		cd $(INSSBIN); \
+		$(CHOWN) $(NETUSERNAME) netsort; \
+		$(CHGRP) $(NETGROUPNAME) netsort; \
+		$(CHMOD) $(CHMODMODE),go=rx$(CHMODMODE_T) netsort
+
+$(INSSBIN)/netstatspr:	$(BIN)/statspr $(FRC)
+		$(CP) $(BIN)/statspr $(INSSBIN)/NEWnetstatspr
+		@-set -x; \
+		cd $(INSSBIN); \
+		$(STRIP) NEWnetstatspr; \
+		$(CHOWN) $(NETUSERNAME) NEWnetstatspr; \
+		$(CHGRP) $(NETGROUPNAME) NEWnetstatspr; \
+		$(CHMOD) $(CHMODMODE),go=x$(CHMODMODE_T) NEWnetstatspr; \
+		$(MV) netstatspr OLDnetstatspr 2>/dev/null; \
+		$(MV) NEWnetstatspr netstatspr; \
+		$(RM) OLDnetstatspr 2>/dev/null
+
+$(INSSBIN)/netstatus:	Admin/netstatus.sh $(FRC)
+		$(SED) <Admin/netstatus.sh >$(INSSBIN)/netstatus
+		@-set -x; \
+		cd $(INSSBIN); \
+		$(CHOWN) $(NETUSERNAME) netstatus; \
+		$(CHGRP) $(NETGROUPNAME) netstatus; \
+		$(CHMOD) $(CHMODMODE),go=rx$(CHMODMODE_T) netstatus
+
+$(INSSBIN)/nettestcrc: $(BIN)/test-crc $(FRC)
+		$(CP) $(BIN)/test-crc $(INSSBIN)/nettestcrc
+		@-set -x; \
+		cd $(INSSBIN); \
+		$(STRIP) nettestcrc; \
+		$(CHOWN) $(NETUSERNAME) nettestcrc; \
+		$(CHGRP) $(NETGROUPNAME) nettestcrc; \
+		$(CHMOD) $(CHMODMODE),go=x$(CHMODMODE_T) nettestcrc
+
+$(INSSBIN)/nettimeout:	$(BIN)/timeout $(FRC)
+		$(CP) $(BIN)/timeout $(INSSBIN)/NEWnettimeout
+		@-set -x; \
+		cd $(INSSBIN); \
+		$(STRIP) NEWnettimeout; \
+		$(CHOWN) $(NETUSERNAME) NEWnettimeout; \
+		$(CHGRP) $(NETGROUPNAME) NEWnettimeout; \
+		$(CHMOD) $(CHMODMODE),go=x$(CHMODMODE_T) NEWnettimeout; \
+		$(MV) nettimeout OLDnettimeout 2>/dev/null; \
+		$(MV) NEWnettimeout nettimeout; \
+		$(RM) OLDnettimeout 2>/dev/null
+
+$(INSHANDLERS)/filer:	$(BIN)/filer $(FRC)
+		$(CP) $(BIN)/filer $(INSHANDLERS)/NEWfiler
+		@-set -x; \
+		cd $(INSHANDLERS); \
+		$(STRIP) NEWfiler; \
+		$(CHOWN) $(NETUSERNAME) NEWfiler; \
+		$(CHGRP) $(NETGROUPNAME) NEWfiler; \
+		$(CHMOD) $(CHMODMODE),go= NEWfiler; \
+		$(MV) filer OLDfiler 2>/dev/null; \
+		$(MV) NEWfiler filer; \
+		$(RM) OLDfiler 2>/dev/null
+
+$(INSHANDLERS)/fileserver:	$(BIN)/fileserver $(FRC)
+		$(CP) $(BIN)/fileserver $(INSHANDLERS)/NEWfileserver
+		@-set -x; \
+		cd $(INSHANDLERS); \
+		$(STRIP) NEWfileserver; \
+		case "$(SU)" in \
+		$(NETUSERNAME)) \
+			$(CHOWN) $(SERVERUSER) NEWfileserver;; \
+		*) \
+			$(CHOWN) $(SU) NEWfileserver;; \
+		esac; \
+		$(CHGRP) $(NETGROUPNAME) NEWfileserver; \
+		$(CHMOD) $(CHMODSUMODE),g=x,o= NEWfileserver; \
+		$(MV) fileserver OLDfileserver 2>/dev/null; \
+		$(MV) NEWfileserver fileserver; \
+		$(RM) OLDfileserver 2>/dev/null
+
+$(INSHANDLERS)/handler:	$(BIN)/handler $(FRC)
+		$(CP) $(BIN)/handler $(INSHANDLERS)/NEWhandler
+		@-set -x; \
+		cd $(INSHANDLERS); \
+		$(STRIP) NEWhandler; \
+		$(CHOWN) $(NETUSERNAME) NEWhandler; \
+		$(CHGRP) $(NETGROUPNAME) NEWhandler; \
+		$(CHMOD) $(CHMODMODE),go= NEWhandler; \
+		$(MV) handler OLDhandler 2>/dev/null; \
+		$(MV) NEWhandler handler; \
+		$(RM) OLDhandler finger ftpserver httpserver llooker peeper peter qlooker 2>/dev/null; \
+		$(LN) handler finger; \
+		$(LN) handler ftpserver; \
+		$(LN) handler httpserver; \
+		$(LN) handler llooker; \
+		$(LN) handler peeper; \
+		$(LN) handler peter; \
+		$(LN) handler qlooker
+
+$(INSHANDLERS)/mailer:	$(BIN)/mailer $(FRC)
+		$(CP) $(BIN)/mailer $(INSHANDLERS)/NEWmailer
+		@-set -x; \
+		cd $(INSHANDLERS); \
+		$(STRIP) NEWmailer; \
+		$(CHOWN) $(NETUSERNAME) NEWmailer; \
+		$(CHGRP) $(NETGROUPNAME) NEWmailer; \
+		$(CHMOD) $(CHMODMODE),go= NEWmailer; \
+		$(MV) mailer OLDmailer 2>/dev/null; \
+		$(MV) NEWmailer mailer; \
+		$(RM) OLDmailer 2>/dev/null
+
+# $(INSHANDLERS)/peter:	$(BIN)/peter $(FRC)
+# 		$(CP) $(BIN)/peter $(INSHANDLERS)/NEWpeter
+# 		@-set -x; \
+# 		cd $(INSHANDLERS); \
+# 		$(STRIP) NEWpeter; \
+# 		$(CHOWN) $(NETUSERNAME) NEWpeter; \
+# 		$(CHGRP) $(NETGROUPNAME) NEWpeter; \
+# 		$(CHMOD) $(CHMODMODE),go= NEWpeter; \
+# 		$(MV) peter OLDpeter 2>/dev/null; \
+# 		$(MV) NEWpeter peter; \
+# 		$(RM) OLDpeter 2>/dev/null
+
+$(INSHANDLERS)/printer:	$(BIN)/printer $(FRC)
+		$(CP) $(BIN)/printer $(INSHANDLERS)/NEWprinter
+		@-set -x; \
+		cd $(INSHANDLERS); \
+		$(STRIP) NEWprinter; \
+		$(CHOWN) $(NETUSERNAME) NEWprinter; \
+		$(CHGRP) $(NETGROUPNAME) NEWprinter; \
+		$(CHMOD) $(CHMODMODE),go= NEWprinter; \
+		$(MV) printer OLDprinter 2>/dev/null; \
+		$(MV) NEWprinter printer; \
+		$(RM) OLDprinter 2>/dev/null
+
+$(INSHANDLERS)/reporter:	$(BIN)/reporter $(FRC)
+		$(CP) $(BIN)/reporter $(INSHANDLERS)/NEWreporter
+		@-set -x; \
+		cd $(INSHANDLERS); \
+		$(STRIP) NEWreporter; \
+		$(CHOWN) $(NETUSERNAME) NEWreporter; \
+		$(CHGRP) $(NETGROUPNAME) NEWreporter; \
+		$(CHMOD) $(CHMODMODE),go= NEWreporter; \
+		$(MV) reporter OLDreporter 2>/dev/null; \
+		$(MV) NEWreporter reporter; \
+		$(RM) OLDreporter 2>/dev/null
+
+$(INSHANDLERS)/stater:	$(BIN)/stater $(FRC)
+		$(CP) $(BIN)/stater $(INSHANDLERS)/NEWstater
+		@-set -x; \
+		cd $(INSHANDLERS); \
+		$(STRIP) NEWstater; \
+		$(CHOWN) $(NETUSERNAME) NEWstater; \
+		$(CHGRP) $(NETGROUPNAME) NEWstater; \
+		$(CHMOD) $(CHMODMODE),go= NEWstater; \
+		$(MV) stater OLDstater 2>/dev/null; \
+		$(MV) NEWstater stater; \
+		$(RM) OLDstater 2>/dev/null
+
+$(INSLIB)/$(STATEP):	$(BIN)/state $(FRC)
+		$(CP) $(BIN)/state $(INSLIB)/NEW$(STATEP)
+		@-set -x; \
+		cd $(INSLIB); \
+		$(STRIP) NEW$(STATEP); \
+		$(CHOWN) $(NETUSERNAME) NEW$(STATEP); \
+		$(CHGRP) $(NETGROUPNAME) NEW$(STATEP); \
+		$(CHMOD) $(CHMODSUMODE),go=x NEW$(STATEP); \
+		$(MV) $(STATEP) OLD$(STATEP) 2>/dev/null; \
+		$(MV) NEW$(STATEP) $(STATEP); \
+		$(MV) ../$(BINDIR)/netstate ../$(BINDIR)/OLDnetstate 2>/dev/null; \
+		$(RM) OLD$(STATEP) ../$(BINDIR)/OLDnetstate 2>/dev/null; \
+		$(LN) $(STATEP) ../$(BINDIR)/netstate
+
+$(INSLIB)/badhandler:	$(BIN)/badhandler $(FRC)
+		$(CP) $(BIN)/badhandler $(INSLIB)/NEWbadhandler
+		@-set -x; \
+		cd $(INSLIB); \
+		$(STRIP) NEWbadhandler; \
+		$(CHOWN) $(NETUSERNAME) NEWbadhandler; \
+		$(CHGRP) $(NETGROUPNAME) NEWbadhandler; \
+		$(CHMOD) $(CHMODMODE),go=$(CHMODMODE_T) NEWbadhandler; \
+		$(MV) badhandler OLDbadhandler 2>/dev/null; \
+		$(MV) NEWbadhandler badhandler; \
+		$(RM) OLDbadhandler 2>/dev/null
+
+$(INSLIB)/call_term:	Admin/call_term.sh $(FRC)
+		$(SED) <Admin/call_term.sh >$(INSLIB)/NEWcall_term
+		@-set -x; \
+		cd $(INSLIB); \
+		$(CHOWN) $(NETUSERNAME) NEWcall_term; \
+		$(CHGRP) $(NETGROUPNAME) NEWcall_term; \
+		$(CHMOD) $(CHMODMODE),g=rx,o=$(CHMODMODE_T) NEWcall_term; \
+		$(MV) call_term OLDcall_term 2>/dev/null; \
+		$(MV) NEWcall_term call_term
+
+$(INSLIB)/changestate:	$(BIN)/changestate $(FRC)
+		$(CP) $(BIN)/changestate $(INSLIB)/NEWchangestate
+		@-set -x; \
+		cd $(INSLIB); \
+		$(STRIP) NEWchangestate; \
+		$(CHOWN) $(NETUSERNAME) NEWchangestate; \
+		$(CHGRP) $(NETGROUPNAME) NEWchangestate; \
+		$(CHMOD) $(CHMODSUMODE),go=x$(CHMODMODE_T) NEWchangestate; \
+		$(MV) changestate OLDchangestate 2>/dev/null; \
+		$(MV) NEWchangestate changestate; \
+		$(MV) ../$(BINDIR)/netchange ../$(BINDIR)/OLDnetchange 2>/dev/null; \
+		$(RM) OLDchangestate ../$(BINDIR)/OLDnetchange 2>/dev/null; \
+		$(LN) changestate ../$(BINDIR)/netchange
+
+$(INSLIB)/checkmsgsdb:	$(BIN)/checkmsgsdb $(FRC)
+		$(CP) $(BIN)/checkmsgsdb $(INSLIB)/NEWcheckmsgsdb
+		@-set -x; \
+		cd $(INSLIB); \
+		$(STRIP) NEWcheckmsgsdb; \
+		$(CHOWN) $(NETUSERNAME) NEWcheckmsgsdb; \
+		$(CHGRP) $(NETGROUPNAME) NEWcheckmsgsdb; \
+		$(CHMOD) $(CHMODSUMODE),go=x$(CHMODMODE_T) NEWcheckmsgsdb; \
+		$(MV) checkmsgsdb OLDcheckmsgsdb 2>/dev/null; \
+		$(MV) NEWcheckmsgsdb checkmsgsdb; \
+		$(MV) ../$(BINDIR)/netcheckdb ../$(BINDIR)/OLDnetcheckdb 2>/dev/null; \
+		$(RM) OLDcheckmsgsdb ../$(BINDIR)/OLDnetcheckdb 2>/dev/null; \
+		$(LN) checkmsgsdb ../$(BINDIR)/netcheckdb
+
+$(INSLIB)/convdirs.sh:	Admin/convdirs.sh $(FRC)
+		$(SED) <Admin/convdirs.sh >$(INSLIB)/convdirs.sh
+		@-set -x; \
+		cd $(INSLIB); \
+		$(CHOWN) $(NETUSERNAME) convdirs.sh; \
+		$(CHGRP) $(NETGROUPNAME) convdirs.sh; \
+		$(CHMOD) $(CHMODMODE),g=rx,o=$(CHMODMODE_T) convdirs.sh
+
+$(INSLIB)/crypfilter.sh:	Admin/crypfilter.sh $(FRC)
+		$(SED) <Admin/crypfilter.sh >$(INSLIB)/NEWcrypfltr.sh
+		@-set -x; \
+		cd $(INSLIB); \
+		$(CHOWN) $(NETUSERNAME) NEWcrypfltr.sh; \
+		$(CHGRP) $(NETGROUPNAME) NEWcrypfltr.sh; \
+		$(CHMOD) $(CHMODMODE),g=rx,o=$(CHMODMODE_T) NEWcrypfltr.sh; \
+		$(MV) crypfilter.sh OLDcrypfltr.sh 2>/dev/null; \
+		$(MV) NEWcrypfltr.sh crypfilter.sh
+
+$(INSLIB)/daily:	Admin/daily.sh $(FRC)
+		$(SED) <Admin/daily.sh >$(INSLIB)/NEWdaily
+		@-set -x; \
+		cd $(INSLIB); \
+		$(CHOWN) $(NETUSERNAME) NEWdaily; \
+		$(CHGRP) $(NETGROUPNAME) NEWdaily; \
+		$(CHMOD) $(CHMODMODE),g=rx,o=$(CHMODMODE_T) NEWdaily; \
+		$(MV) daily OLDdaily 2>/dev/null; \
+		$(MV) NEWdaily daily
+
+$(INSLIB)/deliver:	Admin/deliver $(FRC)
+		$(CP) Admin/deliver $(INSLIB)/NWdeliver
+		@-set -x; \
+		cd $(INSLIB); \
+		$(CHOWN) $(NETUSERNAME) NWdeliver; \
+		$(CHGRP) $(NETGROUPNAME) NWdeliver; \
+		$(CHMOD) $(CHMODMODE),g=rx,o=$(CHMODMODE_T) NWdeliver; \
+		$(MV) deliver OLdeliver 2>/dev/null; \
+		$(MV) NWdeliver deliver
+
+$(INSLIB)/deliver.py:	Admin/deliver.py $(FRC)
+		$(CP) Admin/deliver.py $(INSLIB)/NWdeliver.py
+		@-set -x; \
+		cd $(INSLIB); \
+		$(CHOWN) $(NETUSERNAME) NWdeliver.py; \
+		$(CHGRP) $(NETGROUPNAME) NWdeliver.py; \
+		$(CHMOD) $(CHMODMODE),g=rx,o=$(CHMODMODE_T) NWdeliver.py; \
+		$(MV) deliver.py OLdeliver.py 2>/dev/null; \
+		$(MV) NWdeliver.py deliver.py
+
+$(INSLIB)/dropfilter.sh:	Admin/dropfilter.sh $(FRC)
+		$(SED) <Admin/dropfilter.sh >$(INSLIB)/NEWdropfltr.sh
+		@-set -x; \
+		cd $(INSLIB); \
+		$(CHOWN) $(NETUSERNAME) NEWdropfltr.sh; \
+		$(CHGRP) $(NETGROUPNAME) NEWdropfltr.sh; \
+		$(CHMOD) $(CHMODMODE),g=rx,o=$(CHMODMODE_T) NEWdropfltr.sh; \
+		$(MV) dropfilter.sh OLDdropfltr.sh 2>/dev/null; \
+		$(MV) NEWdropfltr.sh dropfilter.sh
+
+$(INSLIB)/filter:	$(BIN)/filter $(FRC)
+		$(CP) $(BIN)/filter $(INSLIB)/NEWfilter
+		@-set -x; \
+		cd $(INSLIB); \
+		$(STRIP) NEWfilter; \
+		$(CHOWN) $(NETUSERNAME) NEWfilter; \
+		$(CHGRP) $(NETGROUPNAME) NEWfilter; \
+		$(CHMOD) $(CHMODMODE),go= NEWfilter; \
+		$(MV) filter OLDfilter 2>/dev/null; \
+		$(MV) NEWfilter filter; \
+		$(MV) pressfilter OLDpressfilter 2>/dev/null; \
+		$(RM) OLDfilter crypfilter dropfilter OLDpressfilter 2>/dev/null; \
+		$(LN) filter crypfilter; \
+		$(LN) filter dropfilter; \
+		$(LN) filter pressfilter
+
+$(INSLIB)/filter43:	$(BIN)/filter43 $(FRC)
+		@-case "$(SUN3)" in ''|0) ;; *) \
+			set -x; \
+			$(CP) $(BIN)/filter43 $(INSLIB)/NEWfilter43; \
+			cd $(INSLIB); \
+			$(STRIP) NEWfilter43; \
+			$(CHOWN) $(NETUSERNAME) NEWfilter43; \
+			$(CHGRP) $(NETGROUPNAME) NEWfilter43; \
+			$(CHMOD) $(CHMODMODE),go= NEWfilter43; \
+			$(MV) filter43 OLDfilter43 2>/dev/null; \
+			$(MV) NEWfilter43 filter43; \
+			$(RM) OLDfilter43 2>/dev/null;; \
+		esac
+
+$(INSLIB)/finger.sh:	Admin/finger.sh $(FRC)
+		$(SED) <Admin/finger.sh >$(INSLIB)/NEWfinger.sh
+		@-set -x; \
+		cd $(INSLIB); \
+		$(CHOWN) $(NETUSERNAME) NEWfinger.sh; \
+		$(CHGRP) $(NETGROUPNAME) NEWfinger.sh; \
+		$(CHMOD) $(CHMODMODE),g=rx,o=$(CHMODMODE_T) NEWfinger.sh; \
+		$(MV) finger.sh OLDfinger.sh 2>/dev/null; \
+		$(MV) NEWfinger.sh finger.sh
+
+$(INSLIB)/ftpserver.sh:	Admin/ftpserver.sh $(FRC)
+		$(SED) <Admin/ftpserver.sh >$(INSLIB)/NWftpserver.sh
+		@-set -x; \
+		cd $(INSLIB); \
+		$(CHOWN) $(NETUSERNAME) NWftpserver.sh; \
+		$(CHGRP) $(NETGROUPNAME) NWftpserver.sh; \
+		$(CHMOD) $(CHMODMODE),g=rx,o=$(CHMODMODE_T) NWftpserver.sh; \
+		$(MV) ftpserver.sh OLftpserver.sh 2>/dev/null; \
+		$(MV) NWftpserver.sh ftpserver.sh
+
+$(INSLIB)/handler.sh:	Admin/handler.sh $(FRC)
+		$(SED) <Admin/handler.sh >$(INSLIB)/NEWhandler.sh
+		@-set -x; \
+		cd $(INSLIB); \
+		$(CHOWN) $(NETUSERNAME) NEWhandler.sh; \
+		$(CHGRP) $(NETGROUPNAME) NEWhandler.sh; \
+		$(CHMOD) $(CHMODMODE),g=rx,o=$(CHMODMODE_T) NEWhandler.sh; \
+		$(MV) handler.sh OLDhandler.sh 2>/dev/null; \
+		$(MV) NEWhandler.sh handler.sh
+
+$(INSLIB)/handlers.dist:	Handlers/handlers $(FRC)
+		$(CP) Handlers/handlers $(INSLIB)/NEWhandlers
+		@-set -x; \
+		cd $(INSLIB); \
+		$(CHOWN) $(NETUSERNAME) NEWhandlers; \
+		$(CHGRP) $(NETGROUPNAME) NEWhandlers; \
+		$(CHMOD) ug=rw,o=r NEWhandlers; \
+		$(MV) handlers OLDhandlers 2>/dev/null; \
+		$(MV) NEWhandlers handlers.dist
+
+$(INSLIB)/HTdaemon:	$(BIN)/HTdaemon $(FRC)
+		$(CP) $(BIN)/HTdaemon $(INSLIB)/NEWHTdaemon
+		@-set -x; \
+		cd $(INSLIB); \
+		$(STRIP) NEWHTdaemon; \
+		$(CHOWN) $(NETUSERNAME) NEWHTdaemon; \
+		$(CHGRP) $(NETGROUPNAME) NEWHTdaemon; \
+		$(CHMOD) $(CHMODMODE),go=$(CHMODMODE_T) NEWHTdaemon; \
+		$(MV) HTdaemon OLDHTdaemon 2>/dev/null; \
+		$(MV) NEWHTdaemon HTdaemon; \
+		$(RM) OLDHTdaemon 2>/dev/null
+
+$(INSLIB)/httpget:	Admin/httpget $(FRC)
+		$(CP) Admin/httpget $(INSLIB)/NWhttpget
+		@-set -x; \
+		cd $(INSLIB); \
+		$(CHOWN) $(NETUSERNAME) NWhttpget; \
+		$(CHGRP) $(NETGROUPNAME) NWhttpget; \
+		$(CHMOD) $(CHMODMODE),g=rx,o=$(CHMODMODE_T) NWhttpget; \
+		$(MV) httpget OLhttpget 2>/dev/null; \
+		$(MV) NWhttpget httpget
+
+$(INSLIB)/httpget.py:	Admin/httpget.py $(FRC)
+		$(CP) Admin/httpget.py $(INSLIB)/NWhttpget.py
+		@-set -x; \
+		cd $(INSLIB); \
+		$(CHOWN) $(NETUSERNAME) NWhttpget.py; \
+		$(CHGRP) $(NETGROUPNAME) NWhttpget.py; \
+		$(CHMOD) $(CHMODMODE),g=rx,o=$(CHMODMODE_T) NWhttpget.py; \
+		$(MV) httpget.py OLhttpget.py 2>/dev/null; \
+		$(MV) NWhttpget.py httpget.py
+
+$(INSLIB)/httpserver.sh:	Admin/httpserver.sh $(FRC)
+		$(SED) <Admin/httpserver.sh >$(INSLIB)/NWhttpserver.sh
+		@-set -x; \
+		cd $(INSLIB); \
+		$(CHOWN) $(NETUSERNAME) NWhttpserver.sh; \
+		$(CHGRP) $(NETGROUPNAME) NWhttpserver.sh; \
+		$(CHMOD) $(CHMODMODE),g=rx,o=$(CHMODMODE_T) NWhttpserver.sh; \
+		$(MV) httpserver.sh OLhttpserver.sh 2>/dev/null; \
+		$(MV) NWhttpserver.sh httpserver.sh
+
+$(INSLIB)/llooker.sh:	Admin/llooker.sh $(FRC)
+		$(SED) <Admin/llooker.sh >$(INSLIB)/NEWllooker.sh
+		@-set -x; \
+		cd $(INSLIB); \
+		$(CHOWN) $(NETUSERNAME) NEWllooker.sh; \
+		$(CHGRP) $(NETGROUPNAME) NEWllooker.sh; \
+		$(CHMOD) $(CHMODMODE),g=rx,o=$(CHMODMODE_T) NEWllooker.sh; \
+		$(MV) llooker.sh OLDllooker.sh 2>/dev/null; \
+		$(MV) NEWllooker.sh llooker.sh
+
+$(INSLIB)/loophandler:	$(BIN)/loophandler $(FRC)
+		$(CP) $(BIN)/loophandler $(INSLIB)/NEWloophandler
+		@-set -x; \
+		cd $(INSLIB); \
+		$(STRIP) NEWloophandler; \
+		$(CHOWN) $(NETUSERNAME) NEWloophandler; \
+		$(CHGRP) $(NETGROUPNAME) NEWloophandler; \
+		$(CHMOD) $(CHMODMODE),go=$(CHMODMODE_T) NEWloophandler; \
+		$(MV) loophandler OLDloophandler 2>/dev/null; \
+		$(MV) NEWloophandler loophandler; \
+		$(RM) OLDloophandler 2>/dev/null
+
+$(INSLIB)/monthly:	Admin/monthly.sh $(FRC)
+		$(SED) <Admin/monthly.sh >$(INSLIB)/NEWmonthly
+		@-set -x; \
+		cd $(INSLIB); \
+		$(CHOWN) $(NETUSERNAME) NEWmonthly; \
+		$(CHGRP) $(NETGROUPNAME) NEWmonthly; \
+		$(CHMOD) $(CHMODMODE),g=rx,o=$(CHMODMODE_T) NEWmonthly; \
+		$(MV) monthly OLDmonthly 2>/dev/null; \
+		$(MV) NEWmonthly monthly
+
+$(INSLIB)/netcontrol:	$(BIN)/net $(FRC)
+		$(CP) $(BIN)/net $(INSLIB)/NEWnetcontrol
+		@-set -x; \
+		cd $(INSLIB); \
+		$(STRIP) NEWnetcontrol; \
+		$(CHOWN) $(NETUSERNAME) NEWnetcontrol; \
+		$(CHGRP) $(NETGROUPNAME) NEWnetcontrol; \
+		$(CHMOD) $(CHMODSUMODE),go=x$(CHMODMODE_T) NEWnetcontrol; \
+		$(MV) netcontrol OLDnetcontrol 2>/dev/null; \
+		$(MV) NEWnetcontrol netcontrol; \
+		$(MV) ../$(BINDIR)/netcontrol ../$(BINDIR)/OLDnetcontrol 2>/dev/null; \
+		$(RM) OLDnetcontrol ../$(BINDIR)/OLDnetcontrol 2>/dev/null; \
+		$(LN) netcontrol ../$(BINDIR)/netcontrol
+
+$(INSLIB)/netinit:	$(BIN)/netinit $(FRC)
+		$(CP) $(BIN)/netinit $(INSLIB)/NEWnetinit
+		@-set -x; \
+		cd $(INSLIB); \
+		$(STRIP) NEWnetinit; \
+		$(CHOWN) $(NETUSERNAME) NEWnetinit; \
+		$(CHGRP) $(NETGROUPNAME) NEWnetinit; \
+		$(CHMOD) $(CHMODMODE),go=$(CHMODMODE_T) NEWnetinit; \
+		$(MV) netinit OLDnetinit 2>/dev/null; \
+		$(MV) NEWnetinit netinit; \
+		$(RM) OLDnetinit 2>/dev/null
+
+$(INSLIB)/nightly:	Admin/nightly.sh $(FRC)
+		$(SED) <Admin/nightly.sh >$(INSLIB)/NEWnightly
+		@-set -x; \
+		cd $(INSLIB); \
+		$(CHOWN) $(NETUSERNAME) NEWnightly; \
+		$(CHGRP) $(NETGROUPNAME) NEWnightly; \
+		$(CHMOD) $(CHMODMODE),g=rx,o=$(CHMODMODE_T) NEWnightly; \
+		$(MV) nightly OLDnightly 2>/dev/null; \
+		$(MV) NEWnightly nightly
+
+$(INSLIB)/NNdaemon:	$(BIN)/NNdaemon $(FRC)
+		@-case "$(SUN3)" in ''|0) ;; *) \
+			for prog in NNdaemon CNdaemon ENdaemon PNdaemon; do \
+				(set -x; \
+				$(CP) $(BIN)/$$prog $(INSLIB)/NEW$$prog; \
+				cd $(INSLIB); \
+				$(STRIP) NEW$$prog; \
+				$(CHOWN) $(NETUSERNAME) NEW$$prog; \
+				$(CHGRP) $(NETGROUPNAME) NEW$$prog; \
+				$(CHMOD) $(CHMODMODE),go=$(CHMODMODE_T) NEW$$prog; \
+				$(MV) $$prog OLD$$prog 2>/dev/null; \
+				$(MV) NEW$$prog $$prog; \
+				$(RM) OLD$$prog 2>/dev/null; )\
+			done;; \
+		esac
+
+$(INSLIB)/peter.sh:	Admin/peter.sh $(FRC)
+		$(SED) <Admin/peter.sh >$(INSLIB)/NEWpeter.sh
+		@-set -x; \
+		cd $(INSLIB); \
+		$(CHOWN) $(NETUSERNAME) NEWpeter.sh; \
+		$(CHGRP) $(NETGROUPNAME) NEWpeter.sh; \
+		$(CHMOD) $(CHMODMODE),g=rx,o=$(CHMODMODE_T) NEWpeter.sh; \
+		$(MV) peter.sh OLDpeter.sh 2>/dev/null; \
+		$(MV) NEWpeter.sh peter.sh
+
+$(INSLIB)/peeper.sh:	Admin/peeper.sh $(FRC)
+		$(SED) <Admin/peeper.sh >$(INSLIB)/NEWpeeper.sh
+		@-set -x; \
+		cd $(INSLIB); \
+		$(CHOWN) $(NETUSERNAME) NEWpeeper.sh; \
+		$(CHGRP) $(NETGROUPNAME) NEWpeeper.sh; \
+		$(CHMOD) $(CHMODMODE),g=rx,o=$(CHMODMODE_T) NEWpeeper.sh; \
+		$(MV) peeper.sh OLDpeeper.sh 2>/dev/null; \
+		$(MV) NEWpeeper.sh peeper.sh
+
+$(INSLIB)/pressfilter.sh:	Admin/pressfilter.sh $(FRC)
+		$(SED) <Admin/pressfilter.sh >$(INSLIB)/NEWprssfltr.sh
+		@-set -x; \
+		cd $(INSLIB); \
+		$(CHOWN) $(NETUSERNAME) NEWprssfltr.sh; \
+		$(CHGRP) $(NETGROUPNAME) NEWprssfltr.sh; \
+		$(CHMOD) $(CHMODMODE),g=rx,o=$(CHMODMODE_T) NEWprssfltr.sh; \
+		$(MV) pressfilter.sh OLDprssfltr.sh 2>/dev/null; \
+		$(MV) NEWprssfltr.sh pressfilter.sh
+
+$(INSLIB)/purge:	$(BIN)/purge $(FRC)
+		$(CP) $(BIN)/purge $(INSLIB)/NEWpurge
+		@-set -x; \
+		cd $(INSLIB); \
+		$(STRIP) NEWpurge; \
+		$(CHOWN) $(NETUSERNAME) NEWpurge; \
+		$(CHGRP) $(NETGROUPNAME) NEWpurge; \
+		$(CHMOD) $(CHMODSUMODE),go=x$(CHMODMODE_T) NEWpurge; \
+		$(MV) purge OLDpurge 2>/dev/null; \
+		$(MV) NEWpurge purge; \
+		$(MV) ../$(BINDIR)/netpurge ../$(BINDIR)/OLDnetpurge 2>/dev/null; \
+		$(RM) OLDpurge ../$(BINDIR)/OLDnetpurge 2>/dev/null; \
+		$(LN) purge ../$(BINDIR)/netpurge
+
+$(INSLIB)/qlooker.sh:	Admin/qlooker.sh $(FRC)
+		$(SED) <Admin/qlooker.sh >$(INSLIB)/NEWqlooker.sh
+		@-set -x; \
+		cd $(INSLIB); \
+		$(CHOWN) $(NETUSERNAME) NEWqlooker.sh; \
+		$(CHGRP) $(NETGROUPNAME) NEWqlooker.sh; \
+		$(CHMOD) $(CHMODMODE),g=rx,o=$(CHMODMODE_T) NEWqlooker.sh; \
+		$(MV) qlooker.sh OLDqlooker.sh 2>/dev/null; \
+		$(MV) NEWqlooker.sh qlooker.sh
+
+$(INSLIB)/request:	$(BIN)/request $(FRC)
+		$(CP) $(BIN)/request $(INSLIB)/NEWrequest
+		@-set -x; \
+		cd $(INSLIB); \
+		$(STRIP) NEWrequest; \
+		$(CHOWN) $(NETUSERNAME) NEWrequest; \
+		$(CHGRP) $(NETGROUPNAME) NEWrequest; \
+		$(CHMOD) $(CHMODSUMODE),go=x$(CHMODMODE_T) NEWrequest; \
+		$(MV) request OLDrequest 2>/dev/null; \
+		$(MV) NEWrequest request; \
+		$(MV) ../$(BINDIR)/netrequest ../$(BINDIR)/OLDnetrequest 2>/dev/null; \
+		$(RM) OLDrequest ../$(BINDIR)/OLDnetrequest 2>/dev/null; \
+		$(LN) request ../$(BINDIR)/netrequest
+
+$(INSLIB)/reroute:	$(BIN)/reroute $(FRC)
+		$(CP) $(BIN)/reroute $(INSLIB)/NEWreroute
+		@-set -x; \
+		cd $(INSLIB); \
+		$(STRIP) NEWreroute; \
+		$(CHOWN) $(NETUSERNAME) NEWreroute; \
+		$(CHGRP) $(NETGROUPNAME) NEWreroute; \
+		$(CHMOD) $(CHMODSUMODE),go=x$(CHMODMODE_T) NEWreroute; \
+		$(MV) reroute OLDreroute 2>/dev/null; \
+		$(MV) NEWreroute reroute; \
+		$(MV) ../$(BINDIR)/netreroute ../$(BINDIR)/OLDnetreroute 2>/dev/null; \
+		$(RM) OLDreroute ../$(BINDIR)/OLDnetreroute 2>/dev/null; \
+		$(LN) reroute ../$(BINDIR)/netreroute
+
+$(INSLIB)/router:	$(BIN)/router $(FRC)
+		$(CP) $(BIN)/router $(INSLIB)/NEWrouter
+		@-set -x; \
+		cd $(INSLIB); \
+		$(STRIP) NEWrouter; \
+		$(CHOWN) $(NETUSERNAME) NEWrouter; \
+		$(CHGRP) $(NETGROUPNAME) NEWrouter; \
+		$(CHMOD) $(CHMODMODE),go=$(CHMODMODE_T) NEWrouter; \
+		$(MV) router OLDrouter 2>/dev/null; \
+		$(MV) NEWrouter router; \
+		$(RM) OLDrouter 2>/dev/null
+
+$(INSLIB)/sendmsg:	$(BIN)/sendmsg $(FRC)
+		$(CP) $(BIN)/sendmsg $(INSLIB)/NEWsendmsg
+		@-set -x; \
+		cd $(INSLIB); \
+		$(STRIP) NEWsendmsg; \
+		$(CHOWN) $(SU) NEWsendmsg; \
+		$(CHGRP) $(NETGROUPNAME) NEWsendmsg; \
+		$(CHMOD) $(CHMODSUMODE),go=x NEWsendmsg; \
+		$(MV) sendmsg OLDsendmsg 2>/dev/null; \
+		$(MV) NEWsendmsg sendmsg; \
+		$(MV) ../$(BINDIR)/netmsg ../$(BINDIR)/OLDnetmsg 2>/dev/null; \
+		$(RM) OLDsendmsg ../$(BINDIR)/OLDnetmsg 2>/dev/null; \
+		$(LN) sendmsg ../$(BINDIR)/netmsg
+
+$(INSLIB)/spooler:	$(BIN)/spooler $(FRC)
+		$(CP) $(BIN)/spooler $(INSLIB)/NEWspooler
+		@-set -x; \
+		cd $(INSLIB); \
+		$(STRIP) NEWspooler; \
+		$(CHOWN) $(NETUSERNAME) NEWspooler; \
+		$(CHGRP) $(NETGROUPNAME) NEWspooler; \
+		$(CHMOD) $(CHMODMODE),go= NEWspooler; \
+		$(MV) spooler OLDspooler 2>/dev/null; \
+		$(MV) NEWspooler spooler; \
+		$(MV) UUCP OLDUUCP 2>/dev/null; \
+		$(RM) OLDspooler SMTP OLDUUCP 2>/dev/null; \
+		$(LN) spooler SMTP; \
+		$(LN) spooler UUCP
+
+$(INSLIB)/start:	Admin/start.sh $(FRC)
+		$(SED) <Admin/start.sh >$(INSLIB)/NEWstart
+		@-set -x; \
+		cd $(INSLIB); \
+		$(CHOWN) $(NETUSERNAME) NEWstart; \
+		$(CHGRP) $(NETGROUPNAME) NEWstart; \
+		$(CHMOD) $(CHMODMODE),g=rx,o=$(CHMODMODE_T) NEWstart; \
+		$(MV) start OLDstart 2>/dev/null; \
+		$(MV) NEWstart start; \
+		$(MV) ../$(BINDIR)/netstart ../$(BINDIR)/OLDnetstart 2>/dev/null; \
+		$(RM) ../$(BINDIR)/OLDnetstart 2>/dev/null; \
+		$(LN) start ../$(BINDIR)/netstart
+
+$(INSLIB)/SMTP.sh:	Admin/SMTP.sh $(FRC)
+		$(SED) <Admin/SMTP.sh >$(INSLIB)/NEWSMTP.sh
+		@-set -x; \
+		cd $(INSLIB); \
+		$(CHOWN) $(NETUSERNAME) NEWSMTP.sh; \
+		$(CHGRP) $(NETGROUPNAME) NEWSMTP.sh; \
+		$(CHMOD) $(CHMODMODE),g=rx,o=$(CHMODMODE_T) NEWSMTP.sh; \
+		$(MV) SMTP.sh OLDSMTP.sh 2>/dev/null; \
+		$(MV) NEWSMTP.sh SMTP.sh
+
+$(INSLIB)/Sun3_4:	$(BIN)/Sun3_4 $(FRC)
+		@-case "$(SUN3SPOOLDIR)" in '') ;; *) \
+			set -x; \
+			$(CP) $(BIN)/Sun3_4 $(INSLIB)/NEWSun3_4; \
+			cd $(INSLIB); \
+			$(STRIP) NEWSun3_4; \
+			case "$(SUN3USERNAME)" in \
+			$(NETUSERNAME)) \
+				$(CHOWN) $(NETUSERNAME) NEWSun3_4 ; \
+				$(CHMOD) $(CHMODMODE),go= NEWSun3_4 ;; \
+			*) \
+				$(CHOWN) $(SU) NEWSun3_4 ; \
+				$(CHMOD) $(CHMODSUMODE),go=x NEWSun3_4 ;; \
+			esac; \
+			$(CHGRP) $(NETGROUPNAME) NEWSun3_4; \
+			$(MV) Sun3_4 OLDSun3_4 2>/dev/null; \
+			$(MV) NEWSun3_4 Sun3_4; \
+			$(RM) OLDSun3_4 2>/dev/null;; \
+		esac
+
+$(INSLIB)/Sun4_3:	$(BIN)/Sun4_3 $(FRC)
+		@-case "$(SUN3SPOOLDIR)" in '') ;; *) \
+			set -x; \
+			$(CP) $(BIN)/Sun4_3 $(INSLIB)/NEWSun4_3; \
+			cd $(INSLIB); \
+			$(STRIP) NEWSun4_3; \
+			case "$(SUN3USERNAME)" in \
+			$(NETUSERNAME)) \
+				$(CHOWN) $(NETUSERNAME) NEWSun4_3 ; \
+				$(CHMOD) $(CHMODMODE),go= NEWSun4_3 ;; \
+			*) \
+				$(CHOWN) $(SU) NEWSun4_3 ; \
+				$(CHMOD) $(CHMODSUMODE),g=x,o= NEWSun4_3 ;; \
+			esac; \
+			$(CHGRP) $(NETGROUPNAME) NEWSun4_3; \
+			$(MV) Sun4_3 OLDSun4_3 2>/dev/null; \
+			$(MV) NEWSun4_3 Sun4_3; \
+			$(RM) OLDSun4_3 2>/dev/null;; \
+		esac
+
+$(INSLIB)/tcplisten:	$(BIN)/tcplisten $(FRC)
+		$(CP) $(BIN)/tcplisten $(INSLIB)/NEWtcplisten
+		@-set -x; \
+		cd $(INSLIB); \
+		$(STRIP) NEWtcplisten; \
+		$(CHOWN) $(SU) NEWtcplisten; \
+		$(CHGRP) $(NETGROUPNAME) NEWtcplisten; \
+		$(CHMOD) $(CHMODSUMODE),g=x,o=$(CHMODMODE_T) NEWtcplisten; \
+		$(MV) tcplisten OLDtcplisten 2>/dev/null; \
+		$(MV) NEWtcplisten tcplisten; \
+		$(RM) OLDtcplisten 2>/dev/null
+
+$(INSLIB)/UUCP.sh:	Admin/UUCP.sh $(FRC)
+		$(SED) <Admin/UUCP.sh >$(INSLIB)/NEWUUCP.sh
+		@-set -x; \
+		cd $(INSLIB); \
+		$(CHOWN) $(NETUSERNAME) NEWUUCP.sh; \
+		$(CHGRP) $(NETGROUPNAME) NEWUUCP.sh; \
+		$(CHMOD) $(CHMODMODE),g=rx,o=$(CHMODMODE_T) NEWUUCP.sh; \
+		$(MV) UUCP.sh OLDUUCP.sh 2>/dev/null; \
+		$(MV) NEWUUCP.sh UUCP.sh
+
+$(INSLIB)/VCcall:	$(BIN)/VCcall $(FRC)
+		$(CP) $(BIN)/VCcall $(INSLIB)/NEWVCcall
+		@-set -x; \
+		cd $(INSLIB); \
+		$(STRIP) NEWVCcall; \
+		$(CHOWN) $(SU) NEWVCcall; \
+		$(CHGRP) $(NETGROUPNAME) NEWVCcall; \
+		$(CHMOD) $(CHMODSUMODE),g=x,o=$(CHMODMODE_T) NEWVCcall; \
+		$(MV) VCcall OLDVCcall 2>/dev/null; \
+		$(MV) NEWVCcall VCcall; \
+		$(RM) OLDVCcall 2>/dev/null
+
+$(INSLIB)/VCdaemon:	$(BIN)/VCdaemon $(FRC)
+		$(CP) $(BIN)/VCdaemon $(INSLIB)/NEWVCdaemon
+		@-set -x; \
+		cd $(INSLIB); \
+		$(STRIP) NEWVCdaemon; \
+		$(CHOWN) $(NETUSERNAME) NEWVCdaemon; \
+		$(CHGRP) $(NETGROUPNAME) NEWVCdaemon; \
+		$(CHMOD) $(CHMODMODE),go=$(CHMODMODE_T) NEWVCdaemon; \
+		$(MV) VCdaemon OLDVCdaemon 2>/dev/null; \
+		$(MV) NEWVCdaemon VCdaemon; \
+		$(RM) OLDVCdaemon 2>/dev/null
+
+$(INSLIB)/VCshell:	$(BIN)/VCshell $(FRC)
+		$(CP) $(BIN)/VCshell $(INSLIB)/NEWVCshell
+		@-set -x; \
+		cd $(INSLIB); \
+		$(STRIP) NEWVCshell; \
+		$(CHOWN) $(SU) NEWVCshell; \
+		$(CHGRP) $(NETGROUPNAME) NEWVCshell; \
+		$(CHMOD) $(CHMODSUMODE),go=x$(CHMODMODE_T) NEWVCshell; \
+		$(MV) VCshell OLDVCshell 2>/dev/null; \
+		$(MV) NEWVCshell VCshell; \
+		$(RM) ttyshell ttyxshell tcpshell udpshell x25shell OLDVCshell 2>/dev/null; \
+		for prog in ttyshell ttyxshell tcpshell udpshell x25shell; do \
+			$(LN) VCshell $$prog; \
+		done
+		@-case "$(SUN3)" in ''|0) ;; *) \
+			set -x; \
+			cd $(INSLIB); \
+			$(MV) TNshell OLDTNshell 2>/dev/null; \
+			$(RM) NNshell XNshell CNshell ENshell PNshell OLDTNshell 2>/dev/null; \
+			for prog in NNshell XNshell CNshell ENshell PNshell TNshell; do \
+				$(LN) VCshell $$prog; \
+			done;; \
+		esac
+
+$(INSLIB)/weekly:	Admin/weekly.sh $(FRC)
+		$(SED) <Admin/weekly.sh >$(INSLIB)/NEWweekly
+		@-set -x; \
+		cd $(INSLIB); \
+		$(CHOWN) $(NETUSERNAME) NEWweekly; \
+		$(CHGRP) $(NETGROUPNAME) NEWweekly; \
+		$(CHMOD) $(CHMODMODE),g=rx,o=$(CHMODMODE_T) NEWweekly; \
+		$(MV) weekly OLDweekly 2>/dev/null; \
+		$(MV) NEWweekly weekly
+
+$(INSLIB)/windup:	Admin/windup.sh $(FRC)
+		$(SED) <Admin/windup.sh >$(INSLIB)/NEWwindup
+		@-set -x; \
+		cd $(INSLIB); \
+		$(CHOWN) $(NETUSERNAME) NEWwindup; \
+		$(CHGRP) $(NETGROUPNAME) NEWwindup; \
+		$(CHMOD) $(CHMODMODE),g=rx,o=$(CHMODMODE_T) NEWwindup; \
+		$(MV) windup OLDwindup 2>/dev/null; \
+		$(MV) NEWwindup windup; \
+		$(RM) ../$(BINDIR)/netwindup ../$(BINDIR)/netpause ../$(BINDIR)/netresume 2>/dev/null; \
+		$(LN) windup ../$(BINDIR)/netwindup; \
+		$(LN) windup ../$(BINDIR)/netpause; \
+		$(LN) windup ../$(BINDIR)/netresume
+
+$(INSSTATS)/turn-acct:	Admin/turn-acct.sh $(FRC)
+		$(SED) <Admin/turn-acct.sh >$(INSSTATS)/NEWturn-acct
+		@-set -x; \
+		cd $(INSSTATS); \
+		$(CHOWN) $(NETUSERNAME) NEWturn-acct; \
+		$(CHGRP) $(NETGROUPNAME) NEWturn-acct; \
+		$(CHMOD) $(CHMODMODE),g=rx,o=$(CHMODMODE_T) NEWturn-acct; \
+		$(MV) turn-acct OLDturn-acct 2>/dev/null; \
+		$(MV) NEWturn-acct turn-acct
+
+$(SUN3INSLIB)/stater:	$(BIN)/Sun3stater $(FRC)
+		@-case "$(SUN3SPOOLDIR)" in '') ;; *) \
+			set -x; \
+			$(CP) $(BIN)/Sun3stater $(SUN3INSLIB)/NEWstater; \
+			cd $(SUN3INSLIB); \
+			$(STRIP) NEWstater; \
+			case "$(SUN3USERNAME)" in \
+			$(NETUSERNAME)) \
+				$(CHOWN) $(NETUSERNAME) NEWstater ; \
+				$(CHMOD) $(CHMODMODE),go= NEWstater ;; \
+			*) \
+				$(CHOWN) $(SU) NEWstater ; \
+				$(CHMOD) $(CHMODSUMODE),go=x NEWstater ;; \
+			esac; \
+			$(CHGRP) $(NETGROUPNAME) NEWstater; \
+			if [ ! -f sun3stater ]; \
+			then \
+				$(MV) stater sun3stater; \
+				$(MV) NEWstater stater; \
+			else \
+				$(MV) stater OLDstater 2>/dev/null; \
+				$(MV) NEWstater stater; \
+				$(RM) OLDstater 2>/dev/null; \
+			fi;; \
+		esac
+
+config:		$(INSCONFIG)/configmhs $(INSCONFIG)/installmhs
+		@(cd Admin; \
+		$(SED) <root.prof.sys5 >$(INSCONFIG)/.profile; \
+		$(CHGRP) $(NETGROUPNAME) $(INSCONFIG)/.profile; \
+		$(CHOWN) $(NETUSERNAME) $(INSCONFIG)/.profile; \
+		for file in *sendm*.cf; do \
+			sed -e 's;SPOOLDIR;$(SPOOLDIR);' <$$file >$(INSCONFIG)/$$file; \
+			$(CHGRP) $(NETGROUPNAME) $(INSCONFIG)/$$file; \
+			$(CHOWN) $(NETUSERNAME) $(INSCONFIG)/$$file; \
+		done;)
+		$(SHELL) $(CONFIGDIR)/Install $(CONFIGDIR) $(INSCONFIG) $(SPOOLDIR) $(NETUSERNAME) $(NETGROUPNAME) $(SHELL) $(CHOWN) $(ECHO) $(SERVERUSER) $(SERVERGROUP)
+
+directories:
+		@set +e; \
+		for dir in $(DIRECTORIES); \
+		do \
+			if [ ! -d $$dir ]; \
+			then \
+				mkdir $$dir || exit 1; \
+				case $$dir in \
+				$(INSBIN)) \
+					$(CHOWN) $(NETUSERNAME) $$dir; \
+					$(CHGRP) $(NETGROUPNAME) $$dir; \
+					$(CHMOD) u=rwx,go=rx $$dir;; \
+				$(TMPDIR)) \
+					$(CHOWN) $(NETUSERNAME) $$dir; \
+					$(CHGRP) $(NETGROUPNAME) $$dir; \
+					$(CHMOD) u=rwx,go=wx $$dir;; \
+				esac; \
+			fi; \
+			case $$dir in \
+			$(INSBIN)|$(TMPDIR)) ;; \
+			*$(EXPLAINDIR)|*$(INSLIB)|*$(INSBIN)|*$(INSSBIN)|$(ISPOOLDIR)|*$(PARAMSDIR)|*$(STATEDIR)|*$(STATSDIR)) \
+				$(CHOWN) $(NETUSERNAME) $$dir; \
+				$(CHGRP) $(NETGROUPNAME) $$dir; \
+				$(CHMOD) u=rwx,go=rx $$dir;; \
+			*) \
+				$(CHOWN) $(NETUSERNAME) $$dir; \
+				$(CHGRP) $(NETGROUPNAME) $$dir; \
+				$(CHMOD) u=rwx,g=rx,o= $$dir;; \
+			esac; \
+			ls -ld $$dir; \
+		done; \
+		exit 0
+
+special:	$(SPECIALFILES) explain call
+
+$(SPECIALFILES):
+		@-for file in $(SPECIALFILES); \
+		do \
+			if [ ! -f $$file ] ; \
+			then \
+				case $$file in \
+				$(COMMANDSFILE)) \
+					$(CP) Admin/commandsfile $$file; \
+					$(CHMOD) ug=rw,o= $$file;; \
+				$(ENDPROG)) \
+					$(SED) <Admin/endprog.sh >$$file; \
+					$(CHMOD) ug=rw,o= $$file;; \
+				$(INITFILE)) \
+					$(CP) Init/initfile $$file; \
+					$(CHMOD) ug=rw,o= $$file;; \
+				$(PUBLICFILES_EX)) \
+					$(CP) Admin/publicfiles $$file; \
+					$(CHMOD) ug=rw,o= $$file;; \
+				$(PRIVSFILE_EX)) \
+					$(CP) Admin/privsfile $$file; \
+					$(CHMOD) ug=rw,o= $$file;; \
+				$(SHELLPROG)) \
+					$(SED) <Admin/shellprog.sh >$$file; \
+					$(CHMOD) ug=rw,o= $$file;; \
+				*) \
+					$(CP) /dev/null $$file; \
+					$(CHMOD) ug=rw,o=r $$file;; \
+				esac; \
+				case $$file in \
+				*$(FILESERVERLOG)|*$(PUBLICFILES_EX)) \
+					$(CHOWN) $(SERVERUSER) $$file; \
+					$(CHGRP) $(SERVERGROUP) $$file;; \
+				*) \
+					$(CHOWN) $(NETUSERNAME) $$file; \
+					$(CHGRP) $(NETGROUPNAME) $$file;; \
+				esac; \
+				ls -l $$file; \
+			fi; \
+		done; exit 0
+
+explain:
+		@-cd $(ISPOOLDIR)/$(EXPLAINDIR); \
+			$(RM) \
+			$(FETCHFILE) \
+			$(FORWARD) \
+			$(GETFILE) \
+			$(LINKSTATS) \
+			$(MAPP) \
+			$(QUEUE) \
+			$(SENDFILE) \
+			$(SENDMAIL) \
+			$(STATEP) \
+			$(WHOIS) \
+			$(STOP) \
+			checkbad \
+			getfile \
+			netbad \
+			netchange \
+			netcheckdb \
+			netlink3 \
+			netlinkdata \
+			netpurge \
+			netrequest \
+			netreroute \
+			netroute \
+			sendfile \
+			sendmsg \
+			?Ndaemon \
+			VC* 2>/dev/null
+		@$(CP) Explain/* $(ISPOOLDIR)/$(EXPLAINDIR)
+		@-cd $(ISPOOLDIR)/$(EXPLAINDIR); \
+			$(CHOWN) $(NETUSERNAME) *; \
+			$(CHGRP) $(NETGROUPNAME) *; \
+			$(CHMOD) u=rw,go=r *; \
+			case $(FETCHFILE) in netfetch) ;; *) \
+				ln netfetch $(FETCHFILE);; \
+			esac; \
+			case $(FORWARD) in netforward) ;; *) \
+				ln netforward $(FORWARD);; \
+			esac; \
+			case $(GETFILE) in netget) ;; *) \
+				ln netget $(GETFILE);; \
+			esac; \
+			case $(LINKSTATS) in netlink) ;; *) \
+				ln netlink $(LINKSTATS);; \
+			esac; \
+			case $(MAPP) in netmap) ;; *) \
+				ln netmap $(MAPP);; \
+			esac; \
+			ln netmap netroute; \
+			case $(QUEUE) in queue) ;; *) \
+				ln queue $(QUEUE);; \
+			esac; \
+			case $(SENDFILE) in netfile) ;; *) \
+				ln netfile $(SENDFILE);; \
+			esac; \
+			case $(SENDMAIL) in netmail) ;; *) \
+				ln netmail $(SENDMAIL);; \
+			esac; \
+			case $(STATEP) in netstate) ;; *) \
+				ln netstate $(STATEP);; \
+			esac; \
+			case $(WHOIS) in netwhois) ;; *) \
+				ln netwhois $(WHOIS);; \
+			esac
+		@-cd $(ISPOOLDIR)/$(EXPLAINDIR); \
+			ln queue $(STOP); \
+			ln queue checkbad; \
+			ln queue netbad; \
+			ln changestate netchange; \
+			ln checkmsgsdb netcheckdb; \
+			ln netfile sendfile; \
+			ln netget getfile; \
+			ln netlink netlink3; \
+			ln netmsg sendmsg; \
+			ln purge netpurge; \
+			ln request netrequest; \
+			ln reroute netreroute; \
+			ln NNdaemon CNdaemon; \
+			ln NNdaemon ENdaemon; \
+			ln NNdaemon PNdaemon; \
+			ln VCstats netlinkdata; \
+			ls -l
+
+call:
+		@-cd VCsetup; \
+			$(CP) *.cs $(ISPOOLDIR)/$(CALLDIR); \
+			for i in call.??*; do \
+				$(SED) <$$i >$(ISPOOLDIR)/$(CALLDIR)/$$i; \
+			done; \
+			cd $(ISPOOLDIR)/$(CALLDIR); \
+			$(CHOWN) $(NETUSERNAME) call.??* *.cs; \
+			$(CHGRP) $(NETGROUPNAME) call.??* *.cs; \
+			$(CHMOD) u=rwx,g=rx,o= call.??*; \
+			$(CHMOD) u=rw,g=r,o= *.cs; \
+			if [ -f call.ip ]; then \
+				$(RM) call.udp call.tcp 2>/dev/null; \
+				$(LN) call.ip call.tcp; \
+				$(LN) call.ip call.udp; \
+			fi; \
+			ls -l call.??* *.cs

@@ -1,0 +1,15 @@
+
+	-a	Turn on message acknowledgement.
+	-b	Prompt for a "Bcc:" list (if not preset).
+	-c	Prompt for a "Cc:" list (if not preset).
+	-d	Incorporate "dead.letter".
+	-e	Add a "Received:" line to the header.
+	-f	Read and send letter from `stdin'.
+	-i	Add a "Message-ID:" line to the header.
+	-m	Ignore `.' commands on stdin.
+	-o	Addresses invalid unless '@' present.
+	-p	Print header on startup.
+	-q	Report unique message ID on stdout.
+	-r	No message return on remote error.
+	-s	Don't prompt for a "Subject:" line.
+	-t	Don't echo "To:" and "EOT" to `stdout'.

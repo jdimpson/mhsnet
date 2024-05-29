@@ -1,0 +1,64 @@
+.ds S1 LISTSORT
+.ds S2 Listsort
+.ds S3 listsort
+.ds S4 MHSnet
+.ds S5 network
+.TH \*(S1 3 "\*(S4 1.2" \^
+.nh
+.SH NAME
+listsort \- sort a linked list in bounded space
+.SH SYNOPSIS
+.nf
+.ft B
+struct item {
+.ft
+.RS
+.ft B
+struct item *next;
+...
+.ft
+.RE
+.ft B
+};
+.ft
+.PP
+.ft B
+void \*(S3(list, compar)
+struct item **list;
+int (*compar)();
+.ft
+.PP
+.ft B
+compar(a, b)
+char *a, *b;
+.ft
+.fi
+.SH DESCRIPTION
+.I \*(S2
+is an implementation of an inline,
+constant space,
+linked list sorting algorithm.
+The algorithm uses merging,
+is fast,
+and has guaranteed O(\fIn\fPlog\fIn\fP) performance.
+The first argument,
+.IR list ,
+is the address of a pointer to the first element in the list.
+The list must be composed of structures in which the first
+field is the link to the next element, as in
+.IR "struct item" .
+On return,
+the pointer pointed to by
+.I list
+contains the address of smallest element in the now sorted list.
+The second argument,
+.IR compar ,
+is the name of the comparison routine
+to be called with two arguments which are pointers
+to the elements being compared.
+The routine must return
+an integer less than, equal to, or greater than 0
+according as the first argument is to be considered
+less than, equal to, or greater than the second.
+.SH "SEE ALSO"
+.IR qsort (3)

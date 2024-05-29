@@ -1,0 +1,198 @@
+
+
+
+Maintenance Procedures                                NETPURGE(8)
+
+
+
+NNNNAAAAMMMMEEEE
+     netpurge - purge network temporary files
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     ____bbbbiiiinnnn////nnnneeeettttppppuuuurrrrggggeeee [-_f_l_a_g_s] [_s_e_a_r_c_h__n_a_m_e...]
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_p_u_r_g_e searches the network spool area for message command
+     file  directories  (such  as  _l_i_n_k  directories  for  remote
+     hosts), and builds a reference list for  each  message  data
+     file  referred  to by any message command files found in the
+     directories.  Any message  command  files  found  that  have
+     timed  out  are  removed.   Any  files  then found in a work
+     directory  which  have  not  been  referenced  are  removed.
+     However,  if  any  `bad'  command files are discovered, then
+     _n_e_t_p_u_r_g_e will not remove any unreferenced  files,  and  will
+     notify  NCC_ADMIN  via  mail (unless the `-m' flag is used).
+     NCC_ADMIN will also  be  notified  if  any  other  exception
+     conditions are encountered.
+
+     If any _s_e_a_r_c_h__n_a_m_e (last component of a message  file  name)
+     arguments  are  given,  then  _n_e_t_p_u_r_g_e  will report on their
+     existence if found in a directory or message  command  file,
+     however, no files will be removed.
+
+     The optional flags modify this behaviour:
+
+     ----aaaa  Remove   all   unreferenced    files    unconditionally.
+         Otherwise unreferenced files that are less than 24 hours
+         old are untouched.  Only use this flag if the network is
+         inactive.
+
+     ----dddd  Remove empty directories from multi-part message tree.
+
+     ----ffff  Remove timed-out messages from received  files  spooling
+         directory.
+
+     ----llll  Remove lock files.  Only if the owner is not active,  or
+         the flag ----aaaa is specified.  (NB: this will not remove the
+         lockfile for _n_e_t_i_n_i_t(8).)
+
+     ----mmmm  Don't  send  mail  to  NCC_ADMIN  when   inconsistencies
+         detected.
+
+     ----rrrr  Try routing any messages  awaiting  operator  re-routing
+         that have been waiting more than 24 hours.
+
+     ----ssss  Silent.  Don't report number of files removed.
+
+     ----tttt  Search the `_trace' directory  for  messages  that  have
+         timed-out  and  remove  them.  (Trace messages have a 24
+         hour timeout.)
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+
+
+
+
+Maintenance Procedures                                NETPURGE(8)
+
+
+
+     ----wwww  Complain about inconsistencies, and tell about each file
+         removed.
+
+     ----FFFF _d_a_y_s
+         Change  the  time-out   for   files   spooled   awaiting
+         collection [default 7 days].  Also turns on ----ffff.
+
+     ----MMMM _m_a_x_e_r_r_s
+         Give  up  if  more  than  _m_a_x_e_r_r_s  message  errors   are
+         encountered [default 32].
+
+     ----RRRR _h_o_u_r_s
+         Change  the  time-out  (minimum  1  hour)  for  messages
+         awaiting  operator  re-routing [default 24 hours].  Also
+         turns on ----rrrr.
+
+     ----TTTT_n Activate tracing at level _n.  If tracing is not compiled
+         in, this flag will have no effect.
+
+     ----????  Explain argument options and exit.
+
+FFFFIIIILLLLEEEESSSS
+     linkname/cmds/[0-9]*
+         Command files queued on link to _l_i_n_k_n_a_m_e.
+     linkname/cmds/lock
+         Lock file for transport daemon for link to _l_i_n_k_n_a_m_e.
+     linkname/*status
+         Status files for virtual circuit transport daemon.
+     linkname/out/* linkname/in/*
+         Messages spooled for/by the  virtual  circuit  transport
+         daemon to/from _l_i_n_k_n_a_m_e.
+     _bad/*
+         Problem command files awaiting operator intervention via
+         _n_e_t_b_a_d(8).
+     _files/*
+         Command files for messages awaiting collection.
+     _lib/purge.lock
+         Lock file for _n_e_t_p_u_r_g_e to prevent multiple invocations.
+     _messages
+         Root  of   tree   of   multi-part   message   collection
+         directories.
+     _pending/*
+         Command files for  looping  messages  awaiting  operator
+         intervention with _n_e_t_r_e_r_o_u_t_e(8).
+     _reroute/*
+         Command  files  for  messages  awaiting  automatic   re-
+         routing.
+     _route/[0-9]*
+         Command files for messages awaiting routing.
+     _route/lock
+         Lock file for routing daemon.
+     _route/_h_a_n_d_l_e_r/[0-9]*
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    2
+
+
+
+
+
+
+Maintenance Procedures                                NETPURGE(8)
+
+
+
+         Command files for messages awaiting delivery by _h_a_n_d_l_e_r.
+     _route/_h_a_n_d_l_e_r/lock
+         Lock file for _h_a_n_d_l_e_r.
+     _trace/*
+         Messages collected for inspection during tracing.
+     _work/*
+         Work area files to be purged.
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _n_e_t_p_a_r_a_m_s(5),    _n_e_t_w_o_r_k(7),    _n_e_t_b_a_d(8),     _n_e_t_d_a_e_m_o_n(8),
+     _n_e_t_r_e_r_o_u_t_e(8), _n_e_t_r_o_u_t_e_r(8).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    3
+
+
+

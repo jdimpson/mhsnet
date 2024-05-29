@@ -1,0 +1,16 @@
+
+	-a	Print all regions.
+	-b	Print all regions contained in arguments.
+	-c	Check CRC.
+	-d	Sort regions by distance if -Y specified.
+	-f	Print forced routes.
+	-i	Don't use imported statefile.
+	-k	Print aliases.
+	-l	No links.
+	-m	Print address maps.
+	-r	Print routing tables.
+	-s	Print network map [default if no flags].
+	-v	Verbose.
+	-w	Warnings.
+	-y	Print link distances as times.
+	-z	Print all regions whose visible region is an argument.

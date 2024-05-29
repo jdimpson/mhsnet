@@ -1,0 +1,462 @@
+
+
+
+Maintenance Procedures                              NETCALLERS(8)
+
+
+
+NNNNAAAAMMMMEEEE
+     netcallers - shell programs for creating network connections
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     ____ccccaaaallllllll////ccccaaaallllllll**** [-_f_l_a_g_s] _l_i_n_k [_p_a_r_a_m_e_t_e_r] ...
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     These shell  programs  are  provided  to  establish  network
+     transport  daemon  connections over the more common types of
+     virtual  circuits.   They  each  invoke  _n_e_t_c_a_l_l(8)  with  a
+     suitable call script and network transport daemon parameters
+     appropriate to the link type.
+
+     They may be found in the network spool area in  a  directory
+     called  `_call'  with  the  filename  pre-fix: `call.'  This
+     directory is also used to contain the  log  files  for  each
+     link.   A log is kept for the current call, and the previous
+     call, for each link.
+
+     Each shell program takes several parameters, some  optional,
+     that  are  described  below.   The  non-flag  parameters are
+     order-dependant, and are described in the  order  that  they
+     must   be   specified.   Every  program  has  the  following
+     parameters in common:
+
+     ----aaaa_d_a_e_m_o_n-_a_r_g_s
+         Optional extra arguments to be passed  to  the  selected
+         transport daemon, eg: -a "-Q6 -R"
+
+     ----ffff  Prevents _n_e_t_c_a_l_l from forking to run in the  background.
+         (Should  always  be  specified in _n_e_t_i_n_i_t commands - see
+         _n_e_t_i_n_i_t(8).)
+
+     ----????  Explain argument options and exit.
+
+     _l_i_n_k
+         The name of the link being established.  This may be any
+         name resolvable in the routing tables.  Always the first
+         non-flag parameter.
+
+     The following call programs are available:
+
+  ____ccccaaaallllllll////ccccaaaallllllll....ccccaaaallllllll
+     A general purpose program that invokes _n_e_t_c_a_l_l assuming  the
+     existence of a link-specific call script in the link's spool
+     directory.  It requires no additional parameters.
+
+  ____ccccaaaallllllll////ccccaaaallllllll....llllooooggggiiiinnnn
+     A call program to make  connections  to  directly  connected
+     sites  over  a  `tty'  style  virtual  circuit.  It uses the
+     call-script `login.cs', and takes the following parameters:
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+
+
+
+
+Maintenance Procedures                              NETCALLERS(8)
+
+
+
+     _d_e_v_i_c_e
+         The special device attached to the direct link.
+
+     _s_p_e_e_d
+         Speed for direct link.
+
+     _l_o_g_i_n
+         The login name at the remote site.
+
+     _p_a_s_s_w_d
+         The password required by the remote login account.
+
+  ____ccccaaaallllllll////ccccaaaallllllll....mmmmooooddddeeeemmmm____0000
+     A call program for  making  circuits  via  various  `Hayes'-
+     compatible  modem  types.   It  allows  the specification of
+     alternate modems and numbers, as many  as  are  needed.   It
+     uses  the call-scripts `hayes_*.cs', and takes the following
+     parameters:
+
+     ----3333  An optional parameter that specifies a connection  to  a
+         SUN    III   site.    (This   selects   the   callscript
+         `hayes_4_3.cs' when a login is established.)
+
+     ----cccc  Optional flag to turn on full _c_o_o_k_e_d mode.  This  causes
+         the  daemon  to _c_o_o_k the data transmitted on the circuit
+         using only printing characters from the ASCII  set,  and
+         is useful dealing with circuits which interfere with the
+         data.  See _n_e_t_d_a_e_m_o_n(8) for an explanation of _c_o_o_k_i_n_g.
+
+     ----CCCCXXXX Optional flag to turn on XON/XOFF _c_o_o_k_e_d mode (for where
+         these  are  the  only bytes being interfered with by the
+         circuit).
+
+     ----dddd_d_a_e_m_o_n
+         Optional parameter to  specify  an  alternate  transport
+         daemon [default: `VCdaemon'].
+
+     ----DDDD_s_c_r_i_p_t-_a_r_g
+         Optional argument for optional  call  script  -  see  ----SSSS
+         below.
+
+     ----eeee  Optional flag to indicate modem does not change speed to
+         match connection.
+
+     ----iiii_i_n_i_t_s_t_r
+         Optional AT initialising  commands  for  modem,  eg:  `-
+         i$C0'.   Any space encountered causes a new AT sequence,
+         so can be used to break up long commands.
+
+     ----nnnn  Specifies a `noisy' link, and selects a smaller  initial
+         packet size, and lower expected throughput.
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    2
+
+
+
+
+
+
+Maintenance Procedures                              NETCALLERS(8)
+
+
+
+     ----pppp  Selects a `permanent'  connection,  ie:  once  made,  it
+         never  terminates.   (Otherwise connections are `batch',
+         and terminate when all messages have been sent.)
+
+     ----PPPP_n Turns on protocol  packet  tracing  at  level  _n.   (See
+         _n_e_t_d_a_e_m_o_n(1) for details.)
+
+     ----qqqq  Causes a queue-check to be  made  after  the  connection
+         terminates:   if   there   are  still  messages  in  the
+         transmission queue, one further call is made.
+
+     ----QQQQ_n Message quality parameter  -  sets  the  lowest  quality
+         message  to  be  transmitted/received.   [Default: -Q9.]
+         (See _n_e_t_d_a_e_m_o_n(1) for details.)
+
+     ----ssss  Causes  a  `slow'  termination:  the  connection   won't
+         terminate  until  no  message has been transmitted for 5
+         minutes.  [The default waits 10 seconds.]
+
+     ----SSSS_s_c_r_i_p_t
+         Optional call script to be called after connect,  before
+         login.   This  can  be  used  to  negotiate intermediary
+         networks  between  the  modem  and  the  host,  eg:   `-
+         Shayes_annex.cs'.
+
+     ----tttt  Causes  immediate  termination:  the   connection   will
+         terminate   immediately   the   last  message  has  been
+         transmitted.  [The default waits 10 seconds.]
+
+     ----TTTT_l_e_v_e_l
+         Turns on tracing at _l_e_v_e_l in _n_e_t_c_a_l_l(8).
+
+     _m_o_d_e_m_s
+         A string denoting the modems to be used.  The syntax is:
+         type<@>device[<|>...]    _T_y_p_e  can  be  either  `hayes',
+         `interlink', `netcomm', any of  the  above  concatenated
+         with  XON  (for XON/XOFF flow-control) to get a `cooked'
+         connection, or any of the above  concatenated  with  RTS
+         (for  RTS/CTS  flow-control  -  interface speed won't be
+         changed after the  CONNECT  response  from  the  modem).
+         _D_e_v_i_c_e is the special device attached to each modem.
+
+     _d_i_a_l_s_t_r_i_n_g_s
+         A string denoting the telephone  numbers  to  be  tried.
+         The  syntax is: number<@>speed[<|>...]  _N_u_m_b_e_r is a dial
+         number for the modem to reach the remote site.  _S_p_e_e_d is
+         the speed for the modem interface.
+
+     _l_o_g_i_n
+         The login name at the remote site.
+
+     _p_a_s_s_w_d
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    3
+
+
+
+
+
+
+Maintenance Procedures                              NETCALLERS(8)
+
+
+
+         The password required by the remote login account.
+
+     On termination, the call log is checked for errors,  and  if
+     any  are  detected,  a  description  is mailed to the people
+     identified in NCC_ADMIN.
+
+  ____ccccaaaallllllll////ccccaaaallllllll....mmmmooooddddeeeemmmm
+     [Superceded by `call.modem_0' above.]  A  call  program  for
+     making  circuits via various `Hayes'-compatible modem types.
+     It uses the call-script `hayes.cs', and needs the  following
+     parameters:
+
+     ----pppp  Selects a `permanent'  connection,  ie:  once  made,  it
+         never  terminates.   (Otherwise connections are `batch',
+         and terminate when all messages have been sent.)
+
+     ----qqqq  Causes a queue-check to be  made  after  the  connection
+         terminates:   if   there   are  still  messages  in  the
+         transmission queue, one further call is made.
+
+     _m_o_d_e_m
+         The type of `Hayes' modem:  either  `hayes',  `hayesXON'
+         (for   `cooked'  connections  that  use  XON/XOFF  flow-
+         control), `slowhayes' (for modems that need slow command
+         processing),  `interlink',  `netcomm',  `trailblazerRTS'
+         (for Trailblazer modems  connected  with  RTS/CTS  flow-
+         control),  or  `trailblazerXON'  (for Trailblazer modems
+         connected without RTS/CTS, and which must  use  XON/XOFF
+         flow-control for speeds greater than 2400 baud).
+
+     _d_e_v_i_c_e
+         The special device attached to the modem.
+
+     _s_p_e_e_d
+         Speed for modem interface.
+
+     _l_o_g_i_n
+         The login name at the remote site.
+
+     _p_a_s_s_w_d
+         The password required by the remote login account.
+
+     _d_i_a_l
+         The telephone number for the remote site.
+
+     [_d_i_a_l_2]
+         An optional second telephone number for the remote  site
+         that is tried if the first is busy.
+
+  ____ccccaaaallllllll////ccccaaaallllllll....sssseeeettttuuuupppp
+     A program that invokes _n_e_t_c_a_l_l to set up  parameters  for  a
+     Hayes-compatible  modem.  It uses the call-script `setup.cs'
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    4
+
+
+
+
+
+
+Maintenance Procedures                              NETCALLERS(8)
+
+
+
+     and takes the following arguments:
+
+     _d_e_v_i_c_e
+         The device attached to the modem.
+
+     _s_p_e_e_d
+         The speed of the interface.
+
+     _i_n_i_t_s_t_r
+         A  string   to   initialise   the   modem.    `setup.cs'
+         initialises  the  modem with ATE0Q0S0=0S2=43 followed by
+         _i_n_i_t_s_t_r - which can  instead  be  a  known  modem  type.
+         _i_n_i_t_s_t_r  is  normally  a space-separated series of setup
+         commands  for  the  modem.   Each  command  is   written
+         separately, with AT pre-pended.
+
+  ____ccccaaaallllllll////ccccaaaallllllll....ttttccccpppp
+     A call program to make TCP/IP circuits.  It uses  the  call-
+     script `ip.cs', and takes the following optional parameters:
+
+     ----dddd_d_a_e_m_o_n
+         Optional parameter to  specify  an  alternate  transport
+         daemon [default: `VCdaemon'].
+
+     ----oooo_p_o_r_t
+         Optional parameter needed only if the local host has  no
+         `/etc/services'  file  to  identify  port  numbers by IP
+         service.
+
+     ----pppp_p_a_s_s_w_o_r_d
+         Optional parameter needed only if a network password has
+         been set for the calling region.  (See: _n_e_t_p_a_s_s_w_d(8)).
+
+     ----rrrr  The default uses 512 byte packets with a CRC  check  for
+         data integrity.  This optional flag should be used where
+         the circuit is known to be reliable, (eg: via  a  single
+         Ethernet),  and  causes  the  protocol  to use 1024 byte
+         packets and no CRC check.
+
+     _t_a_r_g_e_t
+         Optional parameter needed only if the  IP  name  of  the
+         link is different from the network name.
+
+  ____ccccaaaallllllll////ccccaaaallllllll....ttttttttyyyy
+     A call program to make  permanent  connections  to  directly
+     connected  sites over a `tty' style virtual circuit that has
+     no `login' process.  Instead it is assumed that a  similarly
+     configured  script  is run at the remote end simultaneously.
+     It uses the call-script `tty.cs', and  takes  the  following
+     parameters:
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    5
+
+
+
+
+
+
+Maintenance Procedures                              NETCALLERS(8)
+
+
+
+     _t_t_y The `tty' device attached to the direct link.
+
+     _s_p_e_e_d
+         Speed for direct link.
+
+  ____ccccaaaallllllll////ccccaaaallllllll....uuuuddddiiiiaaaallll
+     A  call  program  to  setup  connections  using  the   UUCP-
+     compatible  `dial(3)'  sub-routine.  It uses the call-script
+     `udial.cs', and takes the following parameters:
+
+     _t_e_l_n_o
+         The telephone number for the remote site.
+
+     _s_p_e_e_d
+         Speed for link.
+
+     _l_o_g_i_n
+         The login name at the remote site.
+
+     _p_a_s_s_w_d
+         The password required by the remote login account.
+
+  ____ccccaaaallllllll////ccccaaaallllllll....uuuuddddpppp
+     A call program to make UDP/IP circuits.   (Not  recommended,
+     except  in  special  circumstances, note the `Caveat' in the
+     manual _n_e_t_d_a_e_m_o_n(8).)  It uses the call-script `ip.cs',  and
+     takes the same parameters as `_call/call.tcp' above.
+
+  ____ccccaaaallllllll////ccccaaaallllllll....xxxx22225555
+     A call program to make X.25 circuits.   It  uses  the  call-
+     script `x25.cs', and takes the following parameter:
+
+     _a_d_d_r_e_s_s
+         X.25 address of remote site.
+
+SSSSUUUUNNNN IIIIIIIIIIII CCCCOOOONNNNNNNNEEEECCCCTTTTIIIIOOOONNNNSSSS
+     Call programs are provided for making calls to sites running
+     the  old version of the software, which can be identified by
+     the fact that they all end with the numeral  `3',  (although
+     `call.modem_0'  can  be  used  with the ----3333 parameter).  They
+     take the same parameters as their equivalent program above.
+
+FFFFIIIILLLLEEEESSSS
+     _call              Directory where call programs are  to  be
+                        found.
+     _call/*.cs         Call scripts for _n_e_t_c_a_l_l(8).
+     _call/call.*       Call programs that invoke _n_e_t_c_a_l_l(8) with
+                        appropriate call script.
+     _call/log          Every call writes one final  status  line
+                        to this file.
+     _call/_l_i_n_k.log     Log file for current call to `link'.
+     _call/_l_i_n_k.ol      Log file for previous call to `link'.
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    6
+
+
+
+
+
+
+Maintenance Procedures                              NETCALLERS(8)
+
+
+
+     _lib/VCcall        Default   _v_i_r_t_u_a_l-_c_i_r_c_u_i_t   establishment
+                        program.
+     _state/routefile   Routing tables for resolving addresses.
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _s_h(1), _n_e_t_w_o_r_k(7), _n_e_t_c_a_l_l(8),  _n_e_t_d_a_e_m_o_n(8),  _n_e_t_p_a_s_s_w_d(8),
+     _n_e_t_s_h_e_l_l(8), _n_e_t_s_t_a_t_e(8).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    7
+
+
+

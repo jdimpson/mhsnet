@@ -1,0 +1,20 @@
+
+
+
+	Choose the type of link that you wish to create or modify.
+
+&
+Dial in or out
+dial.sh; exec menu links.menu
+Ethernet TCP/IP
+tcp.sh; exec menu links.menu
+ACSnet SUN III UDP/IP
+udp.sh; exec menu links.menu
+Direct serial line connection
+direct.sh; exec menu links.menu
+X25 
+x25.sh; exec menu links.menu
+X/Open Transport Interface
+xti.sh; exec menu links.menu
+Return to link menu
+exec menu links.menu

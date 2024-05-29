@@ -1,0 +1,132 @@
+
+
+
+Maintenance Procedures                              NETCHECKDB(8)
+
+
+
+NNNNAAAAMMMMEEEE
+     netcheckdb - clean up broadcast message tracking database
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     ____bbbbiiiinnnn////nnnneeeettttcccchhhheeeecccckkkkddddbbbb [-_f_l_a_g_s]
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_c_h_e_c_k_d_b removes  timed-out  records  from  the  broadcast
+     message  tracking database, and creates a (possibly) sparser
+     copy.
+
+     The database maintains a list of  message-ID/source  address
+     pairs  that  enable  the routing program to reject duplicate
+     broadcast messages.  The data-base is maintained as a direct
+     access sparse file with a 15-bit key produced by hashing the
+     message-ID and source address.  Each key  defines  a  _b_u_c_k_e_t
+     that  can hold up to four records of 32 bytes each, allowing
+     the data base to track a maximum 128K messages,  reaching  a
+     maximum  size  of 4 megabytes.  Since all broadcast messages
+     have time-outs set (at around one week), the entries in  the
+     data-base expire after a certain time, leaving holes.
+
+     Periodic  rewriting  may  save  file-system  space,  but  is
+     otherwise unnecessary.
+
+     The optional flags are:
+
+     ----cccc  Check data-base only.
+
+     ----rrrr  Ignore routing daemon.  Otherwise _n_e_t_c_h_e_c_k_d_b will refuse
+         to  modify  the  data-base  if  the  routing  daemon  is
+         running, unless the ----cccc or ----OOOO flags are used.
+
+     ----ssss  Silent mode - don't show compaction statistics.
+
+     ----vvvv  Verbose mode - show  extra  compaction  statistics,  and
+         describe each active record found.
+
+     ----OOOO _f_i_l_e_n_a_m_e
+         Write clean output to _f_i_l_e_n_a_m_e instead of rewriting  the
+         old database.
+
+     ----TTTT[_l_e_v_e_l]
+         Turns on tracing at _l_e_v_e_l (default: 1).  If  tracing  is
+         not compiled in, this flag will have no effect.
+
+     ----????  Explain argument options and exit.
+
+FFFFIIIILLLLEEEESSSS
+     _state/mesgsfile  Broadcast messages  database.   Note  that
+                       this  is  a  _s_p_a_r_s_e file (using fewer disk
+                       blocks than indicated by  its  size),  and
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+
+
+
+
+Maintenance Procedures                              NETCHECKDB(8)
+
+
+
+                       will  be  reported as such by _f_s_c_k(8).  It
+                       is always safe to remove this file  -  the
+                       only  effect  will  be  to allow duplicate
+                       copies of broadcast messages.
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _n_e_t_w_o_r_k(7).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    2
+
+
+

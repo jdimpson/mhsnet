@@ -1,0 +1,132 @@
+
+
+
+User Commands                                          NETLINK(1)
+
+
+
+NNNNAAAAMMMMEEEE
+     netlink - show network link statistics
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     nnnneeeettttlllliiiinnnnkkkk [-[hhhh][vvvv]] [-cccc[_s_l_e_e_p]] [_l_i_n_k_n_a_m_e|_r_e_g_i_o_n|_a_d_d_r_e_s_s ...]
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_l_i_n_k prints out  statistics  for  links  to  other  nodes
+     directly  connected to this one based on the contents of the
+     links' status files.  By default, _n_e_t_l_i_n_k  will  search  the
+     spool  area  for  links  and  print out details for each one
+     found, but if particular links are named in  the  arguments,
+     then  the search will be restricted to just those mentioned.
+     If a region or its alias or a complex address is named, then
+     _n_e_t_l_i_n_k  will  show  details  of  each  link on the shortest
+     path(s), unless the regions are directly connected  to  this
+     one, in which case _n_e_t_l_i_n_k will always show the direct link.
+
+     The optional flags are:
+
+     ----cccc[_s_e_c_s]
+         Causes _n_e_t_l_i_n_k to repeat the display every _s_e_c_s  seconds
+         [default: 4].
+
+     ----hhhh  Don't print the header for the non-verbose listing.
+
+     ----rrrr  Show I/O rates on compact output, instead of the message
+         and byte counts.
+
+     ----tttt  Show totals  for  all  channels  in  each  direction  on
+         verbose output.
+
+     ----vvvv  Verbose - the details include the state of the link, the
+         throughputs  achieved,  and  the status of each channel.
+         Super-users also get shown the process _i_d of the daemon.
+         Without  ----vvvv,  a more compact format containing a summary
+         of the available information is presented.
+
+     ----wwww  Complain about missing links.
+
+     ----TTTT[_l_e_v_e_l]
+         Turns on tracing at _l_e_v_e_l [default 1].   If  tracing  is
+         not compiled in, this flag will have no effect.
+
+     ----????  Explain argument options and exit.
+
+     The verbose display shows  throughputs  and  errors  on  the
+     link.   The _a_v_e_r_a_g_e numbers are for recent (decay rate half-
+     life of ~60 seconds) throughput achieved while the  link  is
+     _a_c_t_i_v_e,  ie: transferring messages.  The _c_u_r_r_e_n_t numbers are
+     for the last scan period, and the _o_v_e_r_a_l_l  numbers  are  for
+     the  total  throughput  since the link was started.  The _r_a_w
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+
+
+
+
+User Commands                                          NETLINK(1)
+
+
+
+     data  includes  all  bytes  transmitted,  but  the  _a_v_e_r_a_g_e,
+     _c_u_r_r_e_n_t,  _o_v_e_r_a_l_l, and _b_y_t_e_s figures are for error corrected
+     message data.  Each number on the `Total' line is the sum of
+     the two in the column above.
+
+     Errors are shown as  `errs'  on  the  `Protocol'  line,  and
+     represent  a total of all packet errors for both directions,
+     whereas `skip' are input  bytes  ignored  because  they  are
+     unexpected,  or parts of packets with corrupted headers.  If
+     `skip'  or  `errs'  change  in  value,  asterisks  will   be
+     displayed  momentarily to draw your attention.  The protocol
+     line will display `cook 0' if  the  virtual  circuit  is  in
+     `ascii'  mode (`cook 1' in XON/XOFF mode), and `data CRC' if
+     CRC checks have been  enabled.   The  line  will  also  show
+     `1/2dplx  in'  or  `1/2dplx  out'  when in _t_u_r_n_a_r_o_u_n_d (half-
+     duplex) mode,  or  `in  only'  or  `out  only'  if  in  _u_n_i-
+     _d_i_r_e_c_t_i_o_n_a_l  mode.  _d__s_i_z_e indicates the current packet data
+     size, however, if the output and input packet data sizes are
+     different, then _o_s_i_z_e and _i_s_i_z_e will be printed instead.
+
+     The _C_h_a_n_n_e_l_s statistics show the  progress  of  messages  on
+     each  channel  (four channels in each direction).  Note that
+     the _M_e_s_s_a_g_e column  shows  the  percentage  of  the  message
+     transferred so far, (for inbound messages, this may be lower
+     than expected if parts of the  message  are  awaiting  error
+     correction).
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEESSSS
+     Display the full status of the link to _r_e_g_i_o_n,  updating  it
+     every second:
+
+       _n_e_t_l_i_n_k -vc1 region | netdis
+
+  NNNNooootttteeee
+     You can increase the  frequency  with  which  the  transport
+     daemon  updates  its  status files by using the flag ----UUUU, see
+     _n_e_t_d_a_e_m_o_n(8).
+
+FFFFIIIILLLLEEEESSSS
+     _state/routefile       Routing tables for finding links.
+     _l_i_n_k_n_a_m_e/cmds/lock     Lockfile for daemon and _c_a_l_l_e_r.
+     _l_i_n_k_n_a_m_e/readerstatus  Status information from daemon reader
+                            process for link to _l_i_n_k_n_a_m_e.
+     _l_i_n_k_n_a_m_e/writerstatus  Status information from daemon writer
+                            process for link to _l_i_n_k_n_a_m_e.
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _n_e_t_d_i_s(1), _n_e_t_c_a_l_l(8), _n_e_t_d_a_e_m_o_n(8), _n_e_t_l_i_n_k_d_a_t_a(8).
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    2
+
+
+

@@ -1,0 +1,52 @@
+#	Copyright 2012 Piers Lauder
+
+#	This file is part of MHSnet.
+
+#	MHSnet is free software: you can redistribute it and/or modify
+#	it under the terms of the GNU General Public License as published by
+#	the Free Software Foundation, either version 3 of the License, or
+#	(at your option) any later version.
+
+#	MHSnet is distributed in the hope that it will be useful,
+#	but WITHOUT ANY WARRANTY; without even the implied warranty of
+#	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#	GNU General Public License for more details.
+
+#	You should have received a copy of the GNU General Public License
+#	along with MHSnet.  If not, see <http://www.gnu.org/licenses/>.
+
+
+#define	STDIO
+
+#include	"global.h"
+#include	"address.h"
+#include	"commands.h"
+#include	"link.h"
+#include	"route.h"
+#include	"routefile.h"
+#include	"statefile.h"
+
+/*        */	void	CheckComment() { return; }
+/*        */	void	CheckState(b) bool b; { return; }
+/*        */	char *	FindState(cp) char *cp; { return NULLSTR; }
+/*        */	void	InitTypeMap() { return; }
+/*        */	void	NewState(fd,b) FILE *fd; bool b; { return; }
+/*        */	void	Paths(p,f,i) Region *p; RFlags f; int i; { return; }
+/*        */	void	PathRoutes(p,f,b) Region *p; vFuncp f; bool b; { return; }
+/*        */	void	PrintAliases(fd) FILE *fd; { return; }
+/*        */	int	PrintFlags(fd,f) FILE *fd; Flags f; { return; }
+/*        */	void	PrintForced(fd) FILE *fd; { return; }
+/*        */	void	PrintOnly(cp) char *cp; { return; }
+/*        */	void	PrintState(fd,m,p) FILE *fd; RFlags m; int p; { return; }
+/*        */	void	R3state(fd,b,cp,t,w) FILE *fd; bool b; char *cp; Time_t t; bool w; { return; }
+/*        */	bool	Rcommands(fd,w) FILE *fd; bool w; { return; }
+/*        */	bool	RdStCommands(w) bool w; { return; }
+/*        */	FILE *	ReadState(l,b) Lock_t l; bool b; { return NULL; }
+/*        */	Ulong	RouteSize() { return (Ulong)0; }
+/*        */	void	Rstate(fd,b,cp,t,w) FILE *fd; bool b; char *cp; Time_t t; bool w; { return; }
+/*        */	void	SetCommands(cp) char *cp; { return; }
+/*        */	RFlags	SetPrint() { return (RFlags)0; }
+/*        */	void	SetRoute(cp) char *cp; { return; }
+/*        */	Time_t	SetState(cp) char *cp; { return (Time_t)0; }
+/*        */	Ulong	WriteRoute() { return (Ulong)0; }
+/*        */	void	Write_State(fd,t) FILE *fd; State_t t; { return; }

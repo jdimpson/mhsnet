@@ -1,0 +1,15 @@
+
+	-a		Request an acknowledgment of delivery (NAK if timeout).
+	-c		Send CRC check on data.
+	-d		Don't allow message to trigger auto-call links.
+	-i		Ignore address errors if at least one ok.
+	-q		Report unique message ID on stdout.
+	-m		Don't split message into parts (SU only).
+	-n		Don't inform recipient of delivery.
+	-o		Don't optimise message queueing by size.
+	-r		Don't return message on error.
+	-s		Don't output warning messages.
+	-u		Don't give argument usage message on argument errors.
+	-x		Set reverse charging for message (SU only).
+	-		Read data for message from `stdin'.
+	-F <file>	Unambiguous file name for data.

@@ -1,0 +1,9 @@
+
+	-f		Force communication (wait if locked).
+	-s		Silent - don't use with "status" command!
+	-v		Validate lockfile modify time (if -L).
+	-L <dir>	Check lockfile in <dir>/lock and return status.
+	-F <file>	Communication file [default: `/dev/tty']
+
+	command		Sent to `netinit', one of:
+			curtail, kill, scan, shutdown, start, status, stop.

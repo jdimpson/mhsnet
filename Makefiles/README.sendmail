@@ -1,0 +1,44 @@
+From muzza@tmx.mhs.oz Wed Jul 17 00:03:01 1991
+Date: Tue, 16 Jul 91 15:22:08 +1000
+From: muzza@mhs.oz.au (Murray Seymour)
+To: piers@cluster.cs.su.oz
+Subject: who is right?
+
+    From: piers@cs.su.oz.au (Piers Lauder)
+    To: muzza@mhs.oz
+    
+        From: chris@suite.sw.oz.au (Chris Maltby)
+        Newsgroups: aus.acsnet
+        Subject: Re: MHS format for sendmail.cf?
+        
+        In <1991Jul15.082059.28133@mel.dit.csiro.au> smart@manta.mel.dit.csiro.au (Robert Smart) writes:
+        
+        >Answer to previous question is: yes parameters are the same.
+        
+        >Next question: what is the format for sending to ACSnet in sendmail.cf
+        >with MHSnet. The following doesn't work:
+        
+        >	MSUN3,  P=/usr/spool/MHSnet/_ubin/netfile, F=msMDFhun, R=11/32, S=11/32,
+        >        	A=netfile -A mailer -R $g $u@$h
+        
+        Here's what I'm using.
+        
+        MSUN4,  P=/usr/spool/MHSnet/_bin/netfile, F=CDFMRhmnsu, S=14, R=24,
+        	Argv=netfile -Amailer -N$i -Q$u -R$f
+        -- 
+        Chris Maltby - Softway Pty Ltd	(chris@softway.sw.oz.au)
+    
+Chris has the same parameters as our default MHSnet sendmail.cf, and
+they are much closer to what I'd have than that other entry.
+
+There is some confusion about the $f and $g parameters. One is the
+full address, and the other is the address "relative" to the sender.
+For example, if the message was from muzza@elwood to piers@tmx, then
+$f in the sendmail running on elwood would be muzza, and $g would be
+muzza@elwood.
+
+I don't like the $u@$h bit either, because it will try to deliver to
+the recipient user on the local machine.
+
+I have already sent a long reply to the guy.
+

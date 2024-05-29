@@ -1,0 +1,150 @@
+#!/bin/sh
+#
+#	`run' for 386 BSD/OS 2.0
+#
+#	Note that all `"' must be escaped in *ARGS lists
+#
+
+#MAKE='make -dmj'	# debug necessary to prevent make bombing!
+MAKE='make'
+
+case $# in
+	0)	set certain ;;
+esac
+
+MANTYPE=cat
+ISPOOLDIR="`dirname \`pwd\``/dist"
+CCOPT=-g
+LDOPT=-g
+REL=`uname -r`
+VERSION=`egrep 'define.VERSION' Lib/Version.c|sed -e 's/[^"]*"//' -e 's/\(.*\) .*/\1 386-BSD/OS.'$REL$CCOPT'/'`
+
+REL=`expr "$REL" : '\([^\.]*\)'`
+
+(
+date >>made 2>&1
+/usr/bin/time \
+$MAKE \
+	AR='ar ru' \
+	AUSAS='0' \
+	AUTO_LOCKING='0' \
+	BINMAIL='/usr/sbin/sendmail' \
+	BINMAILARGS='\"-f&F@&O\"' \
+	BSD4='3' \
+	BSD4V='0' \
+	CARR_ON_BUG='0' \
+	CFLAGS="$CCOPT -pipe" \
+	CHECK_LICENCE='1' \
+	CHGRP='chgrp' \
+	CHMOD='chmod' \
+	CHMODMODE='u=rwx' \
+	CHMODSUMODE='u=rwxs' \
+	CHMODMODE_T='' \
+	CHOWN='/usr/sbin/chown' \
+	CONFIG='-DANSI_C -DBSDI='$REL' -DFSYNC_2 -DINT_SWITCH -DSIGBLOCK -Dmlock=Mlock -Dsrand=srandom -Drand=random -DSYS_VFS -DUTIMES' \
+	DEBUG='-DEBUG=2' \
+	ECHO='/bin/echo' \
+	ECHON='-n' \
+	ECHOC='' \
+	FCNTL='1' \
+	FETCHFILE='netfetch' \
+	FILEBUFFERSIZE='8192' \
+	FILESERVERLOG='$(STATSDIR)/servedfiles' \
+	FILESEXPIREDAYS='14' \
+	FLOCK='1' \
+	FORWARD='netforward' \
+	GETFILE='netget' \
+	IGNMAILERSTATUS='2' \
+	INSBIN='$(ISPOOLDIR)/_ubin' \
+	ISPOOLDIR="$ISPOOLDIR" \
+	KILL_0='1' \
+	LDFLAGS="$LDOPT" \
+	LINKSTATS='netlink' \
+	LN='ln' \
+	LOCALSEND='1' \
+	LOCAL_NODES='$(LIBDIR)/localnodes' \
+	LOCKF='0' \
+	LORDER='lorder' \
+	MAILER='/usr/sbin/sendmail' \
+	MAILERARGS='\"-oem\",\"-oit\",\"-f&F@&O\"' \
+	MAIL_FROM='0' \
+	MAIL_RFC822_HDR='1' \
+	MAIL_TO='1' \
+	MAKE="$MAKE" \
+	MANTYPE="$MANTYPE" \
+	MAPP='netmap' \
+	MAXRETSIZE='10000' \
+	MINSLEEP='1' \
+	MKDIR='/bin/mkdir' \
+	MKLOCK='touch -f' \
+	MKLOCKTYPE= \
+	MV='mv' \
+	NCC_ADMIN='root' \
+	NCC_MANAGER='root' \
+	NDIRLIB='0' \
+	NETADMIN='1' \
+	NETGROUPNAME='daemon' \
+	NETPARAMS='/usr/local/lib/MHSnetparams' \
+	NETUSERNAME='daemon' \
+	NEWSARGS= \
+	NEWSCMDS='$(LIBDIR)/newscmds' \
+	NEWSEDITOR='/usr/bin/rnews' \
+	NICEDAEMON='-1' \
+	NICEHANDLERS='5' \
+	NODENAMEFILE= \
+	PGRP='1' \
+	POSTMASTER='root' \
+	PRFORMATTER='/bin/pr -l66 -w132 -f -n4' \
+	PRINTER='/usr/bin/lpr' \
+	PRINTERARGS='\"-C\",\"&F:&O\",\"-J\",\"&D\"' \
+	PRINTORIGINS='$(LIBDIR)/printorigins' \
+	PRINTSITES='$(LIBDIR)/printsites' \
+	PRIVSFILE='$(LIBDIR)/privsfile' \
+	PROTO_STATS='1' \
+	PRSPOOLER='/usr/bin/lpr' \
+	PUBLICFILES='$(LIBDIR)/publicfiles' \
+	QUEUE='netq' \
+	RANLIB='ranlib' \
+	RENAME_2='1' \
+	RM='rm -f' \
+	RMPROG='/bin/rm' \
+	SENDFILE='netfile' \
+	SENDMAIL='netmail' \
+	SERVERGROUP='uucp' \
+	SERVERUSER='uucp' \
+	SHELL='/bin/sh' \
+	SITE_DEPEND="$0 Makefile" \
+	SPOOLDIR='/var/spool/MHSnet' \
+	STATEP='netstate' \
+	STATERNOTLIST='$(STATEDIR)/ignorefile' \
+	STOP='netstop' \
+	STRIP='strip' \
+	STTY='/bin/stty' \
+	SUN3='1' \
+	SYSLIBS='-lcurses' \
+	SYSTEM='0' \
+	SYSVREL='0' \
+	SYS_LOCKING='0' \
+	TCP_IP='1' \
+	TMPDIR='/tmp' \
+	TOUCH='touch' \
+	TSORT='tsort' \
+	UDP_IP='1' \
+	UUCPLCKDIR='/var/spool/uucp' \
+	UUCPLOCKS='1' \
+	V8='0' \
+	VALIDATEMAIL='0' \
+	VCDAEMON_STATS='1' \
+	VERSION="$VERSION" \
+	VPRINTF='1' \
+	WAIT_RESTART='1' \
+	WHOIS='netwhois' \
+	WHOISARGS='\"-i\",\"-e\"' \
+	WHOISFILE='/usr/share/misc/whois' \
+	WHOISPROG='/usr/bin/egrep' \
+	WORKFLAG='_' \
+	X25='0' \
+"$@" >>made 2>&1
+
+echo `date` " Make ${1-certain} done." >/dev/tty
+)&

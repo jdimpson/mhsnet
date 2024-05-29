@@ -1,0 +1,97 @@
+#
+#	SCCSID	@(#)MakefileP	1.6 95/01/18
+#
+
+PROTO		= NNproto
+PROTODEF	= NNstrpr
+DS		= Daemon
+PS		= NNproto
+IN		= -I$(DS) -I$(PS) -I..
+
+OBJS		= $(PROTO)/RCread.o $(PROTO)/RCwrite.o $(PROTO)/Rread.o $(PROTO)/Rwrite.o \
+		  $(PROTO)/driver.o $(PROTO)/queue.o \
+		  $(PROTO)/Debug.o $(PROTO)/Pinit.o $(PROTO)/Pprintstats.o $(PROTO)/Precv.o $(PROTO)/Psend.o
+
+all:		$(PROTO) $(OBJS)
+
+$(PROTO):
+		$(MKDIR) $(PROTO)
+
+$(OBJS):	$(INCglobal) $(INCdebug) $(INCsite) $(INCtypedefs) $(FRC)
+
+$(PROTO)/RCread.o: \
+		 ../VCdaemon/cook.h \
+		$(DS)/Stream.h $(PS)/Channel.h $(DS)/daemon.h $(DS)/driver.h $(DS)/RCread.c
+		@echo $(CC) $(CFLAGS) $(IN) $(INCLUDE) -D$(PROTODEF) -c $(PROTO)/RCread.c; \
+		$(CC) $(CFLAGS) $(IN) $(INCLUDE) -D$(PROTODEF) $(DFLAGS) -c $(DS)/RCread.c -o $@
+		@-f=`basename $@`; test -f $$f && mv $$f $@
+
+$(PROTO)/RCwrite.o: \
+		 ../VCdaemon/cook.h \
+		$(PS)/Channel.h $(DS)/RCwrite.c
+		@echo $(CC) $(CFLAGS) $(IN) $(INCLUDE) -D$(PROTODEF) -c $(PROTO)/RCwrite.c; \
+		$(CC) $(CFLAGS) $(IN) $(INCLUDE) -D$(PROTODEF) $(DFLAGS) -c $(DS)/RCwrite.c -o $@
+		@-f=`basename $@`; test -f $$f && mv $$f $@
+
+$(PROTO)/Rread.o: \
+		$(DS)/Stream.h $(PS)/Channel.h $(DS)/daemon.h \
+		  $(DS)/driver.h $(PS)/Pconfig.h $(PS)/Packet.h $(DS)/Rread.c
+		@echo $(CC) $(CFLAGS) $(IN) $(INCLUDE) -D$(PROTODEF) -c $(PROTO)/Rread.c; \
+		$(CC) $(CFLAGS) $(IN) $(INCLUDE) -D$(PROTODEF) $(DFLAGS) -c $(DS)/Rread.c -o $@
+		@-f=`basename $@`; test -f $$f && mv $$f $@
+
+$(PROTO)/Rwrite.o: \
+		 ../VCdaemon/cook.h \
+		$(DS)/Stream.h $(PS)/Channel.h $(DS)/daemon.h \
+		  $(DS)/driver.h $(PS)/Pconfig.h $(PS)/Packet.h $(DS)/Rwrite.c
+		@echo $(CC) $(CFLAGS) $(IN) $(INCLUDE) -D$(PROTODEF) -c $(PROTO)/Rwrite.c; \
+		$(CC) $(CFLAGS) $(IN) $(INCLUDE) -D$(PROTODEF) $(DFLAGS) -c $(DS)/Rwrite.c -o $@
+		@-f=`basename $@`; test -f $$f && mv $$f $@
+
+$(PROTO)/driver.o: \
+		 ../VCdaemon/cook.h \
+		$(DS)/AQ.h $(DS)/CQ.h $(DS)/PQ.h $(DS)/daemon.h $(DS)/driver.h \
+		 $(DS)/Stream.h \
+		 $(PS)/Channel.h $(PS)/Pconfig.h $(PS)/Packet.h $(DS)/driver.c
+		@echo $(CC) $(CFLAGS) $(IN) $(INCLUDE) -D$(PROTODEF) -c $(PROTO)/driver.c; \
+		$(CC) $(CFLAGS) $(IN) $(INCLUDE) -D$(PROTODEF) $(DFLAGS) -c $(DS)/driver.c -o $@
+		@-f=`basename $@`; test -f $$f && mv $$f $@
+
+$(PROTO)/queue.o: \
+		$(DS)/AQ.h $(DS)/CQ.h $(DS)/PQ.h $(DS)/driver.h $(PS)/Packet.h $(DS)/queue.c
+		@echo $(CC) $(CFLAGS) $(IN) $(INCLUDE) -D$(PROTODEF) -c $(PROTO)/queue.c; \
+		$(CC) $(CFLAGS) $(IN) $(INCLUDE) -D$(PROTODEF) $(DFLAGS) -c $(DS)/queue.c -o $@
+		@-f=`basename $@`; test -f $$f && mv $$f $@
+
+$(PROTO)/Debug.o: \
+		$(PS)/Debug.h $(PS)/Packet.h $(PS)/Pconfig.h $(PS)/Debug.c
+		@echo $(CC) $(CFLAGS) $(IN) $(INCLUDE) -D$(PROTODEF) -c $(PROTO)/Debug.c; \
+		$(CC) $(CFLAGS) $(IN) $(INCLUDE) -D$(PROTODEF) $(DFLAGS) -c $(PS)/Debug.c -o $@
+		@-f=`basename $@`; test -f $$f && mv $$f $@
+
+$(PROTO)/Pinit.o: \
+		$(PS)/Channel.h $(PS)/Debug.h $(PS)/Packet.h $(PS)/Pconfig.h \
+		 $(PS)/Proto.h $(PS)/Pstats.h $(PS)/Pinit.c
+		@echo $(CC) $(CFLAGS) $(IN) $(INCLUDE) -D$(PROTODEF) -c $(PROTO)/Pinit.c; \
+		$(CC) $(CFLAGS) $(IN) $(INCLUDE) -D$(PROTODEF) $(DFLAGS) -c $(PS)/Pinit.c -o $@
+		@-f=`basename $@`; test -f $$f && mv $$f $@
+
+$(PROTO)/Pprintstats.o:	\
+		$(PS)/Pstats.h $(PS)/Pprintstats.c
+		@echo $(CC) $(CFLAGS) $(IN) $(INCLUDE) -D$(PROTODEF) -c $(PROTO)/Pprintstats.c; \
+		$(CC) $(CFLAGS) $(IN) $(INCLUDE) -D$(PROTODEF) $(DFLAGS) -c $(PS)/Pprintstats.c -o $@
+		@-f=`basename $@`; test -f $$f && mv $$f $@
+
+$(PROTO)/Precv.o: \
+		$(PS)/Channel.h $(PS)/Debug.h $(PS)/Packet.h $(PS)/Pconfig.h \
+		 $(PS)/Proto.h $(PS)/Pstats.h $(PS)/Precv.c
+		@echo $(CC) $(CFLAGS) $(IN) $(INCLUDE) -D$(PROTODEF) -c $(PROTO)/Precv.c; \
+		$(CC) $(CFLAGS) $(IN) $(INCLUDE) -D$(PROTODEF) $(DFLAGS) -c $(PS)/Precv.c -o $@
+		@-f=`basename $@`; test -f $$f && mv $$f $@
+
+$(PROTO)/Psend.o: \
+		$(PS)/Channel.h $(PS)/Debug.h $(PS)/Packet.h $(PS)/Pconfig.h \
+		 $(PS)/Proto.h $(PS)/Pstats.h $(PS)/Psend.c
+		@echo $(CC) $(CFLAGS) $(IN) $(INCLUDE) -D$(PROTODEF) -c $(PROTO)/Psend.c; \
+		$(CC) $(CFLAGS) $(IN) $(INCLUDE) -D$(PROTODEF) $(DFLAGS) -c $(PS)/Psend.c -o $@
+		@-f=`basename $@`; test -f $$f && mv $$f $@

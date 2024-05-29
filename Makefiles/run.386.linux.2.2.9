@@ -1,0 +1,91 @@
+#!/bin/sh
+#
+#	Debian GNU/Linux 2.0.36
+#
+#	Note that all `"' must be escaped in *ARGS lists
+#
+
+MAKE='make -j 3'	# GNU // make
+
+case $# in
+	0)	set certain ;;
+esac
+
+MANTYPE=Tgz
+ISPOOLDIR="`dirname \`/bin/pwd\``/dist"
+CCOPT=-O2
+LDOPT=-s
+REL=`uname -r`
+VERSION=`egrep 'define.VERSION' Lib/Version.c|sed -e 's/[^"]*"//' -e 's/\(.*\) .*/\1 386-Debian.GNU.Linux.'$REL$CCOPT'/'`
+
+
+(
+date >>made 2>&1
+/usr/bin/time \
+make \
+	BINMAIL='/usr/lib/sendmail' \
+	BINMAILARGS='\"-f&F@&O\"' \
+	CFLAGS="$CCOPT -pipe" \
+	CONFIG='-DANSI_C -DBSD_IP -DERRNO_H -DFSYNC_2 -DINT_SWITCH -DLINUX -DMKDIR_2 -DSIGBLOCK -DSLOW_MALLOC -DSTDLIB_H -DSTRING_H -DSYSMACROS_H -DSYS_VFS -DUNISTD_H -DRand=random -DSRand=srandom' \
+	CRCS_O='' \
+	DEBUG='-DEBUG=2' \
+	ECHO='echo' \
+	FCNTL='1' \
+	FILEBUFFERSIZE='8192' \
+	FILESERVERLOG='$(STATSDIR)/servedfiles' \
+	IGNMAILERSTATUS='2' \
+	INSBIN='$(ISPOOLDIR)/_ubin' \
+	IPLIBS='' \
+	ISPOOLDIR="$ISPOOLDIR" \
+	KILL_0='1' \
+	LDFLAGS="$LDOPT" \
+	LOCALSEND='1' \
+	LOCKF='1' \
+	LORDER='echo' \
+	MAKE="$MAKE" \
+	MANTYPE="$MANTYPE" \
+	MAILER='/usr/lib/sendmail' \
+	MAILERARGS='\"-oem\",\"-oi\",\"-f&F@&O\"' \
+	MAIL_FROM='0' \
+	MKLOCK='touch -f' \
+	NETADMIN='1' \
+	NETUSERNAME='daemon' \
+	NICEDAEMON='-5' \
+	NICEHANDLERS='5' \
+	PGRP='1' \
+	PRFORMATTER='/bin/pr -l66 -w132 -f -n4' \
+	PRINTER='/usr/bin/lp' \
+	PRINTERARGS='\"-s\"' \
+	PRIVSFILE='$(LIBDIR)/privsfile' \
+	PROTO_STATS='1' \
+	PRSPOOLER='lp -t$(NAME)' \
+	PRSPOOL='$(PRSPOOLER)' \
+	PUBLICFILES='$(LIBDIR)/publicfiles' \
+	RANLIB='ranlib' \
+	RENAME_2='1' \
+	SERVERGROUP='uucp' \
+	SERVERUSER='uucp' \
+	SITE_DEPEND="$0 Makefile" \
+	SPOOLDIR='/usr/spool/MHSnet' \
+	SUN3='1' \
+	SYSTEM='5' \
+	SYSVREL='3' \
+	TCP_IP='1' \
+	TERMLIB='-lcurses' \
+	TSORT='cat' \
+	UDP_IP='1' \
+	UUCPLCKDIR='/var/locks' \
+	UUCPLCKPRE='LK.' \
+	UUCPLOCKS='1' \
+	UUCPSTRPID='1' \
+	VCDAEMON_STATS='1' \
+	VERSION="$VERSION" \
+	VPRINTF='1' \
+	WAIT_RESTART='1' \
+	WHOISARGS='\"-i\",\"-e\"' \
+	WHOISFILE='/usr/pub/whois' \
+	WHOISPROG='/usr/bin/egrep' \
+"$@" >>made 2>&1
+
+echo `date` " Make ${1-certain} done." >/dev/tty
+)&

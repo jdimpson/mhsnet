@@ -1,0 +1,198 @@
+
+
+
+Maintenance Procedures                              NETREQUEST(8)
+
+
+
+NNNNAAAAMMMMEEEE
+     netrequest - request network state updates from neighbours
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     ____bbbbiiiinnnn////nnnneeeettttrrrreeeeqqqquuuueeeesssstttt [-_f_l_a_g_s] [_a_d_d_r_e_s_s ...]
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_r_e_q_u_e_s_t is used to broadcast local routing information to
+     neighbouring  nodes, and to request routing information from
+     other nodes.  It can be used to initiate the routing  tables
+     at  network  installation  time,  or  to recover the routing
+     tables  after  local  file-system  crashes.   Any  addresses
+     mentioned  are  included  in  a  multicast  address  for the
+     request, otherwise the request is sent to all active links.
+
+     Requests are sent out with a one week timeout on them,  that
+     is,  if they have not been delivered to their destination(s)
+     within one week, the request is discarded.
+
+     The optional flags are:
+
+     ----aaaa  Request  all  network  topology  information  available,
+         rather than a local sub-set in the routing tables.  (All
+         information is _s_e_n_t if the flag ----eeee is  also  specified.)
+         This   flag  is  ignored  with  broadcast  or  multicast
+         addresses.
+
+     ----bbbb  Broadcast the request to  all  sites  within  the  local
+         region.
+
+     ----eeee  Export the local  routing  information  along  with  the
+         request.  If the address contains a broadcast, then only
+         the local (node + links) routing details  are  exported,
+         otherwise  information  about all regions in the routing
+         tables is exported.
+
+     ----iiii  Read an exportable routing file off _s_t_d_i_n to use instead
+         of the default.  (Implies ----eeee.)
+
+     ----llll  Include all active direct  links  in  the  request  (the
+         default if no other addresses are specified).
+
+     ----nnnn  Don't request - just  send  local  routing  information.
+         (Implies ----eeee.)
+
+     ----rrrr  Allow error returns from  remote  sites  (otherwise  the
+         request will be discarded on error).
+
+     ----tttt  Don't include a  timeout  with  the  message  (otherwise
+         messages   expire   after   one  week).   This  flag  is
+         ineffective if any address is a _b_r_o_a_d_c_a_s_t.
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+
+
+
+
+Maintenance Procedures                              NETREQUEST(8)
+
+
+
+     ----RRRR _r_e_g_i_o_n
+         Restrict broadcasts to _r_e_g_i_o_n.
+
+     ----SSSS _s_o_u_r_c_e
+         Specify  a  source  address  for   non-default   routing
+         information (must be the name of a link).
+
+     ----TTTT[_l_e_v_e_l]
+         Turns on tracing at _l_e_v_e_l (default: 1).  If  tracing  is
+         not compiled in, this flag will have no effect.
+
+     ----XXXX _f_i_l_e
+         Use the exportable routing information in  _f_i_l_e  instead
+         of the default.  (Implies ----eeee.)
+
+     ----ZZZZ _t_i_m_e-_t_o-_d_i_e
+         The message will be discarded on any route  which  takes
+         more  than  _t_i_m_e-_t_o-_d_i_e  seconds  before  delivery.  The
+         default for all broadcast messages is one week, but this
+         option may be used to shorten the message life further.
+
+     ----????  Explain argument options and exit.
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEESSSS
+     Broadcast local  routing  information  to  all  sites  in  a
+     particular region:
+
+       _bin/netrequest -en *.mu.oz.au
+
+     Request routing updates from all sites in local region:
+
+       _bin/netrequest -b
+
+     Send all local routing information to a particular site:
+
+       _bin/netrequest -aen munnari.cs.mu.oz.au
+
+     Broadcast state details for  a  directly  connected  foreign
+     site   _l_i_n_k  whose  state  details  have  been  prepared  in
+     `link.cmds':
+
+       netstate -oncS <link.cmds | _bin/netrequest -bin -S link
+
+FFFFIIIILLLLEEEESSSS
+     _state/exportfile  Routing information from  routing  tables
+                        for  export.  Often an order of magnitude
+                        larger than the `sitefile'.
+     _state/routefile   Routing  tables  for  resolving   address
+                        arguments, and finding links.
+     _state/sitefile    Local routing information for  export  in
+                        broadcasts.
+     _state/statefile   Entire  network   topology   information.
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    2
+
+
+
+
+
+
+Maintenance Procedures                              NETREQUEST(8)
+
+
+
+                        Often  several orders of magnitude larger
+                        than the `sitefile'.  This  file  can  be
+                        fetched/sent  from/to  a remote site with
+                        the ----aaaa flag.
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _n_e_t_m_a_p(1), _n_e_t_w_o_r_k(7), _n_e_t_s_t_a_t_e(8).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    3
+
+
+

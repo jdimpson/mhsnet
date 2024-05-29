@@ -1,0 +1,5 @@
+
+	-a	First argument is an address.
+	-l	Print link directory for first argument.
+	-p	First argument is a pathname.
+	-s	Strip types from pathname.

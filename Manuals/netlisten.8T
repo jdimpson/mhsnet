@@ -1,0 +1,132 @@
+
+
+
+Maintenance Procedures                               NETLISTEN(8)
+
+
+
+NNNNAAAAMMMMEEEE
+     netlisten - listen for incoming TCP/IP calls
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     ____lllliiiibbbb////ttttccccpppplllliiiisssstttteeeennnn [-_f_l_a_g_s]
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     This program is for those systems that don't have a  version
+     of  the  BSD  4.3 program known as _i_n_e_t_d.  Its purpose is to
+     listen  for  incoming  TCP/IP  calls  on  the  port   number
+     allocated  for  MHSnet,  and  invoke  a _n_e_t_s_h_e_l_l to set up a
+     virtual circuit and start the transport daemon.
+
+     The optional flags are:
+
+     ----ffff  Prevents _n_e_t_l_i_s_t_e_n from forking on invocation to  run  a
+         child  process in the background, and returning from the
+         parent.
+
+     ----LLLL _l_o_g
+         Set  the  name  of  the  exception  message  log   file.
+         [Default: tcplisten.log]
+
+     ----NNNN _s_e_r_v_i_c_e
+         Change the service type being  listened  for.   This  is
+         only used in exception messages, and can also be changed
+         in  the  parameters  file,  under  the   name   SERVICE.
+         [Default: mhsnet]
+
+     ----PPPP _p_o_r_t
+         Change the port number being listened for.  Can also  be
+         changed  in  the  parameters  file, under the name PORT.
+         [Default: 1989]
+
+     ----SSSS _s_e_r_v_e_r
+         Change the name of the server program started to  create
+         the  virtual  circuit.   Can  also  be  changed  in  the
+         parameters  file,  under  the  name  SERVER.   [Default:
+         SPOOLDIR/_lib/tcpshell]
+
+     ----TTTT[_l_e_v_e_l]
+         Turns on tracing at _l_e_v_e_l (default: 1).  If  tracing  is
+         not compiled in, this flag will have no effect.
+
+     ----????  Explain argument options and exit.
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEE
+     To start _n_e_t_l_i_s_t_e_n from  `SPOOLDIR/_lib/initfile',  add  the
+     line:
+
+       listen    restart    _lib/tcplisten -f
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+
+
+
+
+Maintenance Procedures                               NETLISTEN(8)
+
+
+
+PPPPAAAARRRRAAAAMMMMEEEETTTTEEEERRRRSSSS
+     On  starting,  _n_e_t_l_i_s_t_e_n  reads  a  file  in  the  `_params'
+     directory  with the same name as it was invoked under.  This
+     file can contain the following optional parameters:
+
+     PORT
+         The port used for TCP/IP connections to MHSnet.
+
+     SERVER
+         The name of  the  program  invoked  to  handle  incoming
+         TCP/IP connections.
+
+     SERVICE
+         The symbolic name for the port number.
+
+FFFFIIIILLLLEEEESSSS
+     _lib/tcplisten.lock  Lock  file  for  _n_e_t_l_i_s_t_e_n  to  prevent
+                          multiple invocations.
+     _lib/tcplisten.log   Log file for exception messages.
+     _params/tcplisten    Alternate       default       parameter
+                          specifications.
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _n_e_t_p_a_r_a_m_s(5), _n_e_t_i_n_i_t(8), _n_e_t_s_h_e_l_l(8).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    2
+
+
+

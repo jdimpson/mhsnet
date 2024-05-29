@@ -1,0 +1,68 @@
+.ds S1 NETFINGER
+.ds S2 \fINetfinger\fP
+.ds S3 \fInetfinger\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 netfinger
+.TH \*(S1 1 "\*(S4 1.3" \^
+.nh
+.SH NAME
+netfinger \- request that user information be fetched via internet \s-1finger\s0
+.SH SYNOPSIS
+.BI \*(S6
+.RI [\- D
+.IR finger_host \|]
+.I "[user]@host ..."
+.SH DESCRIPTION
+\*(S2
+will obtain user information from internet hosts by using the internet
+.IR finger (1)
+program on the indicated
+.IR finger_host .
+[Default: the local host.]
+.PP
+Names, if provided, are passed to the corresponding host for
+perusal. Information returned includes the login name, the user's
+real names, and details of last login time for each match.
+A particular account will match if the login name, or any one
+of the real names of the user matches exactly. Pattern matching
+is case insensitive.
+.PP
+If no name is provided for any given host, a list of users
+currently logged on is returned instead.
+.PP
+Query information and errors are returned by the
+.I finger_host
+executing
+.IR netmail (1)
+with appropriate arguments.
+.PP
+Please note that regular expressions in the name will not be
+interpreted as such.
+.SH EXAMPLES
+Obtain a list of users currently logged on to a little known host
+in the Basser Department of Computer Science at the University of
+Sydney:
+.PP
+.RS 2
+.ft CW
+\*(S6 -D basser.cs.su.oz.au @joyce
+.ft
+.RE
+.SH "SEE ALSO"
+.IR finger (1),
+.IR netwhois (1),
+.IR netmail (1),
+.IR netmsg (8).
+.SH DIAGNOSTICS
+Consult
+.IR netmsg (8)
+for possible diagnostic messages,
+as \*(S3 invokes that program to send the requests.
+See
+.IR finger (1)
+for error message details returned via electronic mail
+when a query fails, or a host cannot be contacted.
+.PP
+Please note that the finger program often provides incorrect
+information about the time of last login.

@@ -1,0 +1,48 @@
+#!/bin/sh
+
+#	Setup circuit to "link" via default call script,
+#	(assumes link-specific call-script in "link/call").
+
+USAGE="[-f] link"
+
+PATH=$PATH:/etc:/usr/ucb:/usr/local:/usr/local/bin
+
+andflag="-&"	# "-f" - run in foregound [else background]
+trace=		# "-Tn"- trace level <n>
+
+for i do
+	case "${i}" in
+	-T[0-9])trace="$i"	; shift	;;
+	-f)	andflag=	; shift	;;
+	-*)	echo "Usage: $0 $USAGE"; exit 1;;
+	esac
+done
+
+case $# in
+1)	;;
+*)	echo "Usage: $0 $USAGE"; exit 1;;
+esac
+
+link=$1
+
+SPOOLDIR=/usr/spool/MHSnet
+eval `egrep 'SPOOLDIR' /usr/lib/MHSnetparams 2>/dev/null`
+
+cd $SPOOLDIR
+umask 027
+
+case "$link" in
+*=*)	node=`expr ${link} : '[^=]*=\([^\.]*\)'`	;;
+*)	node=`expr ${link} : '\([^\.]*\)'`		;;
+esac
+log=_call/${node}.log
+olog=_call/${node}.ol
+
+if [ -s ${log} ]
+then
+	mv ${log} ${olog}
+fi
+
+exec _lib/VCcall ${andflag} -v $trace \
+	-X ${log} \
+	${link}

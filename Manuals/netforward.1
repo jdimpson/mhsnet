@@ -1,0 +1,154 @@
+.ds S1 NETFORWARD
+.ds S2 \fINetforward\fP
+.ds S3 \fInetforward\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 netforward
+.TH \*(S1 1 "\*(S4 1.11" \^
+.nh
+.SH NAME
+netforward \- set forwarding for network messages
+.SH SYNOPSIS
+.BI \*(S6
+.RI [\- flags \|]
+.RI [ address " ...]"
+.SH DESCRIPTION
+\*(S2
+will list the invoker's forwarding actions for each message type.
+If any
+.I address
+arguments are supplied, then the invoker's
+.I file
+messages will be forwarded to those addresses.
+The format of
+.I address
+is message-type dependent, but
+.SM FTP
+addresses should be in the form:
+\fIusers\fP\fB@\fP\fIdestinations\fP
+(cf:
+.IR netfile (1)).
+.PP
+Forwarding loops are detected by the network routing layer,
+which will notify management for corrective action.
+.PP
+Other possibilities are controlled by the following flags:
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-A\fP\fI\ handler\fPX'u
+.TP "\*(tw"
+.BI \-a
+Show forwarding for all users and handlers.
+This flag is restricted to the network
+.IR super-user .
+.TP
+.BI \-c
+Turn off forwarding for indicated message type.
+.TP
+.BI \-A \ handler
+Affect forwarding for
+.I handler
+rather than the default
+.RI [ mailer ].
+You may use the common
+.I description
+for the handler as reported by
+.IR netq (1),
+(eg: `mail'),
+instead of its name.
+This flag must occur before any address arguments.
+.TP
+.BI \-T \fR[\fPlevel\fR]\fP
+Turns on tracing at
+.I level
+(default: 1).
+If tracing is not compiled in,
+this flag will have no effect.
+.TP
+.BI \-U \ name
+Set/show the forwarding for
+.IR name ,
+(which can be a user for \s-1FTP\s0 style handlers,
+or the name of the handler itself)
+rather than the default
+(the invoker).
+Note that
+.I name
+is forced to lower-case, as matches are forced to lower case.
+This flag is restricted to the network
+.IR super-user .
+.TP
+.BI \-?
+Explain argument options and exit.
+.SH EXAMPLES
+Set mail forwarding for invoker to `bob@mhs.oz.au':
+.PP
+.RS 2
+.ft CW
+.nf
+\*(S6 bob@mhs.oz.au
+.fi
+.ft
+.PP
+Note that this is more efficient than using mail program forwarding,
+since network message forwarding is accomplished at the routing layer.
+.RE
+.PP
+Set file forwarding for `judy' to `cs.su.oz.au':
+.PP
+.RS 2
+.ft CW
+.ps -2
+.nf
+\*(S6 -A files -U judy judy@cs.su.oz.au
+.fi
+.ps
+.ft
+.PP
+See also
+.IR netget 's
+\fB\-f\fP flag.
+.RE
+.PP
+Set forwarding for `fileserver' requests to a host with a public files
+data-base:
+.PP
+.RS 2
+.ft CW
+.ps -2
+.nf
+\*(S6 -Afileserver -Ufileserver plaza.aarnet.oz.au
+.fi
+.ps
+.ft
+.RE
+.PP
+Set up a simple mailing-list:
+.PP
+.RS 2
+.ft CW
+.ps -2
+.nf
+\*(S6 -Umeeting helen,harry@xyz.oz.au\ \e
+	john,jane@cs.su.oz.au sophy,susan@mhs.oz.au
+.fi
+.ps
+.ft
+.PP
+Note that this is far more efficient than using mail program distribution lists,
+as these nearly always generate one message for each recipient in the list,
+whereas the above will generate the minimum number of message copies needed to reach each recipient.
+.RE
+.PP
+All addresses are expanded to canonical form.
+.SH FILES
+.PD 0
+.TP "\w'_forward/\fPusername\fPX'u"
+_forward/\fIusername\fP
+Forwarding details for user.
+.TP
+_state/routefile
+Routing tables for resolving addresses.
+.PD
+.SH "SEE ALSO"
+.IR netfile (1),
+.IR netget (1).

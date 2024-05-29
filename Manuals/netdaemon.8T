@@ -1,0 +1,1055 @@
+
+
+
+Maintenance Procedures                               NETDAEMON(8)
+
+
+
+NNNNAAAAMMMMEEEE
+     netdaemon - network transport daemon
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     ____lllliiiibbbb////VVVVCCCCddddaaaaeeeemmmmoooonnnn [-_f_l_a_g_s] -HHHH _h_o_m_e__a_d_d_r_e_s_s  -LLLL  _l_i_n_k__a_d_d_r_e_s_s  -NNNN
+     _l_i_n_k__n_a_m_e
+     ____lllliiiibbbb////HHHHTTTTddddaaaaeeeemmmmoooonnnn ...
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_d_a_e_m_o_n is  the  network  transport  daemon  for  standard
+     virtual   circuits.    It   is  started  by  the  system  at
+     initialization time to transmit  messages  to,  and  receive
+     messages  from,  a  remote  host.   The  daemon  can also be
+     started by the network daemon shell _n_e_t_s_h_e_l_l(8), or  by  the
+     virtual   circuit   establishment   program  _n_e_t_c_a_l_l(8),  to
+     exchange   messages   in   _b_a_t_c_h   _m_o_d_e   for   intermittent
+     connections.   The daemon expects a readable virtual circuit
+     to be presented as file descriptor 0, and a writable virtual
+     circuit as file descriptor 1.
+
+     There are alternate versions for connecting to ACSnet  sites
+     running  the  SUN III  software (see SUN III DAEMONS below),
+     and these take additional flags as indicated.
+
+     The optional flags have meanings as  follows  (those  marked
+     with  an  asterisk must be enabled at both ends of a link to
+     be effective):
+
+     ----3333  Prevent  SUN III-compatible   daemon   from   specifying
+         SUN III filter for new links.
+         NB:  this  flag  should  be  specified  when  using  the
+         SUN III-compatible daemons between two MHSnet sites.
+
+     ----cccc* This flag requests that the default _c_o_o_k_e_d mode be  used
+         on  the  virtual  circuit,  and is intended for circuits
+         that allow ASCII  printing  characters  only.   (See  ----CCCC
+         below for alternatives.)
+
+     ----dddd  Terminate if a link goes  down.   Otherwise  the  daemon
+         will  wait  for  the link to come back up.  (Default for
+         ----BBBB.)
+
+     ----ffff  Prevents the daemon from forking after execution.
+
+     ----gggg  Prevents  the  daemon  from  creating  the  file  `log'.
+         Instead, log messages are written to _s_t_d_e_r_r.
+
+     ----iiii  Allow inbound messages only.
+
+     ----llll  Don't create a new lockfile, presumably one is in  place
+         already from the program invoking the daemon.
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+
+
+
+
+Maintenance Procedures                               NETDAEMON(8)
+
+
+
+     ----nnnn  Don't adjust packet sizes to take  account  of  low/high
+         error  rates.  If the expected throughput is set via the
+         ----XXXX flag, then the protocol will attempt to  improve  the
+         actual  throughput  towards  the  expected throughput by
+         adjusting packet sizes, unless this flag is set.
+
+     ----oooo  Allow outbound messages only.  (The flags ----iiii and ----oooo  are
+         exclusive.)
+
+     ----pppp  Ignore old _p_r_o_c_e_s_s _i_d in any existing lock file.
+
+     ----rrrr* Don't generate a CRC for packet  data.   Presumably  the
+         virtual circuit already guarantees the data.
+
+     ----ssss  Don't write transmission statistics to the log file.
+
+     ----tttt* Turn around a 1/2 duplex link whenever  one  end  drains
+         its  output  queue.  May only be used with either one of
+         ----iiii or ----oooo (which control the initial direction).
+
+     ----uuuu  Don't  signal  link  status  changes.   Otherwise,  link
+         status messages are sent to the router.
+
+     ----vvvv  Turn on message control  reports.   These  are  produced
+         when  message control packets have to be re-transmitted,
+         usually because of circuit errors, or busy  CPUs.   This
+         flag also turns on statistics (overrides ----ssss) and circuit
+         throughput reports.
+
+     ----zzzz  Other end is old (MHSnet 1.0) daemon -  don't  send  new
+         echo-detection packets.  (Not SUN III.)
+
+     ----AAAA[_s_e_c_o_n_d_s*]
+         Alters  `write-ahead'   seconds   [default:   4].    The
+         transmitter  will  write data for a new message for this
+         number  of  seconds  before  pausing  to  wait  for   an
+         acknowledgment   that  it  can  continue.   Only  useful
+         together with the ----XXXX flag below.
+
+     ----BBBB[_t_i_m_e_o_u_t*]
+         Turn on _b_a_t_c_h-_m_o_d_e.  This flag is for use on links  that
+         are of an intermittent nature.  The optional _t_i_m_e_o_u_t (in
+         seconds) can be specified to delay  termination  of  the
+         daemon  after all channels become idle [minimum/default:
+         1].
+
+     ----CCCC _t_y_p_e
+         Use _t_y_p_e to select a virtual circuit `cooking' protocol.
+         The possibilities are:
+
+     ----CCCC 0000 _o_r AAAA
+         Allow only 7-bit ASCII printing  characters,  and  break
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    2
+
+
+
+
+
+
+Maintenance Procedures                               NETDAEMON(8)
+
+
+
+         lines  at  80 columns.  (Also chosen by ----cccc above.)  (Not
+         SUN III.)
+
+     ----CCCC 1111 _o_r XXXX
+         Use all 8-bit characters except XON, XOFF, ETX, FS,  all
+         in  either  parity,  and two escape chars, which will be
+         escaped.  (NNNNooootttteeee: this may not work on some non-SYSTEM  V
+         kernels,  which tend to stuff the parity bit when not in
+         pure `RAW' mode.)  (Not SUN III.)
+
+     ----CCCC XXXX,_n_n_n[,_n_n_n...]
+         As an alternative to the defaults for ----CCCCXXXX above, you may
+         set  up  the  characters  to  be  escaped  explicitly by
+         providing a  list  of  their  ASCII  character  numbers.
+         These  may  be  in either _o_c_t_a_l (leading 0000), _h_e_x_a_d_e_c_i_m_a_l
+         (leading 0000xxxx) or _d_e_c_i_m_a_l notation.  You  may  not  escape
+         any  of  the  characters  in the range 044 (`$') to 0147
+         (`g').  Eg, to duplicate the default settings  for  ----CCCCXXXX,
+         you would specify:
+         `-CX,3,17,19,28,131,145,147,156'
+         (Not SUN III.)
+
+     ----DDDD _s_i_z_e
+         Control the number of bytes of data  in  the  protocol's
+         data  packets  [defaults: _H_T_d_a_e_m_o_n 8192; _V_C_d_a_e_m_o_n 1024].
+         Must be in the range 8 to _N (and must be a power  of  2)
+         where  _N  is  1024 for _V_C_d_a_e_m_o_n and 131072 for _H_T_d_a_e_m_o_n.
+         Fixes the packet size if the ----nnnn parameter is  specified,
+         otherwise  the  packet  size  is  adjusted to match line
+         conditions but is never greater than _s_i_z_e.
+
+     ----EEEE _e_r_r_o_r_f_i_l_e
+         Put  error  output   in   _e_r_r_o_r_f_i_l_e   [default   `log'].
+         _E_r_r_o_r_f_i_l_e will be appended if it exists.
+
+     ----FFFF _t_r_a_c_e_f_i_l_e
+         Put  trace  output   in   _t_r_a_c_e_f_i_l_e   [default   `log'].
+         _T_r_a_c_e_f_i_l_e will be appended if it exists.
+
+     ----GGGG _p_a_c_k_e_t _b_u_f_f_e_r_s
+         Since  the  SUN III  daemons  use  a   windowed   packet
+         protocol, this parameter is needed if you wish to change
+         the window size to something other than the default [3].
+
+     ----HHHH _h_o_m_e _a_d_d_r_e_s_s
+         Mandatory parameter,  gives  typed  network  address  of
+         home.
+
+     ----IIII _p_a_c_k_e_t _d_e_l_a_y
+         This parameter is used in timeout calculations  for  the
+         SUN III  protocols.   It  specifies  _i_n_t_r_a-packet delays
+         introduced by sub-carrier packet networks.
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    3
+
+
+
+
+
+
+Maintenance Procedures                               NETDAEMON(8)
+
+
+
+     ----JJJJ _f_i_r_s_t _c_h_a_n_n_e_l
+         Specifies first active SUN III channel  in  use  in  the
+         range 0-2 [default 0].
+
+     ----KKKK _a_c_c_t _s_t_r_i_n_g
+         Optional string that will be appended to the _c_o_n_n_e_c_t log
+         on termination.
+
+     ----LLLL _l_i_n_k _a_d_d_r_e_s_s
+         Mandatory parameter,  gives  typed  network  address  of
+         link.
+
+     ----MMMM_n This flag turns on _r_e_a_d_e_r tracing at level _n  (see  flag
+         TTTT).
+
+     ----NNNN _l_i_n_k _n_a_m_e
+         Mandatory parameter, gives spool directory pathname  for
+         link, where the daemon will operate.
+
+     ----OOOO _o_u_t_p_u_t _s_i_z_e
+         Control the size of virtual circuit data transmitted via
+         _w_r_i_t_e(2) system calls.
+
+     ----PPPP_n Causes packet protocol tracing to be turned on at  level
+         _n.   Level  1  produces a trace for each packet, level 2
+         also prints the bytes on the virtual circuit.  No effect
+         if tracing has not been compiled in.
+
+     ----QQQQ _p_r_i_o_r_i_t_y
+         Set the  lowest  priority  message  to  be  transmitted.
+         Lower  priority  messages  will  be  kept  in the queue.
+         [Default: '9'.]
+
+     ----RRRR _m_a_x _r_u_n _t_i_m_e
+         Set the maximum time in  seconds  that  an  intermittent
+         connection can stay up.  [Default: infinite.]
+
+     ----SSSS _m_i_n_s_p_e_e_d
+         This flag attempts to give a _q_u_a_l_i_t_y _a_s_s_u_r_a_n_c_e limit for
+         intermittent links.  If the effective data transfer rate
+         falls below _m_i_n_s_p_e_e_d [default 0], then the  daemon  will
+         terminate.
+
+     ----TTTT_n This flag turns on tracing at level _n  (if  included  at
+         compile  time)  and  a log of all output transactions is
+         placed in the _l_o_g file, while input transaction go  into
+         a  file named _r_e_a_d_e_r_l_o_g.  Note that a reader-specific or
+         writer-specific level can be set via the MMMM or  VVVV  flags.
+         NB: this can generate a huge amount of output.
+
+     ----UUUU _s_e_c_o_n_d_s
+         Change the  interval  between  status  file  updates  to
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    4
+
+
+
+
+
+
+Maintenance Procedures                               NETDAEMON(8)
+
+
+
+         _s_e_c_o_n_d_s.   [Default:  40  seconds, or whenever a message
+         starts/completes a transfer.]
+
+     ----VVVV_n This flag turns on _w_r_i_t_e_r tracing at level _n  (see  flag
+         TTTT).
+
+     ----WWWW _A_C_K _w_i_n_d_o_w
+         Control the number of packets acknowledged by  each  ACK
+         packet.   Changing  this parameter from the default of 1
+         causes the SUN III  protocol  to  wait  to  receive  the
+         specified number of packets before sending an ACK.  Only
+         advisable on reliable  circuits,  and  may  not  be  set
+         larger than {wwwwiiiinnnnddddoooowwww ssssiiiizzzzeeee ---- 1111} (cf: ----GGGG).
+
+     ----XXXX _r_a_t_e
+         _R_a_t_e should be the effective speed of the link in  `raw'
+         bytes-per-second  [default 240], and is used in time-out
+         calculations and packet size adjustments.
+
+     ----YYYY _t_i_m_e_o_u_t*
+         Change the timeout used for dead circuit detection  from
+         the  default  [40 seconds].  An IDLE packet is generated
+         every _t_i_m_e_o_u_t seconds.  The circuit will be marked  dead
+         if  no  IDLE  packet is seen from the remote end after 3
+         _t_i_m_e_o_u_t periods.  If _t_i_m_e_o_u_t is  0,  then  dead  circuit
+         detection  is  disabled.  A zero timeout may not be used
+         together with ----BBBB or ----tttt.  NB: IDLE packets are also  used
+         to  adjust  transmission  parameters  to take account of
+         actual circuit throughput, so should only be disabled on
+         circuits  whose  characteristics  are predictable as set
+         via the ----XXXX parameter.
+
+     ----ZZZZ _s_l_e_e_p
+         When the daemon has nothing to do,  it  will  sleep  for
+         _s_l_e_e_p  seconds  between  scanning the output queues.  It
+         will also scan the queues whenever it is sent  a  wakeup
+         signal  by  the  routing  daemon.   However,  on network
+         systems  where  the  router  process  is  running  on  a
+         different  processor,  this  flag  allows  more frequent
+         queue scans.  _S_l_e_e_p is 60 seconds by default [10 seconds
+         in batch mode, or if ----tttt is used.]
+
+     ----????  Explain argument options and exit.
+
+  OOOOppppeeeerrrraaaattttiiiioooonnnn
+     There is one daemon for  each  active  network  link.   Each
+     daemon has a separate command directory in the network spool
+     area,  as  specified  by  the  ----NNNN  parameter.   Within  this
+     directory  there  are  three other directories: `cmds', `in'
+     and `out'.
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    5
+
+
+
+
+
+
+Maintenance Procedures                               NETDAEMON(8)
+
+
+
+     The file `cmds/lock' is used to  prevent  two  daemons  from
+     becoming  active simultaneously.  It contains the process ID
+     of the daemon, and the name of the node it  is  running  on.
+     After  the  daemon  has  created the lock file, it forks and
+     becomes two processes, one for  transmitting  messages,  and
+     the  other for receiving.  The message transmitter scans the
+     command directory `cmds' for command files.  Records in each
+     command file specify files to be transmitted, and actions to
+     be  performed.   On   successful   completion   of   message
+     transmission, the spooled message is removed.
+
+     The receiver process awaits incoming messages, and creates a
+     temporary  file  for  each  one  in  the directory `in'.  On
+     successful completion of message reception, a  command  file
+     is  generated  for  the  spooled  message  and passed to the
+     routing program for further processing.
+
+     _N_e_t_d_a_e_m_o_n catches the system termination signal  and  writes
+     accumulated  statistics  on  the  log  file  in  the command
+     directory.
+
+     If a file named `endprog' exists  in  the  link's  operating
+     directory,  or  if not there, then in the "_call" directory,
+     it will be executed in the  link's  operating  directory  by
+     _s_h(1)  just  before the message transport daemon terminates.
+     It will be passed three arguments: the name of the link, the
+     termination  reason  (see below), and the name of _n_e_t_d_a_e_m_o_n.
+     It will have standard input and output set  to  the  virtual
+     circuit.   Note  that  if  `endprog' has an owner other than
+     NETUSERNAME or  a  group  other  than  NETGROUPNAME,  or  is
+     publicly writeable, then it will be ignored.
+
+  MMMMeeeessssssssaaaaggggeeee cccchhhhaaaannnnnnnneeeellllssss aaaannnndddd pppprrrriiiioooorrrriiiittttiiiieeeessss
+     The daemon uses a full-duplex multiplexed  channel  protocol
+     to exchange messages reliably with another daemon running on
+     the  remote  host.   Four  channels  are  provided  in  each
+     direction.   Message priorities are allocated to channels as
+     follows:
+
+       PPPPrrrriiiioooorrrriiiittttiiiieeeessss  CCCChhhhaaaannnnnnnneeeellll
+9       0           0
+       1, 2, 3     1
+       4, 5, 6     2
+       7, 8, 9     3
+
+     Each  channel  transmits  the   highest   priority   message
+     available with priority <= to its allocated range uuuunnnnlllleeeessssssss the
+     message has the _o_r_d_e_r_e_d transmission flag, in which case  it
+     is   only  transmitted  on  the  channel  allocated  to  its
+     priority.   The  routing  program  assigns   network   _s_t_a_t_e
+     messages  to priority 0, small messages to priority 3, large
+     messages  to  priority  6,  and  low-priority  messages   to
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    6
+
+
+9
+
+
+Maintenance Procedures                               NETDAEMON(8)
+
+
+
+     priority  9  (unless  overriden  by  the  message  insertion
+     programs).  Thus small messages (such  as  mail  items)  may
+     overtake  larger  ones.   Messages  are  only  progressed on
+     higher numbered channels when lower numbered ones  are  idle
+     or delayed (due to message turn-around).
+
+  SSSSttttaaaattttiiiissssttttiiiiccccssss
+     The state of the link  may  be  determined  by  running  the
+     command  _n_e_t_l_i_n_k(1)  which shows the channel states and link
+     throughputs.  The raw statistics and state of the  link  may
+     be  printed  using _n_e_t_l_i_n_k_d_a_t_a(8) The command _n_e_t_q(1) may be
+     used to find out what messages are awaiting transmission.
+
+     If a file named  _stats/connect  exists  and  is  writeable,
+     _n_e_t_d_a_e_m_o_n  on  terminating  will  write  one  line  for each
+     direction.  Each line has 8 or 9 fields as  follows:  start-
+     date,   start-time,   weekday,  direction,  typed-link-name,
+     elapsed-time, messages and data-bytes.  If the ----KKKK  flag  was
+     used,  then  its  value  will  become the ninth field.  _U_n_i-
+     _p_r_o_c_e_s_s daemons write  a  single  line  with  the  direction
+     marked as i&o.
+
+PPPPRRRROOOOTTTTOOOOCCCCOOOOLLLL
+     The daemon is split into  two  processes,  one  reader,  one
+     writer,  in  order to decouple the synchronous I/O interface
+     provided by the virtual circuit.  The transport protocol  is
+     designed   for  minimum  sub-carrier  overheads,  with  byte
+     addressed packets using a  window  size  of  4  Gbytes,  and
+     employing  no  positive acknowledgements.  Data packets with
+     detected errors are ignored, but any `gaps' detected in  the
+     data   are  negatively  acknowledged,  asynchronously.   The
+     writer process assumes that, under normal circumstances, the
+     remote  reader  is  always ready to receive another message.
+     This allows minimal inter-message `turn-around' delays,  and
+     maximal use of the virtual circuit bandwidth.
+
+     The protocol will  operate  effectively  over  most  virtual
+     circuits,   however   a   few  parameters  will  modify  its
+     efficiency  under  some  conditions  (but  note  the  _c_a_v_e_a_t
+     below).   The options are the data size of each packet (----DDDD),
+     the effective throughput of the virtual  circuit  (----XXXX),  the
+     amount  of  buffering  _i_n_s_i_d_e  the virtual circuit (----AAAA), and
+     whether to allow bi-directional data flow or not  (----tttt).   If
+     the  circuit  suffers high error rates, then the packet size
+     should be reduced.  A rule of thumb is to  choose  a  packet
+     data  size  such  that  each packet takes around a second to
+     transmit.  The  smaller  the  data  size,  the  greater  the
+     overheads,   since  the  packet  header  is  8  bytes.   [10
+     including the data CRC.]  On the other hand, the smaller the
+     packet,  the  smaller  the chance that it will be corrupted.
+     The  effective  throughput  of  the  circuit  is  not   very
+     important,  unless  it  is less than 100 bytes/sec, in which
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    7
+
+
+
+
+
+
+Maintenance Procedures                               NETDAEMON(8)
+
+
+
+     case the timeouts will be increased, or if the throughput is
+     greater  than  1000, in which case the `write-ahead' will be
+     increased.  But note that the effective throughput should be
+     as close as possible to what is realistically achievable, as
+     otherwise unnecessary packet size  adjustments  will  occur.
+     Alternatively,  if  you  are  reasonably certain what packet
+     size  you  need,  you  can  disable  packet   size   changes
+     altogether  by  specifying  ----nnnn.  If the circuit has internal
+     buffering (such as via a `terminal server') it may need  the
+     `write-ahead'  increased.   The  `write-ahead' should be the
+     same as the buffering + 4, eg: for a 9600 baud circuit via a
+     terminal  server with 8 kbyte buffers, the buffers will hold
+     ~8.5 seconds worth of data, so the `write-ahead'  should  be
+     12 seconds.  The `write-ahead' only affects the beginning of
+     messages while the transmitter is waiting for  the  receiver
+     to  acknowledge  a  new  message.  Setting `write-ahead' too
+     high on poor cicruits will increase the  likelihood  of  all
+     the  `written-ahead'  packets  being  discarded  if  the new
+     message is  rejected  (or  the  start-of-message  packet  is
+     lost).   The  _h_a_l_f-_d_u_p_l_e_x  mode  (-i/-o, -t) will need to be
+     invoked over virtual circuits  that  don't  have  real  full
+     duplex  behaviour,  such  as those provided by certain high-
+     speed modems that operate first in one  direction,  then  in
+     the other.
+
+  PPPPrrrroooottttooooccccoooollll PPPPrrrroooobbbblllleeeemmmmssss
+     If there are protocol problems, they may  be  examined  more
+     closely  by enabling packet tracing.  However, most protocol
+     problems are caused  by  circuit  conditions  which  prevent
+     bytes from being delivered properly.  The data at the end of
+     the log file printed when the daemon terminates is  intended
+     to aid circuit error monitoring.
+
+     Too many errors may just mean a very bad circuit, for  which
+     the  only  solution is to reduce the packet size to minimise
+     the chances of an error destroying a packet.
+
+     If the circuit has _i_n-_b_a_n_d flow control, then  the  protocol
+     needs  to  be  _c_o_o_k_e_d  so  that  the  bytes generated by the
+     protocol don't  conflict  with  the  bytes  used  for  flow-
+     control.   _C_o_o_k_i_n_g  is  also  needed  if the circuit doesn't
+     allow all 8-bit bytes to be passed.  If  the  set  of  bytes
+     that  must  be avoided is small, then the ----CCCCXXXX,,,,............ option may
+     be used to  specify  the  actual  bytes  to  be  escaped  by
+     _c_o_o_k_i_n_g,  otherwise  the ----cccc option may be used to escape all
+     non-printing ASCII bytes.
+
+     If these considerations  don't  explain  the  problem,  then
+     packet  tracing must be enabled to print the packets and the
+     circuit bytes they contain into the log file.   Tracing  can
+     be  enabled  via  the  invokation  flag  ----PPPP2222,  or _w_r_i_t_e-_o_n_l_y
+     tracing can be enabled by creating an empty file named TRACE
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    8
+
+
+
+
+
+
+Maintenance Procedures                               NETDAEMON(8)
+
+
+
+     a   couple   of   times   (once   for  each  level)  in  the
+     `linkname/cmds' directory.  (Tracing is disabled by creating
+     the file NOTRACE.)
+
+     Look for incompatible protocols (perhaps one  end  is  using
+     _c_o_o_k_e_d  protocol,  while  the other end isn't).  Or look for
+     bytes with all one parity, in which case the ----CCCCAAAA protocol is
+     needed.   Or  look  for missing bytes, which mean that those
+     bytes are being  swallowed  by  the  circuit,  and  must  be
+     escaped using ----CCCCXXXX,,,,.............
+
+DDDDAAAAEEEEMMMMOOOONNNNSSSS
+     There are two daemons, with slightly different protocols:
+
+  VVVVCCCCddddaaaaeeeemmmmoooonnnn
+     This has 8 byte headers,  a  maximum  packet  size  of  1024
+     bytes, and uses a 16 bit CRC for the data.
+
+  HHHHTTTTddddaaaaeeeemmmmoooonnnn
+     This has 9 byte headers, a maximum  packet  size  of  131072
+     bytes,  and  uses  a 32 bit CRC for data packets larger than
+     1024.  It is faster than _V_C_d_a_e_m_o_n on  high  speed  circuits,
+     where the larger packet size reduces overheads.  (Use ----DDDD8888111199992222
+     over Ethernets.)
+
+SSSSUUUUNNNN IIIIIIIIIIII DDDDAAAAEEEEMMMMOOOONNNNSSSS
+     The SUN III compatible daemons use  a  full-duplex  windowed
+     packet  protocol  with  three  multiplexed  channels in each
+     direction.  Only one process is used, so the  protocols  are
+     limited  by  the need to avoid output blocking.  It is quite
+     feasible to use these daemons on MHSnet  links  -  they  are
+     useful if the circuit error rates are very high, or there is
+     a need for fewer running processes.
+
+     There are several protocols available which  vary  according
+     to  the  characteristics  assumed for the underlying virtual
+     circuits.
+
+     Each protocol can be tailored for specific parameters  which
+     determine  the  amount of data that will be _i_n _f_l_i_g_h_t during
+     transmission.  The reason for this  is  that  some  circuits
+     incorporate  long  delays  internally,  such  as  links  via
+     satellites, and therefore require much larger  _w_i_n_d_o_w_s  than
+     circuits  which  consist of a twisted pair linking two nodes
+     directly.  Another problem is introduced by virtual circuits
+     which  themselves  use protocols such as X.25, as these sub-
+     protocols can cause blocking of higher level protocols  when
+     their  own  flow-control  requirements  are  exceeded.  Such
+     circuits  can  also  cause  fragmentation  of  higher  level
+     packets,  with  the  consequent introduction of _i_n_t_r_a-_p_a_c_k_e_t
+     delays.  There is a conflict of requirements  here,  on  the
+     one  hand  to  ensure  enough  data  is  _i_n _f_l_i_g_h_t to keep a
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    9
+
+
+
+
+
+
+Maintenance Procedures                               NETDAEMON(8)
+
+
+
+     circuit with long internal delays busy, and on the other  to
+     ensure  that  too much data won't be written to both ends of
+     the circuit simultaneously.   In  these  conditions,  it  is
+     important  to  tailor the parameters appropriately to obtain
+     the optimum performance, both in speed and cost.  For  these
+     purposes,  it  is possible to alter both the size of packets
+     being transmitted (----DDDD), the number of packets in flight (the
+     `window  size',  ----GGGG), the frequency of acknowledgements (the
+     `ACK window', ----WWWW), the number of channels in use  (----JJJJ),  and
+     whether to allow bi-directional data flow or not (----iiii////----oooo with
+     ----tttt).   Four  versions  are  available,  each  suitable   for
+     different link conditions:
+
+  NNNNNNNNddddaaaaeeeemmmmoooonnnn
+     Protocol suitable for error prone virtual circuits  such  as
+     telephone connections where bits can change at random.
+
+  CCCCNNNNddddaaaaeeeemmmmoooonnnn
+     Similar to _N_N_d_a_e_m_o_n, but the protocol is also more resilient
+     if  bytes  get  dropped  or  inserted.  Packets are one byte
+     larger.
+
+  EEEENNNNddddaaaaeeeemmmmoooonnnn
+     Uses a protocol  tailored  for  use  over  virtual  circuits
+     provided  by  unreliable  datagrams,  such  as  UDP/IP  over
+     Ethernet, where the contents of a  datagram,  if  delivered,
+     are  guaranteed.   [So  don't  use ENdaemon over links where
+     datagram packets are not error checked, such as UDP/IP  over
+     a SLIP link.]  Packets can hold up to 1024 bytes of data.
+
+  PPPPNNNNddddaaaaeeeemmmmoooonnnn
+     Uses a protocol suitable for use over Public Packet Switched
+     Networks  such  as X.25 networks.  It attempts to reduce the
+     number of partially filled packets by reducing the frequency
+     of  acknowledgements.   Packets can hold up to 1024 bytes of
+     data.  In addition,  the  `window'  size  can  be  up  to  8
+     packets,  with  an  acknowledgement  only being sent every 7
+     packets.  It should almost always be used  in  `half-duplex'
+     mode  to  avoid  blocking.  It is also advisable to use just
+     one channel, to further cut down on overheads.  Eg:  for  an
+     X.25 connection with average throughput of 100 bytes/second,
+     use the following parameters:-
+          -nti -D1024 -G8 -J2 -X100 -W7
+
+  NNNNooootttteeee
+     All these daemons must be used  together  with  the  message
+     conversion  filter `filter43' if they are communicating with
+     a  site  running  SUN III  -  use  the  _f_i_l_t_e_r  command   to
+     _n_e_t_s_t_a_t_e(8) to specify `_lib/filter43' for each such link.
+
+     If they are nnnnooootttt  being  used  to  communicate  with  a  site
+     running  SUN III,  then  the ----uuuu flag must be used to prevent
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                   10
+
+
+
+
+
+
+Maintenance Procedures                               NETDAEMON(8)
+
+
+
+     the _l_i_n_k _u_p message from attempting to specify `filter43' .
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEESSSS
+     For a  modem  connection  with  nominal  throughput  of  240
+     bytes/second,  and  a  minimum throughput requirement of 100
+     bytes/second, use the following parameters:
+          -D 256 -S 100 -X 240
+
+     For a  modem  connection  with  nominal  throughput  of  960
+     bytes/second  with a fairly high error rate, and required to
+     stay up for 5  minutes  after  the  last  message,  use  the
+     following parameters:
+          -B300 -nD256 -X960
+
+     For an  X.25  connection  with  average  throughput  of  200
+     bytes/second, use:
+          -r -X 200 -Y 0
+
+     For an X.29 (PAD) connection with average throughput of  100
+     bytes/second, use:
+          -c -X 100
+
+     For a  circuit  established  using  a  half-duplex  `trellis
+     encoding'  modem  at  18000  baud  (such as the Trailblazer)
+     attached via 19200 RS-232  with  RTS/CTS  flow-control,  use
+     these parameters for one end:
+          -nitD1024 -A8 -S200 -X1380
+     and these for the other:
+          -notD1024 -A8 -S200 -X1380
+
+     If the flow-control is via XON/XOFF, use:
+          -CX -nitD1024 -A8 -S200 -X1380
+     and:
+          -CX -notD1024 -A8 -S200 -X1380
+
+     For a  TCP/IP  connection  over  an  ethernet  with  average
+     throughput of 200 Kbytes/second, use:
+          -r -X 200000
+
+     Some TCP/IP circuits are unreliable and may `hang' if  large
+     packets  are  written  to  them,  so  if  you experience any
+     problems, don't turn off CRC checks and use 512 byte packets
+     instead of the default (1024):
+          -D 512 -X 20000
+
+  CCCCaaaavvvveeeeaaaatttt
+     Don't use UDP/IP unless the machines at both ends  are  fast
+     enough  to  process  data  at maximum circuit speed, and the
+     kernel blocks UDP  datagram  writers  from  overflowing  the
+     internal  buffers.   Otherwise the receiving daemons at each
+     end will be unable to write the incoming data to  the  file-
+     system  fast  enough to avoid lost data, and the result will
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                   11
+
+
+
+
+
+
+Maintenance Procedures                               NETDAEMON(8)
+
+
+
+     be many retransmissions.  This is because UDP  has  no  flow
+     control  built  in,  as  TCP  has.  However, UDP is the most
+     efficient IP circuit to use in cases  where  the  underlying
+     medium is slow compared with the processors and disks.
+
+TTTTEEEERRRRMMMMIIIINNNNAAAATTTTIIIIOOOONNNN
+     The daemon can terminate for various reasons - and a message
+     will  be  written  to the _l_o_g file.  The process exit status
+     for each termination condition is shown in square brackets:
+
+     -VE TIME CHANGE
+         The kernel clock moved backwards more  than  some  small
+         amount.  [EX_TEMPFAIL]
+
+     Circuit timed out
+         The reader process has received no data from the  remote
+         site for more than 130 seconds.
+
+     FINISHED
+         Normal termination.  [EX_OK]
+
+     HANGUP
+         The receiver process got a SIGHUP signal.   The  virtual
+         circuit terminated prematurely.  [EX_HANGUP]
+
+     LINK/HOME ADDRESS MISMATCH
+         The remote daemon is using packet addresses  that  don't
+         agree with the ----HHHH or ----LLLL parameters.  [EX_MISMATCH]
+
+     MAX RUNTIME EXCEEDED
+         The runtime parameter (----RRRR) was exceeded.  [EX_MAXRT]
+
+     READ TIMEOUT
+         The receiver failed to detect any  recognizable  packets
+         from  the remote end within some reasonable time period.
+         [EX_RDTIMO]
+
+     READER ERROR
+         The receiver process died with  an  I/O  error,  or  the
+         router process detected an anomaly in a message from the
+         receiver and signalled it.  [EX_IOERR]
+
+     REMOTE SLOW
+         Throughput on the virtual circuit fell below  the  value
+         specified  in  the  `quality of service' parameter (----SSSS).
+         [EX_REMSLOW]
+
+     REMOTE SYNC SLOW
+         A _b_a_t_c_h-_m_o_d_e daemon failed to synchronise the circuit at
+         the start of transmission.  [EX_REMSLOW]
+
+     REMOTE TERMINATE
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                   12
+
+
+
+
+
+
+Maintenance Procedures                               NETDAEMON(8)
+
+
+
+         The reader process received a terminate message from the
+         remote daemon.  [EX_REMTERM]
+
+     SIGPIPE
+         A  daemon  process  received  a   pipe   error   signal.
+         [EX_SIGPIPE]
+
+     UNEXPECTED SIGNAL
+         An unrecognized signal was received by a daemon process.
+         [EX_UNXSIG]
+
+     UNEXPECTED SYNC
+         An unexpected SYNC packet was  received  by  the  reader
+         process, usually because the remote daemon was restarted
+         unexpectedly.  [EX_IOERR]
+
+     VC READ ERROR
+         The reader process received a  system  error  indication
+         from the virtual circuit.  [EX_IOERR]
+
+     VC WRITE ERROR
+         The writer process received a  system  error  indication
+         from the virtual circuit.  [EX_IOERR]
+
+     VIRTUAL CIRCUIT ECHO
+         Packets  are  being  echoed  on  the  virtual   circuit.
+         [EX_VCECHO]
+
+     WRITER BLOCKED
+         The transmitter process timed out while writing  to  the
+         virtual circuit.
+
+     WRITER ERROR
+         The transmitter process died with an I/O error,  or  the
+         router process detected an anomaly in a message from the
+         receiver and signalled it.  [EX_IOERR]
+
+RRRREEEESSSSOOOOUUUURRRRCCCCEEEE CCCCOOOONNNNTTTTRRRROOOOLLLL
+     Network programs, including the  daemon,  are  resilient  to
+     resource exhaustion (eg: _p_r_o_c_e_s_s_e_s, _f_i_l_e_s, _d_i_s_k _b_l_o_c_k_s), and
+     will wait for resources to be freed, and then continue.  The
+     network  parameter  MINSPOOLFSFREE  specifies how much space
+     must be left free on the SPOOLDIR file system, and when free
+     space  falls  below  this  number, the daemon will refuse to
+     accept any more  _i_n-_b_o_u_n_d  messages  until  the  free  space
+     recovers.
+
+PPPPSSSS LLLLIIIISSSSTTTTIIIINNNNGGGG
+     _N_e_t_d_a_e_m_o_n alters  its  argument  list  to  indicate  current
+     status.   The  result  has  four  fields: program name, link
+     address,  number  of  messages  transferred,   and   current
+     throughput  rate in bytes/second.  On BSD systems, the _p_s(1)
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                   13
+
+
+
+
+
+
+Maintenance Procedures                               NETDAEMON(8)
+
+
+
+     output shows the altered argument list.
+
+EEEERRRRRRRROOOORRRRSSSS
+     Errors will cause premature termination of the daemon,  with
+     one  of  the  error indications above having been written to
+     the log.
+
+     Examination of the end of the log file  (use  _n_e_t_l_i_n_k_l_o_g(8))
+     should help in discovering the reason for the error.
+
+TTTTEEEERRRRMMMMIIIINNNNAAAATTTTIIIIOOOONNNN CCCCOOOONNNNDDDDIIIITTTTIIIIOOOONNNNSSSS
+     The values of the process exit status termination conditions
+     that were shown in square brackets are:
+
+         0  EX_OK           successful termination
+         0  EX_REMTERM      remote terminate
+
+        64  EX_USAGE        command line usage error
+        65  EX_DATAERR      data format error
+        66  EX_NOINPUT      cannot open input
+        67  EX_NOUSER       addressee unknown
+        68  EX_NOHOST       host name unknown
+        69  EX_UNAVAILABLE  service unavailable
+        70  EX_SOFTWARE     internal software error
+        71  EX_OSERR        system error (e.g., can't fork)
+        72  EX_OSFILE       critical operating system file missing
+        73  EX_CANTCREAT    can't create (user) output file
+        74  EX_IOERR        input/output error
+        75  EX_TEMPFAIL     temp failure; user is invited to retry
+        76  EX_PROTOCOL     remote error in protocol
+        77  EX_NOPERM       permission denied
+
+       109  EX_HANGUP       virtual circuit died
+       110  EX_MAXRT        max runtime exceeded
+       111  EX_MISMATCH     link name mismatch
+       112  EX_RDTIMO       reader timed out
+       113  EX_REMSLOW      virtual circuit slow
+       115  EX_SIGPIPE      pipe error
+       116  EX_UNXSIG       unexpected signal
+       117  EX_VCECHO       virtual circuit echoing
+
+PPPPAAAARRRRAAAAMMMMEEEETTTTEEEERRRRSSSS
+     On   starting,   _n_e_t_d_a_e_m_o_n   reads   the   parameter   files
+     `_params/daemon'   and  `_params/<link  address>'  (if  they
+     exist), where _l_i_n_k _a_d_d_r_e_s_s is the type-stripped  address  of
+     the link from the ----LLLL argument above.  The following optional
+     parameters may be set from these files:
+
+     MINSPOOLFSFREE
+         The minumim amount of free space on  the  network  spool
+         file-system  (in  kilobytes).  When the free space falls
+         below this, the receiver process  will  cease  accepting
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                   14
+
+
+
+
+
+
+Maintenance Procedures                               NETDAEMON(8)
+
+
+
+         new messages until space is freed.
+
+     NICEDAEMON
+         The _n_i_c_e(2) value for the transport daemon.
+
+     TRACEFLAG
+         Sets tracing level, equivalent to ----TTTT flag.
+
+FFFFIIIILLLLEEEESSSS
+     _l_i_n_k_n_a_m_e
+         Daemon operating directory.
+     _l_i_n_k_n_a_m_e/cmds/[0-9]*
+         Commands describing messages queued for transmission.
+     _l_i_n_k_n_a_m_e/cmds/lock
+         Lockfile used to control active transport daemons.
+     _l_i_n_k_n_a_m_e/cmds/NOTRACE
+         If an empty file is created with this name, then it will
+         be unlinked and all tracing will be disabled.
+     _l_i_n_k_n_a_m_e/cmds/STOP
+         If an empty file is created with this name, then it will
+         be  unlinked and the daemon will terminate as soon as is
+         appropriate for the protocol.
+     _l_i_n_k_n_a_m_e/cmds/TRACE
+         If an empty file is created with this name, then it will
+         be  unlinked  and  the trace level (cf: ----TTTT) and protocol
+         trace level (cf ----PPPP) will be increased by 1.
+     _l_i_n_k_d_i_r/endprog
+         Optional shell program run on termination.
+     _l_i_n_k_n_a_m_e/log
+         Link statistics.
+     _l_i_n_k_n_a_m_e/in
+         A directory used  by  the  receiving  process  to  spool
+         messages from the link.
+     _l_i_n_k_n_a_m_e/out
+         A  directory  used  by  the  routing  program  to  spool
+         messages for the link.
+     _l_i_n_k_n_a_m_e/params
+         This file can contain additional arguments for _n_e_t_d_a_e_m_o_n
+         which  will  be  read on startup by either _n_e_t_c_a_l_l(8) or
+         _n_e_t_s_h_e_l_l(8).
+     _l_i_n_k_n_a_m_e/readerlog
+         Input transaction log if tracing selected.
+     _l_i_n_k_n_a_m_e/readerstatus
+         Receiving process status file.
+     _l_i_n_k_n_a_m_e/status
+         SUN III daemon status file.
+     _l_i_n_k_n_a_m_e/writerstatus
+         Transmitting process status file.
+     _bad
+         Directory where rejected command files  are  placed  for
+         processing by _b_a_d_h_a_n_d_l_e_r.
+     _call/endprog
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                   15
+
+
+
+
+
+
+Maintenance Procedures                               NETDAEMON(8)
+
+
+
+         Optional default shell program run on termination.
+     _lib/badhandler
+         Handler for bad command files.
+     _params/daemon
+         Alternate parameters for the daemon.
+     _route
+         Directory where the receiving  process  queues  commands
+         files describing messages received from the link.
+     _stats/connect
+         On   termination,   _n_e_t_d_a_e_m_o_n   writes   one   line   of
+         transmission statistics for each direction in this file.
+
+     The status files can be examined with either  _n_e_t_l_i_n_k(1)  to
+     show   operational   parameters   and  statistics,  or  with
+     _n_e_t_l_i_n_k_d_a_t_a(8) to print out the actual status structures.
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _n_e_t_q(1), _n_e_t_l_i_n_k(1),  _n_e_t_p_a_r_a_m_s(5),  _n_e_t_w_o_r_k(7),  _n_e_t_c_a_c(8),
+     _n_e_t_c_a_l_l(8),   _n_e_t_i_n_i_t(8),   _n_e_t_l_i_n_k_d_a_t_a(8),   _n_e_t_l_i_n_k_l_o_g(8),
+     _n_e_t_s_h_e_l_l(8).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                   16
+
+
+

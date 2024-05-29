@@ -1,0 +1,145 @@
+#!/bin/sh
+#
+#	``Catsco'' box -- SysV68 Vn. 2.41 68070 CPU
+#
+#	Note that all `"' must be escaped in *ARGS lists
+
+MAKE='make'
+
+case $# in
+	0)	set certain ;;
+esac
+
+case "$MANTYPE" in
+'')	MANTYPE=src
+	echo MANTYPE="\"$MANTYPE\" ? "
+	read ans
+	;;
+esac
+
+case "$ISPOOLDIR" in
+'')	ISPOOLDIR='/usr/spool/MHSnet'
+	echo ISPOOLDIR="\"$ISPOOLDIR\" ? "
+	read ans
+	;;
+esac
+
+case "$VERSION" in
+'')     VERSION=`egrep 'define.VERSION' Lib/Version.c|sed -e 's/[^"]*"//' -e 's/"//'`
+        echo VERSION="$VERSION ? "
+        read ans
+        ;;
+esac
+
+(
+date >>made 2>&1
+/bin/time \
+$MAKE \
+	AR='ar ru' \
+	AUSAS='0' \
+	AUTO_LOCKING='0' \
+	BINMAIL='/bin/rmail' \
+	BINMAILARGS='\"-f&F@&O\",\"-t&T\"' \
+	BSD4='0' \
+	BSD4V='0' \
+	CARR_ON_BUG='1' \
+	CFLAGS= \
+	CHECK_LICENCE='1' \
+	CHGRP='chgrp' \
+	CHMOD='chmod' \
+	CHMODMODE='u=rwxt' \
+	CHMODSUMODE='u=rwxts' \
+	CHOWN='chown' \
+	CONFIG='-DSLOW_MALLOC' \
+	CP='cp' \
+	DEBUG='-DEBUG=2' \
+	FCNTL='1' \
+	FETCHFILE='netfetch' \
+	FILEBUFFERSIZE='1024' \
+	FILESERVERLOG='$(STATSDIR)/servedfiles' \
+	FILESEXPIREDAYS='14' \
+	FLOCK='0' \
+	GETFILE='netget' \
+	IGNMAILERSTATUS='0' \
+	INSBIN='$(ISPOOLDIR)/_ubin' \
+	ISPOOLDIR="$ISPOOLDIR" \
+	KILL_0='1' \
+	LDFLAGS='-n' \
+	LINKSTATS='netlink' \
+	LOCALSEND='1' \
+	LOCAL_NODES='$(LIBDIR)/localnodes' \
+	LOCKF='1' \
+	LORDER='lorder' \
+	MAILER='/bin/rmail' \
+	MAILERARGS='\"-f&F@&O\",\"-t&T\"' \
+	MAIL_FROM='0' \
+	MAIL_RFC822_HDR='1' \
+	MAIL_TO='1' \
+	MAKE="$MAKE" \
+	MANTYPE="$MANTYPE" \
+	MAPP='netmap' \
+	MAXRETSIZE='10000' \
+	MINSLEEP='1' \
+	MKDIR='/bin/mkdir' \
+	MKLOCK='touch' \
+	MKLOCKTYPE= \
+	MV='mv' \
+	NCC_ADMIN='root' \
+	NCC_MANAGER='root' \
+	NDIRLIB='0' \
+	NETADMIN='1' \
+	NETGROUPNAME='daemon' \
+	NETUSERNAME='daemon' \
+	NEWSARGS= \
+	NEWSCMDS='$(LIBDIR)/newscmds' \
+	NEWSEDITOR='/usr/bin/rnews' \
+	NICEDAEMON='-10' \
+	NICEHANDLERS='0' \
+	NODENAMEFILE= \
+	PGRP='1' \
+	POSTMASTER='postmaster' \
+	PRINTER='/usr/bin/lp' \
+	PRINTERARGS='\"-s\"' \
+	PRINTORIGINS='$(LIBDIR)/printorigins' \
+	PRIVSFILE='$(LIBDIR)/privsfile' \
+	PROTO_STATS='1' \
+	PUBLICFILES='$(LIBDIR)/publicfiles' \
+	QUEUE='netq' \
+	RANLIB=': no ranlib' \
+	RENAME_2='0' \
+	RM='rm -f' \
+	RMPROG='/bin/rm' \
+	SENDFILE='netfile' \
+	SERVERGROUP='fileserver' \
+	SERVERUSER='fileserver' \
+	SHELL='/bin/sh' \
+	SITE_DEPEND="$0 Makefile" \
+	SPOOLDIR='/usr/spool/MHSnet' \
+	STATEP='netstate' \
+	STOP='netstop' \
+	STRIP='strip' \
+	STTY='/bin/stty' \
+	SUN3='1' \
+	TERMLIB= \
+	SYSTEM='5' \
+	SYSVREL='2' \
+	SYS_LOCKING='0' \
+	TCP_IP='0' \
+	TMPDIR='/tmp' \
+	TOUCH='/bin/touch' \
+	TSORT='tsort' \
+	UDP_IP='0' \
+	UUCPLOCKS='1' \
+	V8='0' \
+	VALIDATEMAIL='0' \
+	VCDAEMON_STATS='1' \
+	VERSION="$VERSION" \
+	WHOISARGS='\"-i\",\"-e\"' \
+	WHOISFILE='/usr/pub/whois' \
+	WHOISPROG='/usr/bin/egrep' \
+	WORKFLAG='_' \
+	X25='0' \
+"$@" >>made 2>&1
+
+echo `date` " Make ${1-certain} done." >/dev/tty
+)&

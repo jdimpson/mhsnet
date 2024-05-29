@@ -1,0 +1,99 @@
+#!/bin/sh
+#
+#	Prime EXL 300 running UNIX SYSTEM V Rel 3.1.2
+#
+#	Note that all `"' must be escaped in *ARGS lists
+#
+
+MAKE='make'
+
+case $# in
+	0)	set certain ;;
+esac
+
+case "$MANTYPE" in
+'')	MANTYPE=src
+	echo MANTYPE="\"$MANTYPE\" ? "
+	read ans
+	;;
+esac
+
+case "$ISPOOLDIR" in
+'')	ISPOOLDIR='/usr/spool/MHSnet'
+	echo ISPOOLDIR="\"$ISPOOLDIR\" ? "
+	read ans
+	;;
+esac
+
+case "$VERSION" in
+'')     VERSION=`egrep 'define.VERSION' Lib/Version.c|sed -e 's/[^"]*"//' -e 's/"//'`
+        echo VERSION="$VERSION ? "
+        read ans
+        ;;
+esac
+
+(
+date >>made 2>&1
+/bin/time \
+make \
+	BIN='Bin' \
+	CARR_ON_BUG='1' \
+	CFLAGS='' \
+	CHECK_LICENCE='1' \
+	CONFIG='-DNO_VOID_STAR -DINT_SWITCH -DBSD_IP -DSLOW_MALLOC' \
+	DEBUG='-DEBUG=2' \
+	FCNTL='1' \
+	FILEBUFFERSIZE='8192' \
+	FILESERVERLOG='$(STATSDIR)/servedfiles' \
+	IGNMAILERSTATUS='0' \
+	INSBIN='$(ISPOOLDIR)/_ubin' \
+	ISPOOLDIR="$ISPOOLDIR" \
+	KILL_0='1' \
+	LDFLAGS='' \
+	LOCALSEND='1' \
+	LOCKF='1' \
+	MAKE="$MAKE" \
+	MANTYPE="$MANTYPE" \
+	MKLOCK='touch -f' \
+	NDIRLIB='2' \
+	NETADMIN='1' \
+	NETGROUPNAME='daemon' \
+	NETUSERNAME='daemon' \
+	NICEDAEMON='-1' \
+	NICEHANDLERS='1' \
+	PGRP='1' \
+	PRFORMATTER='/bin/pr -l66 -w132 -f -n4' \
+	PRINTER='/usr/bin/lp' \
+	PRINTERARGS='\"-s\"' \
+	PRIVSFILE='$(LIBDIR)/privsfile' \
+	PROTO_STATS='1' \
+	PRSPOOLER='lp -t$(NAME)' \
+	PRSPOOL='$(PRSPOOLER)' \
+	PUBLICFILES='$(LIBDIR)/publicfiles' \
+	RANLIB='# no ranlib' \
+	RENAME_2=0 \
+	SERVERGROUP='other' \
+	SERVERUSER='nuucp' \
+	SITE_DEPEND="$0 Makefile" \
+	SPOOLDIR='/usr/spool/MHSnet' \
+	SUN3='1' \
+	IPLIBS='-lstcp' \
+	TERMLIB='-lcurses' \
+	SYSLIBS='-lmalloc -lc' \
+	SYSTEM='5' \
+	SYSVREL='3' \
+	TCP_IP='1' \
+	UDP_IP='1' \
+	UUCPLCKDIR='/usr/spool/locks' \
+	UUCPLOCKS='1' \
+	UUCPSTRPID='1' \
+	VCDAEMON_STATS='1' \
+	VERSION="$VERSION" \
+	VPRINTF='1' \
+	WHOISARGS='\"-i\",\"-e\"' \
+	WHOISFILE='/usr/pub/whois' \
+	WHOISPROG='/usr/bin/egrep' \
+"$@" >>made 2>&1
+
+echo `date` " Make ${1-certain} done." >/dev/tty
+)&

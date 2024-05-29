@@ -1,0 +1,198 @@
+
+
+
+Maintenance Procedures                                 NETINIT(8)
+
+
+
+NNNNAAAAMMMMEEEE
+     netinit - network control program
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     ____lllliiiibbbb////nnnneeeettttiiiinnnniiiitttt [-_f_l_a_g_s] [_i_n_i_t-_f_i_l_e]
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_i_n_i_t  runs  network  processes  described  in  the   file
+     `_lib/initfile'.
+
+     Each program that is to be run by _n_e_t_i_n_i_t has  an  entry  in
+     _i_n_i_t_f_i_l_e of the form:
+
+       _p_r_o_c_e_s_s-_i_d  _p_r_o_c_e_s_s-_t_y_p_e  _c_o_m_m_a_n_d
+
+     The _p_r_o_c_e_s_s-_i_d starts at the beginning of  a  line.   It  is
+     used  as an identifier for the process when _n_e_t_i_n_i_t is asked
+     by _n_e_t_c_o_n_t_r_o_l(8) to start or stop it.  The three fields  are
+     delimited  by  space, tab, or a newline followed by space or
+     tab.
+
+     The _p_r_o_c_e_s_s-_t_y_p_e can be one of the following:
+
+       rrrreeeessssttttaaaarrrrtttt
+           The process will be started immediately, and restarted
+           every  time  it terminates.  However, if it terminates
+           in less than a minute, it will be delayed before being
+           restarted by an increasing amount up to 6 minutes.
+
+       rrrruuuunnnnoooonnnncccceeee
+           The process will  be  run  once  every  time  a  _s_t_a_r_t
+           command from _n_e_t_c_o_n_t_r_o_l is received for it.
+
+       ````ssssttttrrrriiiinnnngggg''''
+           A specification of the time to run the process in  the
+           same  form as that used by _c_r_o_n(8), enclosed in double
+           quotes.
+
+     The _c_o_m_m_a_n_d specifies  a  _s_h_e_l_l  command  to  execute  using
+     `/bin/sh'   (see  _s_h(1)).   Processes  will  be  started  or
+     restarted on the minute.
+
+     Lines  beginning  with  white  space  are   interpreted   as
+     continuations   of   the   current  entry.   An  empty  line
+     terminates an entry and  a  line  beginning  with  non-white
+     space  signifies  the  beginning  of  a new entry.  Comments
+     begin with a #### character and end at a newline.
+
+     _N_e_t_i_n_i_t will check  the  modify  time  of  _i_n_i_t_f_i_l_e  once  a
+     minute, and rescan the contents if it changes.  See also the
+     _s_c_a_n command in _n_e_t_c_o_n_t_r_o_l(8).
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+
+
+
+
+Maintenance Procedures                                 NETINIT(8)
+
+
+
+     The optional flags for _n_e_t_i_n_i_t are:
+
+     ----ffff  Don't fork off parent when starting.  When this flag  is
+         specified  and  _n_e_t_i_n_i_t's  parent  is _i_n_i_t, _n_e_t_i_n_i_t will
+         pause when the sssshhhhuuuuttttddddoooowwwwnnnn command is complete.  A  further
+         _S_I_G_T_E_R_M is required to cause _n_e_t_i_n_i_t to exit.
+
+     ----LLLL _l_o_g-_f_i_l_e
+         Write logging information to the file _l_o_g-_f_i_l_e (default:
+         "_lib/log").
+
+     ----TTTT[_l_e_v_e_l]
+         Turns on tracing at _l_e_v_e_l (default: 1).  If  tracing  is
+         not compiled in, this flag will have no effect.
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEE
+     # daemons:
+     router       restart          _lib/router -f
+     # admin:
+     admin-purge  "15 4 * * *"     _lib/daily
+     admin-tidy   "5 12 * * 7"     _lib/weekly
+     admin-stats  "25 4 1 * *"     _lib/monthly
+     # calls:
+     #            permanent RS-232 link
+     call-basser  restart          _call/call.tty -f basser
+     #            permanent TCP/IP link
+     call-mango   restart          _call/call.tcp -f mango
+     #            explicit call via Hayes modem
+     call-castor  "10 8,15 * * *"  _call/call.modem_0
+                  -c -n            # "cooked" mode, "noisy" line
+                  -f castor        # nofork, linkname
+                  hayes@/dev/cua   # modem @ device
+                  T7654321@2400    # dial string @ speed
+                  cluster          # login name
+                  password         # password
+
+     _N_e_t_i_n_i_t will immediately  run  the  commands  _r_o_u_t_e_r,  _c_a_l_l-
+     _b_a_s_s_e_r  and  _c_a_l_l-_m_a_n_g_o,  and  will  restart  them  if  they
+     terminate.  The other  entries  in  the  file  specify  that
+     commands are to be run at particular times.
+
+     Note that if any of the commands are to become a target  for
+     the  _n_e_t_r_o_u_t_e_r(8)  _a_u_t_o-_c_a_l_l  facility,  then the link names
+     should be specified fully, as in
+     `call-basser.cs.su.oz.au'.
+
+PPPPSSSS LLLLIIIISSSSTTTTIIIINNNNGGGG
+     _N_e_t_i_n_i_t alters its argument list to indicate current status.
+     The  result  has  two  fields:  program  name, and number of
+     active children.  On BSD systems, the _p_s(1) output shows the
+     altered argument list.
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    2
+
+
+
+
+
+
+Maintenance Procedures                                 NETINIT(8)
+
+
+
+FFFFIIIILLLLEEEESSSS
+     _call/call.*       Shell scripts  to  start  connections  on
+                        various types of circuit.
+     _lib/daily         Shell script run once every day.
+     _lib/initfile      Description of network processes to run.
+     _lib/lock          Lock file for _n_e_t_i_n_i_t.
+     _lib/log           Log file for _n_e_t_i_n_i_t.
+     _lib/monthly       Shell script run once every month.
+     _lib/netinit.args  Arguments being sent from _n_e_t_c_o_n_t_r_o_l.
+     _lib/weekly        Shell script run once every week.
+     _params/netinit    Parameters for _n_e_t_i_n_i_t.
+
+DDDDIIIIAAAAGGGGNNNNOOOOSSSSTTTTIIIICCCCSSSS
+     If there is a negative system time change of  more  than  10
+     seconds  (the  period  set  in the NVETIMECHANGE parameter),
+     _n_e_t_i_n_i_t will mail the people  identified  in  the  NCC_ADMIN
+     parameter  (including  `root',  if  not specified), and shut
+     down the network for 10  minutes  (the  period  set  in  the
+     NVETIMEDELAY    parameter).    Use   _k_i_l_l(1)   followed   by
+     _n_e_t_s_t_a_r_t(8) to restart it sooner.
+
+     If any program started by _n_e_t_i_n_i_t terminates  with  a  _c_o_r_e,
+     then  _n_e_t_i_n_i_t  will  disable the process and mail the person
+     identified in the NCC_ADMIN parameter.
+
+     If any program started by _n_e_t_i_n_i_t terminates with an  error,
+     the  error reason is reported in the log (see the respective
+     program manual for error explanation).
+
+     If any process with a _p_r_o_c_e_s_s-_t_y_p_e of `restart'  terminates,
+     the time and PID are logged.
+
+     All _n_e_t_c_o_n_t_r_o_l commands and process starts are logged.
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _n_e_t_p_a_r_a_m_s(5),    _n_e_t_w_o_r_k(7),     _c_r_o_n(8),     _n_e_t_c_a_l_l_e_r_s(8),
+     _n_e_t_c_o_n_t_r_o_l(8), _n_e_t_r_o_u_t_e_r(8), _n_e_t_s_t_a_r_t(8).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    3
+
+
+

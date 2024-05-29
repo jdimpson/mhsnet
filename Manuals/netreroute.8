@@ -1,0 +1,186 @@
+.ds S1 NETREROUTE
+.ds S2 \fINetreroute\fP
+.ds S3 \fInetreroute\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 _bin/netreroute
+.TH \*(S1 8 "\*(S4 1.10" \^
+.nh
+.SH NAME
+netreroute \- reroute looping network messages
+.SH SYNOPSIS
+.BI \*(S6
+.RI [\- flags \|]
+.RI [ address ]
+.RI [ new-link ]
+.RI [ forward-via ]
+.SH DESCRIPTION
+\*(S2's
+primary purpose is to reroute messages queued in the holding directory
+for looping messages,
+but it may also be used to manage link queues in general.
+.PP
+When a looping message is detected,
+(ie: one that is attempting to traverse a particular link for the umpteenth time),
+the routing process diverts it into the
+.IR _pending
+directory and informs the management.
+Note that these messages are automatically re-routed by
+.IR netpurge (8)
+when invoked with its \fB\-r\fP flag,
+usually once a day.
+However, \*(S3 should be used to speed the rerouting,
+or to deal with messages which cannot be automatically rerouted.
+\*(S2 is then invoked with two arguments,
+the first the defaulting address,
+and the second the name of a suitable alternative link.
+The
+.I address
+argument may be a complex address to match a set of addresses.
+.PP
+The optional third argument can be specified
+to force the message to be routed via the address
+.I forward-via
+before continuing to its original destination.
+However, note that if
+.I new-link
+is the name of a site that is not a direct link,
+then the message will be
+.I forwarded
+to that site anyway.
+In either case, any existing
+.I explicit
+addresses will be removed,
+and replaced with
+.IR new-link .
+.PP
+.I New-link
+may also be an address matching the local site,
+in which case messages will be re-presented for routing using the routing tables.
+.PP
+Alternatively,
+whole queues can be managed by specifying one of the flags
+\fB\-b\fP, \fB\-d\fP or \fB\-f\fP,
+when the first address argument should be the name of the link
+whose queue will be rerouted.
+Using the flag \fB\-a\fP
+causes all messages in the holding queues to be re-routed.
+.PP
+Any messages queued in the holding directory
+.I _reroute
+are also re-routed if their destinations match
+.IR address .
+.PP
+Note that the holding directory for looping messages may also contain messages
+whose addresses are unroutable,
+which you may need to return to their origin with
+.IR netstop (1)
+unless you know of a suitable intermediate site with more routing information.
+.PP
+\*(S2 attempts to establish a
+.I lock
+file in each of the directories as it re-routes messages from them.
+If the lock can't be made,
+then \*(S3 prints a warning message before continuing with another directory.
+.PP
+The optional flags are:
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-P\fP\ \fIpriority\fPX'u
+.TP "\*(tw"
+.BI \-a
+Cause all messages in the holding queues to be re-routed.
+May only be used with the \fB\-e\fP and \fB\-s\fP flags.
+.TP
+.BI \-b
+Break the link to
+.I old-link.
+(Turns on flag \fBf\fP.)
+Note that this will only break the
+.I out-bound
+side of links with a filter specified,
+so that any messages re-routed can be properly
+.IR de-filtered .
+.TP
+.BI \-d
+Mark the link to
+.I old-link
+as
+.IR dead .
+(Turns on flag \fBf\fP.)
+.TP
+.BI \-e
+Search the
+.I _bad
+directory for undamaged messages to be re-routed.
+.TP
+.BI \-f
+Force all messages queued for
+.I old-link
+to be rerouted via
+.IR new-link .
+.TP
+.BI \-s
+Don't report number of messages re-routed.
+.TP
+.BI \-v
+Show each message rerouted.
+.TP
+.BI \-L \ link
+Use
+.I link
+as the link which is to be searched for messages with addresses that match
+.I address
+which will be forwarded via 
+.IR new-link .
+.TP
+.BI \-P \ priority
+Only move messages with priorities higher than or equal to
+.IR priority .
+.TP
+.BI \-T \fR[\fPlevel\fR]\fP
+Turns on tracing at
+.I level
+(default: 1).
+If tracing is not compiled in,
+this flag will have no effect.
+.TP
+.BI \-?
+Explain argument options and exit.
+.SH EXAMPLE
+Reroute all messages for a particular region via a well-known site:
+.PP
+.RS 2
+.ft CW
+\*(S6 *.new.oz.au cs.mu.oz.au
+.ft
+.RE
+.SH FILES
+.PD 0
+.TP "\w'_state/routefileXX'u"
+_bad/*
+Messages passed to the
+.IR badhandler .
+.TP
+_pending/*
+Looping messages.
+.TP
+_reroute/*
+Delayed messages.
+.TP
+_state/routefile
+Routing tables for resolving link name arguments.
+.TP
+\fIlink\fP/cmds/*
+Messages queued for
+.IR link .
+.TP
+*/reroute.lock
+Lock file established while re-routing messages from a directory.
+.PD
+.SH "SEE ALSO"
+.IR netmap (1),
+.IR netq (1),
+.IR netstop (1),
+.IR \*(S5 (7)
+.IR netpurge (8),
+.IR netchange (8).

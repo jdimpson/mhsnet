@@ -1,0 +1,14 @@
+	/*LINTLIBRARY*/
+/*
+**	Routines that ought to be in /lib/libc.a, but might not be.
+**
+**	SCCSID @(#)llib-CLibrary	1.2 89/05/10
+*/
+
+char *	regcmp(cs1, cs2, cs3, cs4, cs5, cs6, cs7, cs8, cs9, cs10) char *cs1, *cs2, *cs3, *cs4, *cs5, *cs6, *cs7, *cs8, *cs9, *cs10; { return cs1; }
+char *	regex(addrc, addrl, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10) char *addrc, *addrl, *a1, *a2, *a3, *a4, *a5, *a6, *a7, *a8, *a9, *a10; { return addrc; }
+char *	strchr(s1,c) char *s1, c; { return s1; }
+char *	strpbrk(s1,s2) char *s1, *s2; { return s1; }
+char *	strrchr(s1,c) char *s1, c; { return s1; }
+char *	strspn(s1,s2) char *s1, *s2; { return s1; }
+char *	strtok(s1,s2) char *s1, *s2; { return s1; }

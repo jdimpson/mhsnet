@@ -1,0 +1,150 @@
+.ds S1 NETFTP
+.ds S2 \fINetftp\fP
+.ds S3 \fInetftp\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 netftp
+.TH \*(S1 1 "\*(S4 1.6" \^
+.nh
+.SH NAME
+netftp \- request that files be fetched via internet \s-1FTP\s0
+.SH SYNOPSIS
+.BI \*(S6
+.RI [\- flags ]
+.RI [\- D
+.IR fromhost \|]
+.I "internet_address"
+.I "filename ..."
+.sp
+.BI \*(S6
+.RI [\- opts ]
+.IB internet_address : filename
+.sp
+.BI \*(S6
+.RI [\- opts ]
+.BI ftp:// internet_address / filename
+.SH DESCRIPTION
+\*(S2
+will obtain files from publicly available internet \s-1FTP\s0 directories
+by using the internet
+.IR ftp (1)
+program on the indicated
+.IR fromhost .
+[Default: the local host.]
+.PP
+Filenames will be interpreted
+relative to some appropriate directory at
+.IR internet_address .
+.PP
+Files are returned by the
+.I fromhost
+executing
+.IR netfile (1)
+with appropriate arguments. If one or more files cannot be retrieved,
+an error report will be returned using
+.IR netmail (1).
+.PP
+Please note that wildcard symbols in the filename part will not be expanded.
+.PP
+The second and third forms are to enable
+.I cut-and-paste
+of some alternative formats for presenting ftp addresses.
+.PP
+\*(S2's
+action may be modified by the following flags:
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-P\fP\ \fIpasswd\fPX'u
+.TP "\*(tw"
+.BI \-a
+Perform transfer in \fIftp\fP's \s-1ASCII\s0 mode,
+rather than the default (\s-1BINARY\s0).
+This might be useful where the foreign \s-1FTP\s0 host isn't \s-1UNIX\s0,
+and the file is known to be text.
+(Some non-\s-1UNIX\s0 systems add extra bits to text bytes in binary mode.)
+.TP
+.BI \-l
+Request that each filename be interpreted as a directory, and a
+listing of the contents of each, as produced by
+.IR ls (1)
+be returned via
+.IR netmail (1).
+.TP
+.BI \-r
+With
+.BI \-l
+causes the contents listings to recurse through any directories
+encountered, producing output in a format identical to that
+displayed by the
+.BI \-R
+option of
+.IR ls (1).
+.TP
+.BI \-v
+With
+.BI -l
+causes long directory listings to be produced, in a format
+identical to that of the
+.BI \-l
+option of
+.IR ls (1).
+.ds S7 \f(CW@\fP
+.TP
+.BI \-P " passwd"
+The format of
+.I passwd
+must be: \fIusername\fP\fB@\fP\fIpassword\fP.
+By convention, the remote
+.I ftp
+is performed with a
+.I username
+of `anonymous',
+and a
+.I password
+repesenting the invoker's network address.
+This flag enables an alternative username and password to be used,
+but be warned: \fBthis is insecure!\fP
+.SH EXAMPLES
+Obtain a long directory listing of all available files
+in the public root directory of a well-known ftp site
+using the ftp server at AARnet's archie server.
+.PP
+.RS 2
+.ft CW
+\*(S6 -lv -D plaza.aarnet.oz.au ftp.uu.net /
+.ft
+.RE
+.PP
+Obtain the file
+.I ls-ltR.Z
+from the public directory at an internet site.
+.PP
+.RS 2
+.ft CW
+\*(S6 129.78.8.1 ls-ltR.Z
+.ft
+.RE
+.SH ADMIN
+Your site will need to have a
+.I handlers
+entry validating this message type, see
+.IR nethandlers (5)
+for details.
+.SH "SEE ALSO"
+.IR ftp (1),
+.IR ls (1),
+.IR netfetch (1),
+.IR netfile (1),
+.IR netmail (1),
+.IR nethandlers (5),
+.IR netmsg (8).
+.br
+.ne 11
+.SH DIAGNOSTICS
+Consult
+.IR netmsg (8)
+for possible diagnostic messages,
+as \*(S3 invokes that program to send the requests.
+See
+.IR ftp (1)
+for error message details returned via electronic mail
+when a file transfer or remote directory listing fails.

@@ -1,0 +1,79 @@
+#!/bin/sh
+#
+#	`run' for Encore MULTIMAX UMAX R2.4
+#
+#	Note that all `"' must be escaped in *ARGS lists
+#
+#	BUGS: no `undial(3)' (declared `static' in libc:dial.o!)
+#
+
+MAKE='pmake'
+
+case $# in
+	0)	set certain ;;
+esac
+
+case "$MANTYPE" in
+'')	MANTYPE=src
+	echo MANTYPE="\"$MANTYPE\" ? "
+	read ans
+	;;
+esac
+
+case "$ISPOOLDIR" in
+'')	ISPOOLDIR='/usr/spool/MHSnet'
+	echo ISPOOLDIR="\"$ISPOOLDIR\" ? "
+	read ans
+	;;
+esac
+
+case "$VERSION" in
+'')     VERSION=`egrep 'define.VERSION' Lib/Version.c|sed -e 's/[^"]*"//' -e 's/"//'`
+        echo VERSION="$VERSION ? "
+        read ans
+        ;;
+esac
+
+(
+date >>made 2>&1
+/bin/time \
+$MAKE \
+	BINMAIL='/usr/lib/sendmail' \
+	BINMAILARGS='\"-f&F@&O\"' \
+	CARR_ON_BUG='1' \
+	CFLAGS='-g' \
+	CONFIG='-Dns32532 -Dmultimax -DBSD_IP -DFSYNC -DINT_SWITCH -DNO_OFF_INIT -DSLOW_MALLOC -DSIGBLOCK -DSIGHOLD' \
+	DEBUG='-DEBUG=2' \
+	FILEBUFFERSIZE='8192' \
+	IGNMAILERSTATUS='2' \
+	INSBIN='$(ISPOOLDIR)/_ubin' \
+	ISPOOLDIR="$ISPOOLDIR" \
+	LDFLAGS= \
+	MAILER='/usr/lib/sendmail' \
+	MAILERARGS='\"-oem\",\"-oit\",\"-f&F@&O\"' \
+	MAIL_FROM='0' \
+	MAKE="$MAKE -# 6" \
+	MANTYPE="$MANTYPE" \
+	MKLOCK='touch -f' \
+	NICEDAEMON='-1' \
+	NICEHANDLERS='1' \
+	PGRP='1' \
+	PRINTER='/usr/bin/lp' \
+	PRINTERARGS='\"-t&F@&O\",\"-s\"' \
+	PRIVSFILE='$(LIBDIR)/privsfile' \
+	RANLIB=': no ranlib' \
+	SERVERGROUP='news' \
+	SERVERUSER='uucp' \
+	SITE_DEPEND="$0 Makefile" \
+	STATERNOTLIST='$(STATEDIR)/ignorefile' \
+	TERMLIB='-lcurses' \
+	SYSLIBS='-lmalloc -lc' \
+	SYSTEM='5' \
+	SYSVREL='3' \
+	UUCPLCKDIR='/usr/spool/locks' \
+	UUCPSTRPID='1' \
+	VERSION="$VERSION" \
+"$@" >>made 2>&1
+
+echo `date` " Make ${1-certain} done." >/dev/tty
+)&

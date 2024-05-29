@@ -1,0 +1,294 @@
+.ds S1 NETFILTER
+.ds S2 \fINetfilter\fP
+.ds S3 \fInetfilter\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 _lib/filter
+.TH \*(S1 8 "\*(S4 1.12" \^
+.nh
+.SH NAME
+netfilter \- filter for network messages to/from other sites
+.SH SYNOPSIS
+.BI \*(S6
+.RI [\- flags \|]
+.SH DESCRIPTION
+\*(S2
+is an optional general purpose
+.I filter
+program for network messages being passed over links to other sites.
+It will be invoked by the network routing program to filter messages for
+a particular link if it is specified as the optional filter for the link via the
+.B filter
+command to the network routing management program.
+See
+.IR netrouter (8),
+and
+.IR netstate (8).
+.PP
+\*(S2 will collect the data part of the message
+and invoke a message filtering program to process the data,
+with the data from the message piped into its standard input.
+The message filtering program may modify the data,
+writing the modified data to its standard output,
+or leave it untouched,
+informing \*(S3 what has happened via its exit code.
+The message filtering program will be invoked with some optional flags,
+one guaranteed flag,
+and eight or ten arguments.
+The message filtering program name can be specified via the parameter file,
+(see \s-1PARAMS\s0 below),
+or defaults to
+.if n `SPOOLDIR/_lib/name.sh'
+.if t \f(CWSPOOLDIR/_lib/\fP\fIname\fP\f(CW.sh\fP
+where
+.I name
+is the name that \*(S3 was invoked under.
+.PP
+If the message filtering program doesn't exist,
+then \*(S3 will default to copying the message
+and appending a statistics record to the log file
+.if t \f(CW_stats/\fIlink\f(CW.fltr.log\fR.
+.if n `_stats/<link>.fltr.log'.
+.PP
+The optional message filtering program flags are:
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-F\fP\fIflags\fPX'u
+.TP "\*(tw"
+.BI \-i
+This message is
+.IR inbound .
+.TP
+.BI \-o
+This message is
+.IR outbound .
+(One of either \fB\-i\fP or \fB\-o\fP is always present.)
+.TP
+.BI \-D descr
+A description of the data files that make up the message.
+This is a description of where the data piped in on standard input is coming from.
+.I Descr
+takes the form
+.if t \fIfilename\fP\fB@\fP\fIstart\fP\fB&\fP\fIlength\fP\fB;\fP
+.if n `<filename>@<start>&<length>;'
+possibly repeated.
+.TP
+.BI \-E flags
+All the environment flags from the message header,
+(including those selected out by \-F below).
+Each flag is terminated by a
+.I semicolon
+(`;'),
+and its name is separated from its value by an
+.I "ampersand"
+(`&').
+.TP
+.BI \-F flags
+Any message header
+.I filter
+flags specified at the source,
+or added at intermediate sites
+(cf: details for exit code \fB32\fP below).
+Each flag is terminated with a
+.I semicolon
+(`;').
+.TP
+.BI \-R route
+The route from the message header.
+Each node visited on the route is terminated with a
+.I semicolon
+(`;'),
+with the travel time separated from the nodename by an
+.I "ampersand"
+(`&').
+.PP
+The message filtering program arguments are (in order):
+.if n .ds tw 4
+.if t .ds tw \w'00:\ \fIID[/part:max]\fPX'u
+.TP "\*(tw"
+.RI \01: \ home
+The address of the local site.
+.TP
+.RI \02: \ link
+The address of the link involved.
+.TP
+.RI \03: \ linkdir
+The directory name of the link involved
+.TP
+.RI \04: \ size
+The size of the data
+.TP
+.RI \05: \ handler
+The name of the handler specified for the message.
+.TP
+.RI \06: \ ID [ /part:max ]
+The message
+.SM ID.
+If the message is one of a number of parts,
+then the part number will be appended to the
+.SM ID
+with a `slash'.
+.TP
+.RI \07: \ source
+The source address of the message.
+.TP
+.RI \08: \ dest
+The destination address for the message
+.PP
+If the message is using
+.SM FTP
+then there will be two further arguments:
+.if n .ds tw 4
+.if t .ds tw \w'00:\ \fIID[/part:max]\fPX'u
+.TP "\*(tw"
+.RI \09: \ sender
+The name of the sender.
+.TP
+.RI 10: \ recipients
+The names and addresses of destination users (as one argument).
+.PP
+All addresses are presented as internal network addresses.
+.PP
+The exit codes that can be returned by the message filtering program are as follows:
+.if n .ds tw 4
+.if t .ds tw \w'\fB00\fPX'u
+.TP "\*(tw"
+.BI 0
+The data is untouched.
+.TP
+.BI 8
+The data has been modified.
+.TP
+.BI 16
+The data is untouched,
+but the message should not be delivered locally.
+(This exit code has the same effect as \fB0\fP for 
+outbound
+messages.)
+.TP
+.BI 24
+The data has been modified,
+but the message should not be delivered locally.
+(This exit code has the same effect as \fB8\fP for 
+outbound
+messages.)
+.TP
+.BI 32
+The data is untouched,
+but the additional data written to
+.I stderr
+will be incorporated in the message's header as a filter flag
+\(em which will be made available to subsequent filters via the \fB\-F\fP flag.
+If the flag is preceded by the string `\f(CWDELETE \fP',
+then a matching flag will be removed from the header.
+Note that any terminating <new-line> will be removed,
+and that a flag will not be added if an identical one already exists.
+.TP
+.BI 40
+The same as \fB32\fP, but the data has been modified.
+.TP
+.BI 48
+The same as \fB32\fP for an
+outbound
+message,
+but an inbound message will not be delivered locally.
+.TP
+.BI 56
+The same as \fB48\fP, but the data has been modified.
+.TP
+.BI 64
+The message should be dropped.
+(An inbound message will be removed,
+an outbound message will not be transmitted.)
+.TP
+.BI 128
+The message should be returned to its sender.
+If the filtering program writes any data to
+.IR stderr ,
+it will be incorporated in the message header as the reason for the return.
+.PP
+Any other exit code is treated as an error condition.
+.SH PARAMETERS
+On starting,
+\*(S3 reads a file in the `_params' directory with the same name as it was invoked under.
+This file can contain the following optional parameters:
+.TP 4
+.SM FILTERPROG
+This is the name of the message filtering program.
+If this parameter is undefined,
+it defaults to
+.if n `SPOOLDIR/_lib/name.sh'
+.if t \f(CWSPOOLDIR/_lib/\fP\fIname\fP\f(CW.sh\fP
+where
+.I name
+is the name that \*(S3 was invoked under.
+If the name does not start with a leading `/', then
+.if n `SPOOLDIR/'
+.if t \f(CWSPOOLDIR/\fP
+will be prepended.
+.TP
+.SM LOGFILE
+If the message filtering program doesn't exist,
+or is unexecutable,
+then \*(S3 defaults to logging information about the message
+in the file defined by this parameter.
+If this parameter is undefined,
+it defaults to
+.if n `SPOOLDIR/_stats/link.fltr.log'
+.if t \f(CW\s-1SPOOLDIR\s0/_stats/\fP\fIlink\fP\f(CW.fltr.log\fP
+where
+.I link
+is the name of the link the filter is invoked for.
+If the name does not start with a leading `/', then
+.if n `SPOOLDIR/'
+.if t \f(CWSPOOLDIR/\fP
+will be prepended.
+.SH EXAMPLES
+Look at some of the example message filtering shell scripts
+for a guide on how to use the arguments and exit codes,
+eg: the data compression/decompression filter in
+.if t \fI\s-1SPOOLDIR\s0\fP\f(CW/_lib/pressfilter.sh\fP.
+.if n `SPOOLDIR/_lib/pressfilter.sh'.
+NB: this type of filter must be activated simultaneously at both ends of a link,
+as otherwise the message data will be misunderstood on delivery.
+.PP
+To activate a new message filter,
+say `testfilter.sh' \(em which you have created in
+.if t \fI\s-1SPOOLDIR\s0\fP\f(CW/_lib/testfilter.sh\fP,
+.if n `SPOOLDIR/_lib/testfilter.sh',
+link the filter control program to the new name:
+.RS 2
+.ft CW
+.pt -2
+.nf
+cd \fI\s-1SPOOLDIR\s0\fP
+ln _lib/filter _lib/testfilter
+.fi
+.pt
+.ft
+.RE
+.PP
+Then update the routing tables to know about the filter for your chosen link:
+.RS 2
+.ft CW
+.pt -2
+.nf
+_bin/netstate -rsc <<!
+filter \fIlinkname\fP _lib/testfilter
+!
+.fi
+.pt
+.ft
+.RE
+.SH FILES
+.PD 0
+.TP "\w'_params/\fIfilter\fPXX'u"
+_params/\fIfilter\fP
+Optional parameters for \*(S3 where
+.I filter
+is the same name as \*(S3 was invoked under.
+.PD
+.SH "SEE ALSO"
+.IR netparams (5),
+.IR \*(S5 (7),
+.IR netrouter (8),
+.IR netstate (8).

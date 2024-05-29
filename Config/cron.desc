@@ -1,0 +1,21 @@
+
+Entries consist of five fields separated by spaces. Each field is an
+integer pattern to specify the minute (0-59), hour (0-23), day of the
+month (1-31), month of the year (1-12), and day of the week (1-7 with
+1=Monday).  Each of these patterns may contain a number in the range
+above; two numbers separated by a dash meaning a range inclusive; a
+list of numbers separated by commas meaning any of the numbers; or an
+asterisk meaning all legal values.
+
+Here are some examples:
+
+make a call at midnight only 
+	0  0 * * * 
+make calls at quarter past midday and midnight
+	15 0,12 * * *
+make calls on the hour and on the half hour
+	0,30 * * * *
+make calls on the hour during the working day
+	0 9,10,11,12,13,14,15,16,17 * * 1,2,3,4,5
+
+

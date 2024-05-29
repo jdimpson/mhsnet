@@ -1,0 +1,5 @@
+
+	-c	Check only.
+	-r	Ignore running router daemon.
+	-s	Silent.
+	-v	Verbose.

@@ -1,0 +1,11 @@
+
+	-c	Read commands from `stdin'.
+	-e	Ignore CRC errors in statefiles.
+	-i	Read statefile from `stdin'.
+	-o	Write statefile to `stdout'.
+	-n	Don't broadcast changes.
+	-q	Address and comment on stdout.
+	-r	Update routefile.
+	-s	Update statefile.
+	-w	Complain about irregularities.
+	-x	Force rewrite of `exportfile'.

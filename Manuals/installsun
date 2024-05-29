@@ -1,0 +1,12 @@
+#!/bin/sh
+case "$ISPOOLDIR" in
+'')	INSDIR=/usr/manl	;;
+*)	INSDIR=$ISPOOLDIR/_man	;;
+esac
+make -o MANGROUPNAME=$NETGROUPNAME MANUSERNAME=$NETUSERNAME \
+	INSDIR=$INSDIR \
+	COPY='sed $(TRANSFORMS)' \
+	CHGRP=$CHGRP \
+	CHMOD=$CHMOD \
+	CHOWN=$CHOWN \
+	install

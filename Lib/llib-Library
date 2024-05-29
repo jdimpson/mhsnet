@@ -1,0 +1,274 @@
+#	Copyright 2012 Piers Lauder
+
+#	This file is part of MHSnet.
+
+#	MHSnet is free software: you can redistribute it and/or modify
+#	it under the terms of the GNU General Public License as published by
+#	the Free Software Foundation, either version 3 of the License, or
+#	(at your option) any later version.
+
+#	MHSnet is distributed in the hope that it will be useful,
+#	but WITHOUT ANY WARRANTY; without even the implied warranty of
+#	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#	GNU General Public License for more details.
+
+#	You should have received a copy of the GNU General Public License
+#	along with MHSnet.  If not, see <http://www.gnu.org/licenses/>.
+
+
+#define PASSWD_USED
+#define RECOVER
+#define	STDARGS
+#define STDIO
+
+#include	"global.h"
+#include	"Args.h"
+#include	"commandfile.h"
+#include	"exec.h"
+#include	"forward.h"
+#include	"handlers.h"
+#include	"params.h"
+#include	"Passwd.h"
+
+char *	BaddirStr;
+char *	BinmailStr;
+char **	BinmlargsStr;
+char *	CalldirStr;
+char *	ChecksiteStr;
+char	CouldNot[];
+char	CreateStr[];
+char	EmptyString[];
+jmp_buf	ErrBuf;
+ERC_t	ErrFlag;
+bool	ErrIsatty;
+FILE *	ErrorFd;
+int	ErrSize;
+char *	ErrString;
+char *	ExplndirStr;
+bool	ExInChild;
+int	ExStatus;
+char *	FilesdirStr;
+char *	FileserverlogStr;
+char	ForkStr[];
+char *	FwdingdirStr;
+char *	GetfileStr;
+char *	HandlrsdirStr;
+bool	IsattyDone;
+char *	LibdirStr;
+char *	LocalnodesStr;
+int	LocalSend;
+char *	LockNode;
+int	LockPid;
+char	LockStr[];
+char **	MailerargsStr;
+char *	MailerStr;
+int	MailRFC822Hdr;
+int	MailTo;
+Ulong	MaxMesgData;
+char *	MkdirStr;
+char *	MpmsgsdirStr;
+char *	NccadminStr;
+char *	NccmanagerStr;
+int	NetAdmin;
+char *	NetgroupnameStr;
+char *	NetparamsStr;
+char *	NetusernameStr;
+char **	NewsargsStr;
+char *	NewscmdsStr;
+char *	NewseditorStr;
+int	NiceDaemon;
+int	NiceHandlers;
+bool	NoArgsUsage;
+char *	NodenamefileStr;
+vFuncp	NoLinkFunc;
+char	OpenStr[];
+char *	ParamsdirStr;
+char *	PendngdirStr;
+int	Pid;
+char	PipeStr[];
+char *	PostmasterStr;
+char *	PrinterStr;
+char *	PrintoriginsStr;
+char **	PrintrargsStr;
+char *	PrivsfileStr;
+char *	PublicfilesStr;
+Time_t	RdFileTime;
+char	ReadStr[];
+char *	ReroutdirStr;
+char *	RmdirStr;
+char *	RoutngdirStr;
+char	SeekStr[];
+char *	ServergroupStr;
+char *	ServeruserStr;
+char *	ShellStr;
+char	Slash[];
+char *	SpooldirStr;
+char *	StatedirStr;
+char *	StaternotlistStr;
+char *	StateStr;
+char *	StatsdirStr;
+char	StatStr[];
+char *	StopStr;
+char *	SttyStr;
+char *	Sun3libdirStr;
+char *	Sun3pstateStr;
+char *	Sun3spooldirStr;
+char *	Sun3staterStr;
+char *	Sun3usernameStr;
+char *	Sun3workdirStr;
+Time_t	Time;
+char *	TmpdirStr;
+char *	TracedirStr;
+FILE *	TraceFd;
+char	UnlinkStr[];
+int	UUCP_Locks;
+char	Version[];
+char **	WhoisargsStr;
+char *	WhoisfileStr;
+char *	WhoisprogStr;
+char *	WorkdirStr;
+char *	WorkflagStr;
+char	WriteStr[];
+
+/*        */	Crc_t	acrc(c,s,i) Crc_t c; char *s; int i; { return c; }
+/*        */	Crc32_t	acrc32(c,s,i) Crc32_t c; char *s; int i; { return c; }
+/*        */	char *	AddCmd(h,t,v) CmdHead *h; CmdT t; CmdV v; { return NULLSTR; }
+/*        */	bool	AddressMatch(s,m) char *s; char *m; { return false; }
+/*        */	int	argerror(s) char *s; { return 0; }
+/*        */	char *	ArgsUsage(a) Args *a; { return NULLSTR; }
+/*        */	void	bcopy(fr,to,n) char *fr; char *to; int n; { return; }
+/*        */	char *	bsearch(s1,s2,i1,i2,f) char *s1, *s2; unsigned i1, i2; int (*f)(); { return s1; }
+/*        */	bool	CanAddrMatch(s,m) char *s; char *m; { return false; }
+/*        */	bool	CanReadPipe(f,n) int f; char *n; { return false; }
+/*        */	bool	ChangeCmd(c,t,o,v) Cmd **c; CmdT t; CmdV o; CmdV v; { return false; }
+/*        */	bool	CheckData(h,s,e,c) CmdHead *h; Ulong s; Ulong e; Crc_t *c; { return false; }
+/*        */	bool	CheckDirs(p) char *p; { return false; }
+/*        */	int	CheckLicence(s,l,n,ln) char *s, *l; int n; char *ln; { return 0; }
+/*        */	void	CloseMsgsDB() { return; }
+/*        */	char *	CleanError(e) char *e; { return NULLSTR; }
+/*        */	char *	CmdToString(t,l) CmdT t; Ulong l; { return NULLSTR; }
+/*        */	bool	CollectData(h,s,e,f,n) CmdHead *h; Ulong s; Ulong e; int f; char *n; { return false; }
+/*VARARGS2*/	char *	concat(s,e) char *s; char *e; { return s; }
+/*        */	Ulong	ConvSun3Cmds(f,c) char *f; CmdHead *c; { return (Ulong)0; }
+/*        */	void	CopyCmds(a,b) CmdHead *a; CmdHead *b; { return; }
+/*        */	bool	CopyFdToFd(i,inf,o,of,n) int i; char *inf; int o; char *of; Ulong n; { return false; }
+/*        */	bool	CopyFileToFd(f,d,n) char *f; int d; char *n; { return false; }
+/*        */	void	CpuStats(fd,e) FILE *fd; Time_t e; { return; }
+/*        */	bool	crc(s,i) char *s; int i; { return false; }
+/*        */	bool	crc32(s,i) char *s; int i; { return false; }
+/*        */	int	create(f) char *f; { return 0; }
+/*        */	int	createn(f) char *f; { return 0; }
+/*        */	int	creater(f) char *f; { return 0; }
+/*        */	bool	DaemonActive(d,w) char *d; bool w; { return false; }
+/*        */	char *	DateString(t,s) Time_t t; char *s; { return s; }
+/*        */	char *	DateTimeStr(t,s) Time_t t; char *s; { return s; }
+/*        */	Ulong	DecodeNum(s,l) char *s; int l; { return (Ulong)0; }
+/*        */	int	Detach(b1,n,b2,b3) bool b1; int n; bool b2; bool b3; { return 0; }
+/*        */	void	DoArgs(argc,argv,a) int argc; char **argv; Args *a; { return; }
+/*        */	char *	DomainToPath(d) char *d; { return NULLSTR; }
+/*        */	void	EchoArgs(argc,argv) int argc; char **argv; { return; }
+/*        */	int	EncodeNum(s,n,l) char *s; Ulong n; int l; { return 0; }
+/*VARARGS1*/	void	Error(s) char *s; { return; }
+/*        */	bool	ErrorTty(p) int *p; { return false; }
+/*        */	char *	ErrnoStr(e) int e; { return NULLSTR; }
+/*        */	int	EvalArgs(ac,av,u,f) int ac; char **av; Args *u; Funcp f; { return 0; }
+/*        */	char *	ExClose(b,fd) ExBuf *b; FILE *fd; { return NULLSTR; }
+/*        */	char *	Execute(b,f,t,fd) ExBuf *b; vFuncp f; ExType t; int fd; { return NULLSTR; }
+/*        */	void	ExpandArgs(t,a) VarArgs *t; char **a; { return; }
+/*        */	void	ExpandFile(fd,f,n) FILE *fd; char *f; int n; { return; }
+/*        */	char *	ExpandString(s,n) char *s; int n; { return s; }
+/*VARARGS1*/	void	Fatal(s) char *s; { return; }
+/*        */	Forward *	Forwarded(h,n,s) char *h, *n, *s; { return (Forward *)0; }
+/*        */	void	FreeCmds(h) CmdHead *h; { return; }
+/*        */	void	FreeStr(s) char **s; { return; }
+/*        */	bool	FSFree(f,k) char *f; Ulong k; { return false; }
+/*        */	char *	GetErrFile(va,a,b) VarArgs * va; int a; int b; { return NULLSTR; }
+/*        */	Forward *	GetForward(h,n) char *h, *n; { return (Forward *)0; }
+/*        */	Handler *	GetHandler(s) char *s; { return (Handler *)0; }
+/*        */	void	GetInvoker(p) Passwd *p; { return; }
+/*        */	void	GetNetUid() { return; }
+/*        */	void	GetParams(f,t,s) char *f; ParTb *t; int s; { return; }
+/*        */	void	GetPrivs(p) Passwd *p; { return; }
+/*        */	bool	GetUid(p,n) Passwd *p; char *n; { return false; }
+/*        */	bool	GetUser(p,u) Passwd *p; int u; { return false; }
+/*        */	void	InitCmds(h) CmdHead *h; { return; }
+/*        */	void	InitParams() { return; }
+/*VARARGS4*/	bool	InList(f,a,l,e) bool (*f)(); char *a, *l, *e; { return false; }
+/*        */	char *	lfind(s1,s2,np,z,f) char *s1, *s2; unsigned *np, z; int (*f)(); { return s1; }
+/*        */	void	LinkCmds(a,b,s,e,n,t) CmdHead *a; CmdHead *b; Ulong s; Ulong e; char *n; Time_t t; { return; }
+/*        */	void	listsort(p,f) char **p; int (*f)(); { return; }
+/*        */	bool	LookupMsgsDB(i,s,t) char *i; char *s; Ulong t; { return false; }
+/*        */	char *	MailNCC(f,m) vFuncp f; char *m; { return (char *)0; }
+/*        */	void	make_link(f,l) char *f; char *l; { return; }
+/*        */	void	MakeErrFile(ip) int *ip; { return; }
+/*        */	char *	MakeLicence(s,l,n,ln) char *f, *l, *n; int ln; { return (char *)0; }
+/*        */	void	MakeLock(f) char *f; { return; }
+/*        */	char *	Malloc(i) int i; { return (char *)0; }
+/*        */	char *	Malloc0(i) int i; { return (char *)0; }
+/*VARARGS2*/	void	MesgN(m,s) char *m, *s; { return; }
+/*        */	void	MesgV(s,p) char *s; va_list p; { return; }
+/*        */	Time_t	millisecs();
+/*        */	bool	MkDirs(s,u,g) char *s; int u,g; { return false; }
+/*        */	void	move(f,l) char *f; char *l; { return; }
+/*        */	void	MoveCmds(a,b) CmdHead *a; CmdHead *b; { return; }
+/*        */	void	NameMsgsDB(s) char *s; { return; }
+/*        */	char *	newnstr(s,n) char *s; int n; { return s; }
+/*VARARGS2*/	char *	newprintf(f,a) char *f, *a; { return f; }
+/*        */	char *	newstr(s) char *s; { return s; }
+/*        */	char *	NodeName() { return (char *)0; }
+/*        */	char *	NumericArg(b,c,l) char *b, c; Ulong l; { return (char *)0; }
+/*        */	void	OpenMsgsDB() { return; }
+/*        */	long	otol(p) char *p; { return 0; }
+/*        */	void	QuoteChars(s,q) char *s, *q; { return; }
+/*        */	bool	ReadCmds(n,f) char *n; bool (*f)(); { return false; }
+/*        */	char *	ReadErrFile(s,b) char *s; bool b; { return NULLSTR; }
+/*        */	bool	ReadFdCmds(fd,f) FILE *fd; bool (*f)(); { return false; }
+/*        */	char *	ReadFd(f) int f; { return (char *)0; }
+/*        */	char *	ReadFile(f) char *f; { return (char *)0; }
+/*        */	bool	ReadMsgsDB(l) long l; { return false; }
+/*VARARGS1*/	void	Report(s) char *s; { return; }
+/*        */	int	ReRoute(d1,d2) char *d1, *d2; { return 0; }
+/*        */	void	ResetErrTty() { return; }
+/*        */	bool	ReSetLock(f,p,o) char *f; int p; int o; { return false; }
+/*        */	char *	rfc822time(t) long *t; { return NULLSTR; }
+/*        */	bool	RmDir(f) char *f; { return false; }
+/*        */	void	SetForward(h,n,a,s) char *h, *n, *a, *s; { return; }
+/*        */	bool	SetLock(f,p,w) char *f; int p; bool w; { return false; }
+/*        */	char	SetQuality(q,l) char q; Ulong l; { return '\0'; }
+/*        */	int	SetRaw(fd,s,mc,mt,x) int fd,s,mc,mt; bool x; { return 0; }
+/*        */	void	SetUlimit() { return; }
+/*        */	void	SetUser(u,g) int u; int g; { return; }
+/*        */	unsigned	sleep(s) unsigned s; { return (unsigned)0; }
+/*        */	void	SMdate(s,t) char *s; Time_t t; { return; }
+/*        */	int	SplitArg(t,a) VarArgs *t; char *a; { return 0; }
+/*        */	void	StderrLog(f) char *f; { return; }
+/*        */	int	strccmp(s1,s2) char *s1; char *s2; { return 0; }
+/*        */	int	strnccmp(s1,s2,n) char *s1; char *s2; int n; { return 0; }
+/*        */	char *	strclr(s,i) char *s; int i; { return s; }
+/*        */	char *	strcpyend(s1,s2) char *s1, *s2; { return s1; }
+/*        */	char *	StringMatch(s,m) char *s, *m; { return NULLSTR; }
+/*        */	char *	StripCopyEnd(c,s) char *c, *s; { return NULLSTR; }
+/*        */	char *	StripDomain(s,m,d,b) char *s, *m, *d; bool b; { return NULLSTR; }
+/*        */	char *	StripDEnd(c,s,m,d,b) char *c, *s, *m, *d; bool b; { return NULLSTR; }
+/*        */	char **	StripEnv() { return (char **)0; }
+/*        */	char *	StripErrString(s) char *s; { return NULLSTR; }
+/*        */	char *	StripTypes(s) char *s; { return NULLSTR; }
+/*        */	char *	strrpbrk(s1,s2) char *s1, *s2; { return s1; }
+/*        */	void	SyncMsgsDB() { return; }
+/*VARARGS1*/	void	Syserror(s) char *s; { return; }
+/*VARARGS1*/	bool	SysWarn(s) char *s; { return false; }
+/*        */	bool	tcrc(s,i) char *s; int i; { return false; }
+/*        */	bool	tcrc32(s,i) char *s; int i; { return false; }
+/*        */	Time_t	ticks() { return (Time_t)0; }
+/*        */	char *	TimeString(t,b) Ulong t; char *b; { return NULLSTR; }
+/*VARARGS2*/	void	Trace(l,s) int l; char *s; { return; }
+/*        */	char *	UniqueName(n,q,o,s,t) char *n; char q; bool o; Ulong s; Time_t t; { return n; }
+/*        */	void	UnQuoteChars(s,q) char *s, *q; { return; }
+/*        */	void	usagerror(s) char *s; { return; }
+/*VARARGS1*/	void	Warn(s) char *s; { return; }
+/*        */	bool	WriteCmds(h,f,n) CmdHead *h; int f; char *n; { return false; }
+/*        */	void	WriteMsgsDB(l) long l; { return; }
+/*        */	bool	WrStats(c,f) char c; bool (*f)(); { return; }
+/*        */	long	xtol(p) char *p; { return 0; }
+/*        */	int	_Lock(s,f,t) char *s; int f; Lock_t t; { return 0; }
+/*        */	void	_UnLock(f) int f; { return; }

@@ -1,0 +1,7 @@
+
+	-c	Check the composite address for legality.
+	-l	Show linknames for composite address.
+	-n	Show nodenames only.
+	-r	Show routes for composite address.
+	-s	Show `site' address.
+	-v	Verbose.

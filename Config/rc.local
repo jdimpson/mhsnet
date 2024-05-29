@@ -1,0 +1,9 @@
+#
+#	Start MHSnet.
+#
+SPOOLDIR=/usr/spool/MHSnet
+
+if [ -d ${SPOOLDIR}/_lib -a -f ${SPOOLDIR}/_lib/start ]; then
+	nohup ${SPOOLDIR}/_lib/start&
+	echo "Starting MHSnet ..."
+fi

@@ -1,0 +1,12 @@
+#!/bin/sh
+case "$ISPOOLDIR" in
+'')	ISPOOLDIR=/usr/spool/MHSnet	;;
+esac
+TMP=/tmp/man$$
+make MANGROUPNAME=$NETGROUPNAME MANUSERNAME=$NETUSERNAME \
+	INSDIR=$ISPOOLDIR/_man \
+	COPY='{ set +e; ( cat tmac.an; sed $(TRANSFORMS) ) | nroff 2>'$TMP'; test -s '$TMP' && exit 1; exit 0; }' \
+	CHGRP=$CHGRP \
+	CHMOD=$CHMOD \
+	CHOWN=$CHOWN \
+	directories install

@@ -1,0 +1,311 @@
+From: shand@cad.jmrc.eecs.unsw.oz (Mark Shand)
+Newsgroups: aus.sources,aus.acsnet
+Subject: sendmail.cf for MHSnet (my humble efforts)
+Date: 11 Oct 88 11:56:49 GMT
+Organization: JMRC, School of Electrical Engineering, UNSW, Australia
+
+It is strange but true that every now and then an otherwise
+rational individual will be tempted to plumb the murky depths
+of sendmail.  It happened to me recently.
+
+The first thing I discovered that our existing sendmail.cf
+(a slightly modified version of a standard one) was very broken.
+
+Below is my attempt at sendmail.cf for a site on MHSnet that
+recognizes a few foreign domains that must be routed through
+munnari.  There three categories (mailers):
+	 local - local delivery
+	mhsnet - hand off to MHSnet
+	mhsgwy - a domain munnari knows about, send to
+		 munnari with address intact
+
+Anyway here's the sendmail.cf we now use--not perfect, but hopefully
+less broken than the last one.  There a couple of things to edit
+starting around line 30.  These are your hostname, your local
+domain, and the list of foreign domains that you want to be
+recognized locally.
+
+Mark Shand
+
+Here it begins:
+
+############################################################
+############################################################
+#####
+#####		SENDMAIL CONFIGURATION FILE
+#####
+#####	Wont be used if /usr/lib/sendmail.fc is present.
+#####	To construct sendmail.fc from this file do this:
+#####		cp /dev/null /usr/lib/sendmail.fc
+#####		/usr/lib/sendmail -bz
+############################################################
+############################################################
+
+
+
+############################################################
+###	local info -- you need to alter this!
+############################################################
+
+# official hostname
+#
+#
+#	-----------
+#	|---------|
+#	|IMPORTANT| if your internet host name != your MHSnet host name
+#	|---------|		you must replace $w in the following with
+#	-----------		your MHSnet host name (e.g. DJcad)
+#
+#
+DJ$w
+# local domain
+DDnode.dept.org.prmd.country
+Dj$J.$D
+
+# the rest should be fairly stable
+
+# relay host  - where we send mail that we can't handle
+# relay class - drop this from addresses on incoming local mail
+#	if we would use $R to send mail to that address anyway
+# known domain class - domains we can send to via relay
+DRmunnari.oz.au
+CKARPA CSNET UK BITNET UUCP MAILNET EDU COM GOV MIL ORG NET NL JUNET CDN DE FR
+
+############################################################
+#
+#	General configuration information
+#
+#	This information is basically just "boiler-plate"; it must be
+#	there, but is essentially constant.
+#
+#	Information in this file should be independent of location --
+#	i.e., although there are some policy decisions made, they are
+#	not specific to Berkeley per se.
+#
+#		@(#)base.m4	4.3		8/30/83
+#
+############################################################
+
+#	@(#)version.m4	4.7		8/31/83
+
+DV4.7
+
+
+##########################
+###   Special macros   ###
+##########################
+
+# my name
+DnMAILER-DAEMON
+# UNIX header format
+DlFrom $g  $d
+# delimiter (operator) characters
+Do.:%@!^=/[]
+# format of a total name
+Dq$g$?x ($x)$.
+# SMTP login message
+De$j Sendmail $v/$V ready at $b
+
+# forwarding host -- redefine this if you can't talk to the relay directly
+DF$R
+
+###################
+###   Options   ###
+###################
+
+# location of alias file
+OA/usr/lib/aliases
+# default delivery mode (deliver in background)
+Odbackground
+# (don't) connect to "expensive" mailers
+#Oc
+# temporary file mode
+OF0600
+# default GID
+Og1
+# location of help file
+OH/usr/lib/sendmail.hf
+# log level
+OL9
+# default messages to old style
+Oo
+# queue directory
+OQ/usr/spool/mqueue
+# read timeout -- violates protocols
+Or2h
+# status file
+OS/usr/lib/sendmail.st
+# queue up everything before starting transmission
+Os
+# default timeout interval
+OT3d
+# time zone names (V6 only)
+OtEST,EDT
+# default UID
+Ou1
+# wizard's password
+OW(kre)a/FjIfuGKXyc2
+
+###############################
+###   Message precedences   ###
+###############################
+
+Pfirst-class=0
+Pspecial-delivery=100
+Pjunk=-100
+
+#########################
+###   Trusted users   ###
+#########################
+
+Troot
+Tdaemon
+#Tuucp
+#Tnetwork
+
+#############################
+###   Format of headers   ###
+#############################
+
+H?P?Return-Path: <$g>
+# HReceived: $?sfrom $s $.by $j ($v/$V)
+#	id $i; $b
+H?D?Resent-Date: $a
+H?D?Date: $a
+H?F?Resent-From: $q
+H?F?From: $q
+H?x?Full-Name: $x
+# HSubject:
+# HPosted-Date: $a
+# H?l?Received-Date: $b
+H?M?Resent-Message-Id: <$t.$i@$j>
+H?M?Message-Id: <$t.$i@$j.AU>
+
+###########################
+###   Rewriting rules   ###
+###########################
+
+
+################################
+#  Sender Field Pre-rewriting  #
+################################
+S1
+
+###################################
+#  Recipient Field Pre-rewriting  #
+###################################
+S2
+
+#################################
+#  Final Output Post-rewriting  #
+#################################
+S4
+
+###########################
+#  Name Canonicalization  #
+###########################
+S3
+
+# handle "from:<>" special case
+R<>			$@@			turn into magic token
+
+# basic textual canonicalization
+R$*<$+>$*		$2			basic RFC821/822 parsing
+
+# convert rightmost ":" to "@"
+R$+:$*$~K		$:$1<:$2$3>		focus on :
+R$+<$+:$+>		$1$2<:$3>		shift focus right
+R$+<:$*@$*>		$1:$2@$3		suppress if rightward @
+R$+<:$+>		$1@$2
+
+############################################################
+############################################################
+#####
+#####		RULESET ZERO PREAMBLE
+#####
+#####	The beginning of ruleset zero is constant through all
+#####	configurations.
+#####
+#####		@(#)zerobase.m4	4.1		7/25/83
+#####
+############################################################
+############################################################
+
+S0
+
+# handle special cases.....
+R@		$#local$:MAILER-DAEMON		handle <> form
+
+##################################
+#  End of ruleset zero preamble  #
+##################################
+
+
+###############################################
+###  Machine dependent part of rulset zero  ###
+###############################################
+
+# resolve names we can handle locally
+
+# route mail to domains reachable from a friendly relay via them
+R$+.$=K		$#mhsgwy$@$R$:$1.$2		Relay out of MHSnet.
+
+# If it contains multiple tokens, is it for local delivery?
+R$-@$j		$#local$:$1
+R$-@$J		$#local$:$1
+
+# else try giving it to MHSnet
+R$+$+		$#mhsnet$@anyhost$:$1$2		Resolve MHSnet mail.
+
+# else it must be a local name
+R$-		$#local$:$1			Local names.
+
+# everything else is an error (but what else is there?)
+R$+		$#error$@1$:Incomprehensible address
+
+############################################################
+############################################################
+#####
+#####		Local and Program Mailer specification
+#####
+#####		@(#)localm.m4	4.1		7/25/83
+#####
+############################################################
+############################################################
+
+Mlocal,	P=/bin/mail, F=rlsDFmnSuh, S=10, R=20, A=mail -d $u
+Mprog,	P=/bin/sh,   F=lsDFMu,   S=10, R=20, A=sh -c $u
+
+S10
+R@			MAILER-DAEMON	errors to mailer-daemon
+# relayed mail with %'s
+R$+%$+.$=K@$R	$1<%$2.$3>@$R		strip relay and focus on %
+R$+<$+%$+>@$R	$1$2<%$3>@$R		move gaze right
+R$+<%$+>@$R	$@$1@$2			change last "%" to "@" and drop relay
+
+# relayed mail without %'s (e.g. uucp)
+R$+.$=K@$R	$@$1.$2			drop relay
+
+# Locally sourced network mail - strip domains
+R$+@$-.$D	$1@$2			strip local domains
+
+S20
+R$+@$-.$D	$1@$2			strip local domains
+R$+@$J		$@$1
+
+Mmhsgwy, P=SPOOLDIR/_bin/netfile, F=smDFSuh, S=14, R=24,
+	A=ACSmail -Amailer -R$f -U$u -D$h
+
+Mmhsnet, P=SPOOLDIR/_bin/netfile, F=smDFSuh, S=14, R=24,
+	A=ACSmail -Amailer -R$f -Q$u
+
+S14
+R$+@$-.$D	$1@$2			strip local domains
+R$+@$=w		$1			strip local internet host
+R$+@$J		$1			strip local mhshost
+
+R$+@$*.$-	$@$1@$2.$3		user@host.domain is fine
+R$+@$+		$@$1@$2			user@host is OK too
+R$+		$:$1@$j			otherwise add our host.domain
+
+S24

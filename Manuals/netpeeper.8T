@@ -1,0 +1,132 @@
+
+
+
+Maintenance Procedures                               NETPEEPER(8)
+
+
+
+NNNNAAAAMMMMEEEE
+     netpeeper - request  domain  information  via  internet  DNS
+     lookup
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     nnnneeeettttppppeeeeeeeeppppeeeerrrr [-_D _d_i_g__s_e_r_v_e_r]  [-_Q  _q_u_e_r_y__t_y_p_e]  [@  _D_N_S__s_e_r_v_e_r]
+     _d_o_m_a_i_n
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_p_e_e_p_e_r  will  obtain  domain  information  from  internet
+     Domain  Name  Servers  (DNS)  by  using  the internet _d_i_g(1)
+     program on the indicated _d_i_g__s_e_r_v_e_r.   [Default:  the  local
+     host.]
+
+     The optional _D_N_S__s_e_r_v_e_r argument  specifies  an  alternative
+     DNS server to query.
+
+     Information is returned  by  default  on  DNS  `mx'  records
+     matching  _d_o_m_a_i_n.   If  _q_u_e_r_y__t_y_p_e  is  provided,  different
+     record types can be selected. The available types are  shown
+     in the following table:
+
+     a      T_A      network address
+     any    T_ANY    all/any information about specified domain
+     mx     T_MX     mail exchanger for the domain
+     ns     T_NS     name servers
+     soa    T_SOA    zone of authority record
+     hinfo  T_HINFO  host information
+     axfr   T_AXFR   zone transfer
+                      (must ask an authoritative server)
+     txt    T_TXT    arbitrary number of strings
+                      (not yet supported by BIND)
+
+     Query information and errors are returned  by  the  _d_i_g__h_o_s_t
+     executing _n_e_t_m_a_i_l(1) with appropriate arguments.
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEESSSS
+     Find out whether Personis P/L has an  MX  record  registered
+     with the internet name servers:
+
+       netpeeper -D munnari.oz.au personis.oz.au
+
+     Obtain all available information about the internet  address
+     `129.78.8.50':
+
+       netpeeper -D munnari.oz.au -Q any 50.8.78.129.in-addr.arpa
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _d_i_g(1), _n_e_t_m_a_i_l(1), _n_e_t_m_s_g(8).
+
+DDDDIIIIAAAAGGGGNNNNOOOOSSSSTTTTIIIICCCCSSSS
+     Consult  _n_e_t_m_s_g(8)  for  possible  diagnostic  messages,  as
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+
+
+
+
+Maintenance Procedures                               NETPEEPER(8)
+
+
+
+     _n_e_t_p_e_e_p_e_r  invokes  that  program to send the requests.  See
+     _d_i_g(1) for an explanation of the reply to the domain  query.
+     If  the  type  of  entry  returned  is  NXDOMAIN, the domain
+     supplied in the request does not exist.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    2
+
+
+

@@ -1,0 +1,101 @@
+#
+#	This is an example MHSnet commandsfile:
+#
+
+ordertypes	COUNTRY;ADMD;PRMD;ORG;DEPT;NODE
+
+#
+#	Shorthand types:
+#
+
+map		C	COUNTRY
+map		A	ADMD
+map		P	PRMD
+map		O	ORG
+map		D	DEPT
+map		N	NODE
+
+#
+#	Map in some real names.
+#
+
+map		ACSnet			P=oz
+map		au			C=au
+map		Australia		C=au
+map		my_admd			A=my_admd
+map		my_country		C=my_country
+map		my_dept			D=my_dept
+map		my_node			N=my_node
+map		my_org			O=my_org
+map		my_prmd			P=my_prmd
+map		New\ Zealand		C=nz
+map		oz			P=oz
+
+#
+#	Note that sites in ACSnet should have addresses
+#	ending in ``ACSnet.Australia'' (or ``oz.au'').
+#
+
+#
+#	Our address:
+#
+
+address		my_node.my_dept.my_org.my_prmd.my_admd.my_country
+
+#
+#	Only visible within Department:
+#
+
+visible		my_node.my_dept.my_org.my_prmd.my_admd.my_country
+		my_dept.my_org.my_prmd.my_admd.my_country
+
+#
+#	Our exported aliases:
+#
+
+xalias		N=other_name.my_dept.my_org.my_prmd.my_admd.my_country
+
+#
+#	Site details:
+#
+
+organisation	Organisation Department
+
+postal_address	Department\
+		Organisation\
+		Street\
+		City\
+		State, ZIP\
+		Country
+
+system		Computer Name, Op-sys Version
+licence_number	XXXXXXXX000000
+location	ddd mm ss.s S / ddd mm ss.s E
+remarks		System Use
+person		Contact Name
+email_address	my_name@my_dept.my_org.my_prmd.my_admd.my_country
+telno		+11-2-333-4444
+
+#
+#	Link parameters:
+#
+
+add		N=link_name.my_dept.my_org.my_prmd.my_admd.my_country
+link		N=link_name.my_dept.my_org.my_prmd.my_admd.my_country,
+		my_node.my_dept.my_org.my_prmd.my_admd.my_country
+linkname	N=link_name.my_dept.my_org.my_prmd.my_admd.my_country
+		link_name
+
+#
+#	Deal with SMTP connections:
+#
+
+add		N=SMTP.my_dept.my_org.my_prmd.my_admd.my_country
+link		N=SMTP.my_dept.my_org.my_prmd.my_admd.my_country,
+		my_node.my_dept.my_org.my_prmd.my_admd.my_country
+		foreign
+spooler		N=SMTP.my_dept.my_org.my_prmd.my_admd.my_country
+		_lib/SMTP
+
+forward		*.2=edu.my_country
+		N=SMTP.my_dept.my_org.my_prmd.my_admd.my_country

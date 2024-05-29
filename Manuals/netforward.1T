@@ -1,0 +1,132 @@
+
+
+
+User Commands                                       NETFORWARD(1)
+
+
+
+NNNNAAAAMMMMEEEE
+     netforward - set forwarding for network messages
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     nnnneeeettttffffoooorrrrwwwwaaaarrrrdddd [-_f_l_a_g_s] [_a_d_d_r_e_s_s ...]
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_f_o_r_w_a_r_d will list the invoker's  forwarding  actions  for
+     each  message  type.  If any _a_d_d_r_e_s_s arguments are supplied,
+     then the invoker's _f_i_l_e messages will be forwarded to  those
+     addresses.  The format of _a_d_d_r_e_s_s is message-type dependent,
+     but FTP addresses should be in the form:  _u_s_e_r_s@@@@_d_e_s_t_i_n_a_t_i_o_n_s
+     (cf: _n_e_t_f_i_l_e(1)).
+
+     Forwarding loops are detected by the network routing  layer,
+     which will notify management for corrective action.
+
+     Other possibilities are controlled by the following flags:
+
+     ----aaaa  Show forwarding for all users and handlers.   This  flag
+         is restricted to the network _s_u_p_e_r-_u_s_e_r.
+
+     ----cccc  Turn off forwarding for indicated message type.
+
+     ----AAAA _h_a_n_d_l_e_r
+         Affect forwarding for _h_a_n_d_l_e_r rather  than  the  default
+         [_m_a_i_l_e_r].   You  may  use the common _d_e_s_c_r_i_p_t_i_o_n for the
+         handler as reported by _n_e_t_q(1), (eg: `mail'), instead of
+         its  name.   This  flag  must  occur  before any address
+         arguments.
+
+     ----TTTT[_l_e_v_e_l]
+         Turns on tracing at _l_e_v_e_l (default: 1).  If  tracing  is
+         not compiled in, this flag will have no effect.
+
+     ----UUUU _n_a_m_e
+         Set/show the forwarding for _n_a_m_e, (which can be  a  user
+         for  FTP  style  handlers,  or  the  name of the handler
+         itself) rather than the  default  (the  invoker).   Note
+         that _n_a_m_e is forced to lower-case, as matches are forced
+         to lower case.  This flag is restricted to  the  network
+         _s_u_p_e_r-_u_s_e_r.
+
+     ----????  Explain argument options and exit.
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEESSSS
+     Set mail forwarding for invoker to `bob@mhs.oz.au':
+
+       netforward bob@mhs.oz.au
+
+       Note that this is more efficient than using  mail  program
+       forwarding,    since   network   message   forwarding   is
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+
+
+
+
+User Commands                                       NETFORWARD(1)
+
+
+
+       accomplished at the routing layer.
+
+     Set file forwarding for `judy' to `cs.su.oz.au':
+
+       netforward -A files -U judy judy@cs.su.oz.au
+
+       See also _n_e_t_g_e_t's ----ffff flag.
+
+     Set forwarding for `fileserver' requests to a  host  with  a
+     public files data-base:
+
+       netforward -Afileserver -Ufileserver plaza.aarnet.oz.au
+
+     Set up a simple mailing-list:
+
+       netforward -Umeeting helen,harry@xyz.oz.au \
+            john,jane@cs.su.oz.au sophy,susan@mhs.oz.au
+
+       Note that this is  far  more  efficient  than  using  mail
+       program   distribution   lists,  as  these  nearly  always
+       generate one message  for  each  recipient  in  the  list,
+       whereas  the  above  will  generate  the minimum number of
+       message copies needed to reach each recipient.
+
+     All addresses are expanded to canonical form.
+
+FFFFIIIILLLLEEEESSSS
+     _forward/_u_s_e_r_n_a_m_e Forwarding details for user.
+     _state/routefile  Routing tables for resolving addresses.
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _n_e_t_f_i_l_e(1), _n_e_t_g_e_t(1).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    2
+
+
+

@@ -1,0 +1,60 @@
+.ds S1 NETSTATUS
+.ds S2 \fINetstatus\fP
+.ds S3 \fInetstatus\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 netstatus
+.TH \*(S1 8 "\*(S4 1.1" \^
+.nh
+.SH NAME
+netstatus \- show network call status
+.SH SYNOPSIS
+.BI \*(S6
+.IR linkname
+.SH DESCRIPTION
+\*(S2
+prints out details from the call and transport daemon logs for
+.IR linkname .
+.PP
+Details for the link are printed in five sections:
+the first is the
+.IR netinit (8)
+status if any;
+the second and third are from the last
+.IR netcall(8)
+logs;
+the fourth from the transport daemon logs;
+and finally the output from
+.IR netac (8).
+.PP
+The last 10 lines from the call logs are printed,
+and the last 12 `interesting' lines of the transport daemon logs.
+.SH EXAMPLES
+Show the call status of the last connection to `tmx':
+.PP
+.RS 2
+.ft CW
+\*(S6 tmx | more
+.RE
+.SH FILES
+.PD 0
+.TP "\w'_state/routefileXX'u"
+_call/log
+Log of all calls made to other sites, one line per call.
+.TP
+_call/\fInode\fP.log
+Log of last call made to \fInode\fP, containing output from call script.
+.TP
+_state/routefile
+Routing tables for finding links.
+.TP
+\fIlinkname\fP/*log
+Log information from transport daemon for \fIlinkname\fP.
+.PD
+.SH "SEE ALSO"
+.IR more (1),
+.IR netlink (1),
+.IR netcall (8),
+.IR netdaemon (8),
+.IR netlinklog (8),
+.IR netshell (8).

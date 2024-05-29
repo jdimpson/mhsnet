@@ -1,0 +1,66 @@
+
+
+
+User Commands                                        NETFINGER(1)
+
+
+
+NNNNAAAAMMMMEEEE
+     netfinger - request that user  information  be  fetched  via
+     internet finger
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     nnnneeeettttffffiiiinnnnggggeeeerrrr [-_D _f_i_n_g_e_r__h_o_s_t] [_u_s_e_r]@_h_o_s_t ...
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_f_i_n_g_e_r will obtain user information from  internet  hosts
+     by  using  the  internet  _f_i_n_g_e_r(1) program on the indicated
+     _f_i_n_g_e_r__h_o_s_t.  [Default: the local host.]
+
+     Names, if provided, are passed to the corresponding host for
+     perusal.  Information  returned includes the login name, the
+     user's real names, and details of last login time  for  each
+     match.   A  particular account will match if the login name,
+     or any one of the real names of the  user  matches  exactly.
+     Pattern matching is case insensitive.
+
+     If no name is provided for any given host, a list  of  users
+     currently logged on is returned instead.
+
+     Query information and errors are returned by the _f_i_n_g_e_r__h_o_s_t
+     executing _n_e_t_m_a_i_l(1) with appropriate arguments.
+
+     Please note that regular expressions in the name will not be
+     interpreted as such.
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEESSSS
+     Obtain a list of users currently logged on to a little known
+     host  in  the  Basser  Department of Computer Science at the
+     University of Sydney:
+
+       netfinger -D basser.cs.su.oz.au @joyce
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _f_i_n_g_e_r(1), _n_e_t_w_h_o_i_s(1), _n_e_t_m_a_i_l(1), _n_e_t_m_s_g(8).
+
+DDDDIIIIAAAAGGGGNNNNOOOOSSSSTTTTIIIICCCCSSSS
+     Consult  _n_e_t_m_s_g(8)  for  possible  diagnostic  messages,  as
+     _n_e_t_f_i_n_g_e_r  invokes  that  program to send the requests.  See
+     _f_i_n_g_e_r(1) for error message details returned via  electronic
+     mail when a query fails, or a host cannot be contacted.
+
+     Please note that the finger program often provides incorrect
+     information about the time of last login.
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+

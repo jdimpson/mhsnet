@@ -1,0 +1,8 @@
+
+	-c	Apply CRC to data fetched from the source.
+	-e	Don't return a message on an error at the source.
+	-l	List names of files available.
+	-q	Report request ID on stdout, and include in response.
+	-m	Don't signal reception of response via mail.
+	-r	Allow directory recursion with "-l".
+	-v	Verbose list.

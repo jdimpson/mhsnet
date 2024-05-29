@@ -1,0 +1,8 @@
+
+	-b	Break link(s).
+	-d	Mark link(s) down.
+	-i	Inbound link(s) only.
+	-o	Outbound link(s) only.
+	-z	Mark link(s) dead.
+
+	If no links are mentioned, all links are scanned for activity.

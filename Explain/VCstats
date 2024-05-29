@@ -1,0 +1,4 @@
+
+	-a	Show data for inactive channels.
+	-f	Don't format data (implies "-a").
+	-w	Complain about non-existent links.

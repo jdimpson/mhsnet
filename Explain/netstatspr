@@ -1,0 +1,17 @@
+
+	-a	Print all fields.
+	-d	Print destination address [default].
+	-f	Print routing flags.
+	-h	Print handler [default].
+	-i	Print message ID.
+	-j	Print travel time.
+	-k	Print last link delay.
+	-l	Print link.
+	-n	Print handler description.
+	-p	Print a header line.
+	-r	Select in-bound messages.
+	-s	Print source address [default].
+	-v	Verbose (no field truncation).
+	-w	Select out-bound messages.
+	-x	Print record date [default].
+	-z	Print message size.

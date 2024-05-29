@@ -1,0 +1,825 @@
+sed 1d $0 | /bin/sh ; exit 0
+(
+#	Install user binaries and manuals.
+
+################################################################################
+# Set this to known type:
+SYS=		# AIX, Amiga, Apollo, BSD386, Darwin, DEC, HP10, HP, IRIX, MIPS, NCR3000,
+		# NEC.V.4, Pyramid, QNX, ReliantUNIX, SCOUNIX, Sequent, SunOS4, SunOS5, V.4, XENIX
+
+# OR, set all these:
+MAN=		# gman, hpman, pkgman, scoman, scocat, shareman, stdman, stdmanm,
+		# sharecat, stdcat, sysvman, sysvcat or sysvcatman
+LN=		# Set to override test below
+userdir=	# Directory for user binaries
+
+# Nothing else need be changed except for "configmhs" and "rc*.d"
+################################################################################
+
+SHELL=/bin/sh
+export SHELL
+SPOOLDIR=/usr/spool/MHSnet
+export SPOOLDIR
+NETGROUPNAME=daemon
+NETUSERNAME=daemon
+
+case "$SYS$MAN" in
+'')	# Oops, someone forgot to configure me.
+	mach=`uname -mrs 2>/dev/null`
+	case "$mach" in
+	Darwin*)		SYS=Darwin	;;
+	*AIX*)			SYS=AIX		;;
+	BSD/OS' '[23].?' 'i386)	SYS=BSD386	;;
+	BSD/386*1.[01]*)	SYS=BSD386	;;
+	NetBSD*)		SYS=NetBSD	;;
+	IRIX*)			SYS=IRIX	;;
+	QNX*)			SYS=QNX
+				HOME=$SPOOLDIR
+				export HOME	;;
+	Linux*)			SYS=Linux	;;
+	'OSF1 1.'?' alpha')	SYS=DEC		;;
+	'OSF1 V'[23].?' alpha')	SYS=DEC		;;
+	'OSF1 V'[45].?' alpha')	SYS=DEC		;;
+	'ULTRIX 4.'?' RISC')	SYS=DEC		;;
+	*[45]_*mips)		SYS=MIPS	;;
+	*ReliantUNIX*)		SYS=ReliantUNIX	;;
+	'SunOS 4'*sun4*)	SYS=SunOS4	;;
+	'SunOS 5'*sun4*)	SYS=SunOS5	;;
+	XENIX*)			SYS=XENIX	;;
+	*SCO*)			SYS=SCOUNIX	;;
+	*HP*10*)		SYS=HP10	;;
+	*HP*)			SYS=HP		;;
+	UNIX_SV' '4*)		SYS=UnixWare	;;
+	UNIX*V' 4.'*' R4000')	SYS=NEC.V.4	;;
+	*)	cat <<!
+
+Please edit the file _config/installmhs
+and set the SYS variable at the top to something appropriate.
+!
+		exit 1
+		;;
+	esac
+	;;
+esac
+
+echo=/bin/echo
+
+case "$SYS" in
+Darwin)
+	userdir=/usr/local/bin
+	MAN=localshareman
+	LN='ln -s'
+	;;
+AIX)
+	userdir=/usr/bin
+	MAN=sharecat
+	LN='ln -s'
+	;;
+Amiga)
+	userdir=/usr/local/bin
+	MAN=gman
+	LN='ln -s'
+	;;
+Apollo)
+	echo "The install and configuration scripts must be run
+	by someone who is logged as \"root\" (ie: not \"su\").
+	Are you logged in as \"root\"? \c"
+	read ans
+	case "$ans" in
+	y*)	;;
+	*)	echo "Log out from this session, log in as \"root\", and run $0 again."
+		exit 1
+		;;
+	esac
+	userdir=/usr/bin
+	MAN=stdman
+	LN='ln -s'
+	;;
+BSD386)
+	userdir=/usr/contrib/bin
+	MAN=contribman
+	LN='ln -s'
+	;;
+HP10)
+	userdir=/usr/bin
+	MAN=sharecat
+	LN='ln -s'
+	;;
+HP)
+	userdir=/usr/bin
+	MAN=hpman
+	LN='ln -s'
+	;;
+IRIX)
+	echo=echo
+	userdir=/usr/bin
+	MAN=irixman
+	LN='ln -s'
+	;;
+Linux)
+	userdir=/usr/local/bin
+	MAN=localman
+	LN='ln -s'
+	;;
+MIPS)
+	userdir=/usr/bin
+	MAN=sysvcatman
+	LN='ln -s'
+	;;
+NCR3000)
+	userdir=/usr/bin
+	MAN=ncrman
+	LN='ln -s'
+	;;
+NEC.V.4)
+	userdir=/usr/lbin
+	MAN=shareCsysvman
+	LN='ln -s'
+	;;
+Pyramid)
+	userdir=/usr/bin
+	MAN=sharecatman
+	LN='ln -s'
+	;;
+QNX)
+	userdir=/usr/bin
+	MAN=mancat
+	LN='ln -s'
+	;;
+NetBSD)
+	userdir=/usr/local/bin
+	MAN=shareman
+	LN='ln -s'
+	;;
+ReliantUNIX)
+	userdir=/usr/local/bin
+	MAN=shareman
+	LN='ln -s'
+	;;
+Sequent|SunOS4|DEC|SCOUNIX)
+	userdir=/usr/bin
+	MAN=stdman
+	LN='ln -s'
+	;;
+SunOS5)
+	userdir=/usr/bin
+	MAN=stdmanm
+	LN='ln -s'
+	;;
+UnixWare)
+	userdir=/usr/local/bin
+	MAN=sharecat
+	LN='ln -s'
+	;;
+V.4)
+	userdir=/usr/local/bin
+	MAN=shareman
+	LN='ln -s'
+	;;
+XENIX)
+	userdir=/usr/bin
+	MAN=scocat
+	LN=ln
+	;;
+
+*)
+	cat <<!
+
+Unrecognised SYS value: $SYS
+Please edit the file _config/installmhs
+and set the SYS variable at the top to something appropriate.
+!
+	exit 1
+	;;
+esac
+
+case `$echo '\c'` in
+\\c)	n="-n"; c=""	;;
+*)	n=""; c="\c"	;;
+esac
+
+case "$MAN" in '') echo "MAN?"; exit 1;; esac
+case "$userdir" in '') echo "userdir?"; exit 1;; esac
+
+case "$LN" in
+'')
+	case `ln -s a b 2>&1` in
+	'')	LN="ln -s"	;;
+	*)	LN=ln		;;
+	esac
+	rm -f b
+	;;
+esac
+
+thisdir=`/bin/pwd`
+case $thisdir in
+*/_config)
+	spooldir=`cd ..; /bin/pwd`
+	;;
+*)
+	if test -d _config
+	then
+		spooldir=$thisdir
+	else
+		echo "Please run in $SPOOLDIR/_config"
+		exit 1
+	fi
+	;;
+esac
+lspooldir=`(cd $SPOOLDIR; /bin/pwd)2>/dev/null`
+paramsfile=/usr/lib/MHSnetparams
+chown=chown
+
+newuser=
+$echo $n "Network user is configured as \"$NETUSERNAME\", do you want to change it? " $c
+read ans
+case "$ans" in
+y*)
+	$echo $n "User name [def: $NETUSERNAME] ? " $c
+	read ans
+	case "$ans" in
+	''|y|yes)		;;
+	*)	NETUSERNAME=$ans
+		newuser=true	;;
+	esac
+	;;
+esac
+
+newgroup=
+$echo $n "Network group is configured as \"$NETGROUPNAME\", do you want to change it? " $c
+read ans
+case "$ans" in
+y*)
+	$echo $n "Group name [def: $NETGROUPNAME] ? " $c
+	read ans
+	case "$ans" in
+	''|y|yes)		;;
+	*)	NETGROUPNAME=$ans
+		newgroup=true	;;
+	esac
+	;;
+esac
+
+newspool=
+case "$spooldir" in
+	'')	echo "Error, null directory."; exit 1 ;;
+	/)	echo "Error, directory is '/'!"; exit 1 ;;
+	$SPOOLDIR|$lspooldir) ;;
+	*)	$echo $n "The distribution has been installed in \"$spooldir\",
+but the network is configured for \"$SPOOLDIR\".
+Do you want to reconfigure to use \"$spooldir\"? " $c
+		read ans
+		case "$ans" in
+		y*)	SPOOLDIR=$spooldir
+			export SPOOLDIR
+			newspool=true
+			;;
+		*)	$echo $n "Do you want to reconfigure to use a specific pathname?
+(type a pathname beginning with '/', anything else means 'no') " $c
+			read ans
+			case "$ans" in
+			/*)	SPOOLDIR=$ans
+				export SPOOLDIR
+				newspool=true
+				;;
+			*)	echo "Re-install in the desired directory, and run this script again"
+				exit 1
+				;;
+			esac
+			;;
+		esac
+		;;
+esac
+
+newhttp=
+$echo $n "
+Where is your default MHSnet http/ftp server located
+(default is MHSnet running on this host)? " $c
+read ans
+case "$ans" in
+''|def|default)
+	;;
+*)	HTTPSERVER="$ans"
+	newhttp=true
+	;;
+esac
+
+case "$newuser$newgroup$newspool$newhttp" in
+*true*)
+	desc="Created"
+	if [ -s $paramsfile ]
+	then
+		$echo $n "\"$paramsfile\" already exists.
+Do you want to modify it? " $c
+		read ans
+		case "$ans" in
+		y*)
+			sed -e '/SPOOLDIR/d' -e '/NETUSERNAME/d' -e '/NETGROUPNAME/d' -e '/HTTPSERVER/d' <$paramsfile >/tmp/q$$
+			cp /tmp/q$$ $paramsfile
+			rm /tmp/q$$
+			desc="Modified"
+			;;
+		*)	paramsfile=/tmp/MHSnetparams
+			rm -f $paramsfile
+			echo "
+You must move $paramsfile to /usr/lib/MHSnetparams for it to take effect
+*before* you configure your site details.
+"
+			;;
+		esac
+	else
+		rm -f $paramsfile
+		case "$LN" in
+		*-s)	touch $SPOOLDIR/_lib/MHSnetparams
+			ln -s $SPOOLDIR/_lib/MHSnetparams $paramsfile
+			chmod 644 $SPOOLDIR/_lib/MHSnetparams
+			$chown $NETUSERNAME $SPOOLDIR/_lib/MHSnetparams
+			chgrp $NETGROUPNAME $SPOOLDIR/_lib/MHSnetparams
+			;;
+		esac
+	fi
+	case "$newspool" in true) echo "SPOOLDIR=$spooldir" >>$paramsfile;; esac
+	case "$newuser" in true) echo "NETUSERNAME=$NETUSERNAME" >>$paramsfile;; esac
+	case "$newgroup" in true) echo "NETGROUPNAME=$NETGROUPNAME" >>$paramsfile;; esac
+	case "$newhttp" in true) echo "HTTPSERVER=$HTTPSERVER" >>$paramsfile;; esac
+	chmod 644 $paramsfile
+	$chown $NETUSERNAME $paramsfile
+	chgrp $NETGROUPNAME $paramsfile
+	echo "$desc $paramsfile"
+	;;
+esac
+
+echo "Fixing up directories and files (be patient)..."
+(cd $spooldir
+	for i in _work _route _reroute _pending _params _messages _forward _files _bad 
+	do
+		if [ ! -d $i ]
+		then
+			mkdir $i
+			chmod 755 $i
+			$chown $NETUSERNAME $i
+			chgrp $NETGROUPNAME $i
+		fi
+	done
+	_config/chmod_files $NETUSERNAME $NETGROUPNAME
+	case "$SYS" in
+	Apollo)
+		SYSTYPE=bsd4.3
+		export SYSTYPE
+		/usr/apollo/bin/chacl -B . *
+		;;
+	esac
+)
+
+rclocal=/etc/rc.local
+rcSdir=
+
+case "$SYS" in
+AIX)
+	;;
+Linux)
+	rclocal=/etc/rc.d/rc.local
+	;;
+NetBSD)
+	rclocal=/etc/rc.d/local_mhsnet
+	;;
+*)
+	if [ -d /sbin/rc2.d ]
+	then
+		rcdir=/sbin
+	else
+		rcdir=/etc
+	fi
+
+	dirs=`grep -l inetd $rcdir/rc*.d/S* 2>/dev/null`
+	case "$dirs" in
+	'')	rcSdir="$rcdir/rc2.d"
+		;;
+	*' '*)	for i in $dirs; do x=$i; done
+		rcSdir=`dirname $x`
+		;;
+	*)	rcSdir=`dirname $dirs`
+		;;
+	esac
+	;;
+esac
+
+while :
+do
+if [ -n "$rcSdir" -a -d "$rcSdir" ]
+then
+	N=999
+	X=`echo $rcSdir/[KS]*MHSnet`
+	case "$X" in
+	*'*'MHSnet)
+		;;
+	*)
+		echo "MHSnet boot code already installed in \"$rcdir/rc?.d\""
+		$echo $n "Do you wish to overwrite them? " $c
+		read ans
+		case "$ans" in
+		''|y|yes)	;;
+		*)	break	;;
+		esac
+		N=`for i in $X; do expr "$i" : '.*/.\([0-9]*\)'; break; done`
+		;;
+	esac
+	S="$rcSdir/S$N.MHSnet"
+	K="$rcSdir/K$N.MHSnet"
+	sed -e "s;SPOOLDIR[=]/[^ ]*;SPOOLDIR=${SPOOLDIR};" \
+	    -e "s;REALFILE[=]/[^ ]*;REALFILE=${rcdir}/rclocal.d/MHSnet;" \
+	    <rc2.d >"$S" && {
+		rm -f "$K"
+		ln "$S" "$K"
+	}
+	if [ -d "$rcdir/rclocal.d" ]
+	then
+		sed -e "s;SPOOLDIR[=]/[^ ]*;SPOOLDIR=${SPOOLDIR};" <rclocal.d >$rcdir/rclocal.d/MHSnet
+		echo "MHSnet boot code installed in \"$rcdir/rclocal.d\""
+	else
+		sed -e "s;SPOOLDIR[=]/[^ ]*;SPOOLDIR=${SPOOLDIR};" <rclocal.d >"$S"
+	fi
+	for i in 0 1
+	do
+		if [ -d "$rcdir/rc${i}.d" ]
+		then
+			rm -f "$rcdir/rc${i}.d/K$N.MHSnet"
+			ln "$K" "$rcdir/rc${i}.d"
+		fi
+	done
+	chmod 744 "$rcdir"/rc*.d/*MHSnet
+	echo "MHSnet boot code installed in \"$rcdir/rc?.d\""
+else
+	case "$SYS" in
+	AIX)	if grep -s $SPOOLDIR /etc/inittab >/dev/null
+		then
+			echo 'MHSnet boot code already installed in "/etc/inittab"'
+		else
+			echo 'Installing MHSnet boot code in "/etc/inittab"'
+			echo "mhsnet:2:wait:sh $SPOOLDIR/_lib/start >/dev/console 2>&1 # Start MHSnet" >>/etc/inittab
+		fi
+		;;
+	*)	if [ -w "$rclocal" ]
+		then
+			if grep -s $SPOOLDIR "$rclocal" >/dev/null
+			then
+				echo 'MHSnet boot code already installed in '$rclocal
+			else
+				$echo $n 'Do you wish to install MHSnet boot code in '$rclocal'? ' $c
+				read ans
+				case "$ans" in
+				''|y|yes)	;;
+				*)	break	;;
+				esac
+				echo 'Installing MHSnet boot code in '$rclocal
+				case `uname -mrs 2>/dev/null` in
+				'NetBSD 1.'[56789]*)
+					src=NetBSD1.5+-rc.d	;;
+				*)	src=rc.local		;;
+				esac
+				sed -e "s;SPOOLDIR[=]/[^ ]*;SPOOLDIR=${SPOOLDIR};" <$src >>"$rclocal"
+			fi
+		else
+			echo "
+
+************************************************
+You will need to edit the system startup scripts
+to invoke $SPOOLDIR/_lib/start after booting.
+************************************************
+"
+		fi
+		;;
+	esac
+fi
+break
+done
+
+$echo $n "
+Note: management binaries are in $spooldir/_bin,
+which network managers should include in their PATH variable.
+
+User binaries are in $spooldir/_ubin,
+do you wish to link them somewhere else? " $c
+read ans
+case "$ans" in
+y*)	
+	$echo $n "Directory [def: $userdir] ? " $c
+	read ans
+	case "$ans" in
+	''|y|yes)		;;
+	*)	userdir=$ans	;;
+	esac
+	ok=true
+	dir=
+	while [ "$dir" != "$userdir" -a "$ok" = "true" ]
+	do
+		dir=`expr $userdir : "\($dir/[^/]*\)"`
+		[ -d $dir ] && continue
+		$echo $n "$dir doesn't exist, do you want to create it now? " $c
+		read ans
+		case "$ans" in
+		y*)	mkdir $dir
+			chmod 755 $dir ;;
+		*)	ok=false ;;
+		esac
+	done
+	case "$ok" in
+	true)	(
+		cd $spooldir/_ubin
+		case "$LN" in
+		*-s)	for i in *
+			do
+				echo "$userdir/$i"
+				rm -f $userdir/$i 2>/dev/null
+				$LN $spooldir/_ubin/$i $userdir/$i
+			done
+			;;
+		*)	ls * | cpio -pdlumv $userdir
+			;;
+		esac
+		)
+		;;
+	esac
+	;;
+esac
+
+case "$MAN" in
+localman)		mandir=/usr/local/man
+			MAN=stdman		;;
+contribman)		mandir=/usr/contrib/man	;;
+ncrman)			mandir=/usr/catman/MHS	;;
+stdman*|scocat|scoman)	mandir=/usr/man		;;
+gman)			mandir=/usr/man		;;
+hpman)			mandir=/usr/contrib/man	;;
+irixman)		mandir=/usr/share/catman
+			MAN=sysvcat		;;
+sharecat)		mandir=/usr/share/man
+			MAN=stdcat		;;
+sharecatman)		mandir=/usr/share/man/catman
+			MAN=stdman		;;
+catman)			mandir=/usr/catman
+			MAN=stdman		;;
+shareCsysvman)		mandir=/usr/share/man/C/sysv
+			MAN=stdman		;;
+shareman)		mandir=/usr/share/man
+			MAN=stdman		;;
+localshareman)		mandir=/usr/local/share/man
+			MAN=stdman		;;
+mancat)			mandir=/usr/man
+			MAN=stdcat		;;
+stdcat)			mandir=/usr/cat		;;
+sysvman)		mandir=/usr/catman	;;
+sysvcat)		mandir=/usr/catman	;;
+sysvcatman)		mandir=/usr/man/catman
+			MAN=sysvman		;;
+pkgman)		mandir=/usr/catman/packages	;;
+*)		echo unknown MAN type; exit 1	;;
+esac
+
+$echo $n "
+The manuals are in $spooldir/_man,
+do you wish to link them somewhere else? " $c
+read ans
+case "$ans" in
+y*)	
+	$echo $n "Directory [def: $mandir] ? " $c
+	read ans
+	case "$ans" in
+	''|y|yes)		;;
+	*)	mandir=$ans	;;
+	esac
+	ok=true
+	dir=
+	while [ "$dir" != "$mandir" -a "$ok" = "true" ]
+	do
+		dir=`expr $mandir : "\($dir/[^/]*\)"`
+		[ -d $dir ] && continue
+		$echo $n "$dir doesn't exist, do you want to create it now? " $c
+		read ans
+		case "$ans" in
+		y*)	mkdir $dir
+			chmod 755 $dir ;;
+		*)	ok=false ;;
+		esac
+	done
+	case "$ok" in
+	true)
+		for j in 1 5 7 8
+		do
+		(	case "$MAN" in
+			contribman)	dir=cat$j	;;
+			gman)	dir=g${j}m
+				if [ ! -d /usr/catman/$dir ]
+				then
+					mkdir /usr/catman/$dir
+					chmod 777 /usr/catman/$dir
+				fi		;;
+			ncrman)	dir=g$j		;;
+			pkgman)	dir=man$j	;;
+			scocat) dir=cat.MHS	;;
+			scoman) dir=man.MHS	;;
+			stdcat)	dir=cat$j	;;
+			stdman)	dir=man$j	;;
+			stdmanm)case $j in 8) dir=man1m;; *) dir=man$j ;; esac	;;
+			hpman)	dir=man${j}.Z	;;
+			sysvcat*)
+				if [ -d $mandir/l_man ]
+				then
+					dir=l_man/cat$j
+				else
+					case $j in
+					1) dir=u_man/cat1 ;;
+					5) dir=a_man/cat5 ;;
+					7) dir=a_man/cat7 ;;
+					8) dir=a_man/cat1 ;;
+					esac
+				fi		;;
+			sysvman)
+				if [ -d $mandir/l_man ]
+				then
+					dir=l_man/man$j
+				else
+					case $j in
+					1) dir=u_man/man1 ;;
+					5) dir=a_man/man5 ;;
+					7) dir=a_man/man7 ;;
+					8) dir=a_man/man1 ;;
+					esac
+				fi		;;
+			esac
+			cd $mandir
+			if [ ! -d $dir ]
+			then
+				dir1=`expr $dir : '\(.*\)/.*'`
+				case "$dir1" in
+				'')		;;
+				*)	if [ ! -d $dir1 ]
+					then
+						mkdir $dir1
+						chmod 755 $dir1
+					fi	;;
+				esac
+				mkdir $dir
+				chmod 755 $dir
+			fi
+			cd $dir
+			case "$j$MAN$LN" in
+			*hpman*)
+				for i in $spooldir/_man/man$j/*
+				do
+					f=`expr $i : '.*/\(.*\).Z'`
+					echo $mandir/$dir/$f
+					rm -f $f 2>/dev/null
+					$LN $i $f
+				done
+				;;
+			*contribman*-s)
+				for i in $spooldir/_man/man$j/*
+				do
+					f=`expr $i : '.*/\(.*\)[1578]'`0
+					echo $mandir/$dir/$f
+					rm -f $f 2>/dev/null
+					$LN $i $f
+				done
+				;;
+			*ncrman*)
+				(cd $spooldir/_man/man$j; ls | cpio -pdlumv $mandir/$dir)
+				;;
+			8sysv*-s)
+				for i in $spooldir/_man/man$j/*
+				do
+					case $dir$i in
+					l_*)	f=`expr $i : '.*/\(.*\)'`	;;
+					*8)	f=`expr $i : '.*/\(.*\)8'`1	;;
+					*)	f=`expr $i : '.*/\(.*\)'`	;;
+					esac
+					echo $mandir/$dir/$f
+					rm -f $f 2>/dev/null
+					$LN $i $f
+				done
+				;;
+			8stdmanm*-s)
+				for i in $spooldir/_man/man$j/*
+				do
+					f=`expr $i : '.*/\(.*\)8'`1m
+					echo $mandir/$dir/$f
+					rm -f $f 2>/dev/null
+					$LN $i $f
+				done
+				;;
+			*-s)	for i in $spooldir/_man/man$j/*
+				do
+					f=`expr $i : '.*/\(.*\)'`
+					echo $mandir/$dir/$f
+					rm -f $f 2>/dev/null
+					$LN $i $f
+				done
+				;;
+			1sco*)	(cd $spooldir/_man/$dir; ls | cpio -pdlumv $mandir/$dir)
+				;;
+			[2-9]sco*)
+				;;
+			*)	(cd $spooldir/_man/man$j; ls | cpio -pdlumv $mandir/$dir)
+				;;
+			esac
+		)
+		done
+		;;
+	esac
+	;;
+esac
+
+($spooldir/_bin/netparams; $spooldir/_bin/netparams fileserver) 2>&1 | awk '
+/ warning .* group /	{
+	print "You need to create an account " $9 " in \"/etc/group\"."
+	}
+/ warning .* user /	{
+	print "You need to create an account " $9 " in \"/etc/passwd\"."
+	}
+'
+
+test -f $spooldir/_lib/handlers || {
+	cp $spooldir/_lib/handlers.dist $spooldir/_lib/handlers
+	chmod 644 $spooldir/_lib/handlers
+	$chown $NETUSERNAME $spooldir/_lib/handlers
+	chgrp $NETGROUPNAME $spooldir/_lib/handlers
+}
+
+$echo $n "
+Do you wish to run an FTP service for other sites
+(If not, you may re-activate it later)? " $c
+read ans
+case "$ans" in
+y*)	if [ -f $spooldir/_lib/NOftpserver ]; then
+		mv $spooldir/_lib/NOftpserver $spooldir/_handlers/ftpserver
+	fi
+	;;
+*)	if [ -f $spooldir/_handlers/ftpserver ]; then
+		mv -f $spooldir/_handlers/ftpserver $spooldir/_lib/NOftpserver &&
+	echo "To re-activate:
+ mv $spooldir/_lib/NOftpserver $spooldir/_handlers/ftpserver"
+	fi
+	;;
+esac
+
+$echo $n "
+Do you wish to run an HTTP service for other sites
+(If not, you may re-activate it later)? " $c
+read ans
+case "$ans" in
+y*)	if [ -f $spooldir/_lib/NOhttpserver ]; then
+		mv $spooldir/_lib/NOhttpserver $spooldir/_handlers/httpserver
+	fi
+	;;
+*)	if [ -f $spooldir/_handlers/httpserver ]; then
+		mv -f $spooldir/_handlers/httpserver $spooldir/_lib/NOhttpserver &&
+	echo "To re-activate:
+ mv $spooldir/_lib/NOhttpserver $spooldir/_handlers/httpserver"
+	fi
+	;;
+esac
+
+$echo $n "
+Do you wish to run a \`finger' service for other sites
+(If not, you may re-activate it later)? " $c
+read ans
+case "$ans" in
+y*)	if [ -f $spooldir/_lib/NOfinger ]; then
+		mv $spooldir/_lib/NOfinger $spooldir/_handlers/finger
+	fi
+	;;
+*)	if [ -f $spooldir/_handlers/finger ]; then
+		mv -f $spooldir/_handlers/finger $spooldir/_lib/NOfinger &&
+		echo "To re-activate:
+ mv $spooldir/_lib/NOfinger $spooldir/_handlers/finger"
+	fi
+	;;
+esac
+
+$echo $n "
+Do you wish to run a \`DNS' query service for other sites
+(If not, you may re-activate it later)? " $c
+read ans
+case "$ans" in
+y*)	if [ -f $spooldir/_lib/NOpeeper ]; then
+		mv $spooldir/_lib/NOpeeper $spooldir/_handlers/peeper
+	fi
+	;;
+*)	if [ -f $spooldir/_handlers/peeper ]; then
+		mv -f $spooldir/_handlers/peeper $spooldir/_lib/NOpeeper &&
+		echo "To re-activate:
+ mv $spooldir/_lib/NOpeeper $spooldir/_handlers/peeper"
+	fi
+	;;
+esac
+
+$echo $n "
+Do you want to configure the network now? " $c
+read ans
+case "$ans" in
+y*)	$spooldir/_config/configmhs ;;
+*)	echo "Run \"$spooldir/_config/configmhs\" when you are ready."
+	;;
+esac
+
+)</dev/tty

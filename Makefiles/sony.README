@@ -1,0 +1,20 @@
+Date: Fri, 28 Jun 91 17:18:14 +0000
+From: piers@cs.su.oz.au (Network Manager)
+To: piers@free.cs.su.oz.au
+Subject: free 1# ls -l /usr/spool/locks
+
+total 2
+-r--r--r--   1 uucp     uucp          11 Jun 28 17:17 LK.016.000.017
+free 1# ls -l /dev/tty00
+crw-rw-rw-   1 root     root       0, 17 Jun 28 17:13 /dev/tty00
+
+So need -DMLOCK_DEV in CONFIG
+
+mail configuration is in /etc/mail/mailsurr: add the following lines
+before uucp delivery:
+
+# MHSnet for *all* mail
+#
+'.+'	'!%X!([^!]+)!(.+)'	'< S=0;C=256;F=*; /usr/spool/MHSnet/_lib/sendfile -iuAmailer -Nmail -U \\2 -D \\1'
+'.+'	'!([^!]+)!(.+)'	'< S=0;C=256;F=*; /usr/spool/MHSnet/_lib/sendfile -iuAmailer -Nmail -U \\2 -D \\1'
+

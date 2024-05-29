@@ -1,0 +1,214 @@
+#!/bin/sh
+
+#	Setup circuit to a SUNIII "link" via a ``Hayes'' type modem.
+#
+#	Please note that SUNIII doesn't do parameter negotiation,
+#	so you must check with the administrator at the other end
+#	that both ends are using the same daemon parameters [cf:
+#	"dmnargs" setup below].
+#
+#	If ``modem'' == Trailblazer, assumes configured correctly
+#	for use with RTS/CTS flow control for speeds >= 9600.
+
+USAGE="[-f] [-p] link modem device speed login passwd dial [dial2]"
+
+PATH=$PATH:/etc:/usr/ucb:/usr/local:/usr/local/bin
+
+andflag="-&"	# "-f" - run in foregound [else background]
+permanent=	# "-p" - non-"batch" connection
+trace=		# "-Tn"- trace level <n>
+
+for i do
+	case "${i}" in
+	'-?')	echo "Usage: $0 $USAGE"; exit 1;;
+	-f)	andflag=	; shift	;;
+	-p)	permanent=true	; shift	;;
+	-T[0-9])trace="$i"	; shift	;;
+	esac
+done
+
+case $# in
+7|8)	;;
+*)	echo "Usage: $0 $USAGE"; exit 1;;
+esac
+
+link=$1
+modem=$2
+device=$3
+speed=$4
+login=$5
+passwd=$6
+case "$7" in
+ATD*|atd*)	dial=$7		;;
+*)		dial=ATD$7	;;
+esac
+case "$8" in
+'')		dial2=				;;
+ATD*|atd*)	dial2="-Ddialstr2=$8"		;;
+*)		dial2="-Ddialstr2=ATD$8"	;;
+esac
+
+script=hayes3
+initstr=
+
+#	"hayes3.cs" initialises the modem with ATE0Q0S0=0S2=43
+#	followed by "initstr". At the end it sets the modem
+#	with ATH0 followed by "finishstr" [default: ATE0Q1S0=1]
+
+case "${modem}" in
+*hayes)
+	case "${speed}" in
+	EXTA)	dmnargs="-D128  -S800 -X1920"		;;
+	19200)	dmnargs="-D128  -S800 -X1920"		;;
+	9600)	dmnargs="-D128  -S400 -X960"		;;
+	4800)	dmnargs="-D128  -S200 -X480"		;;
+	2400)	dmnargs="-D128  -S100 -X240"		;;
+	1200)	dmnargs="-D64   -S50  -X120"		;;
+	600)	dmnargs="-D32   -S25  -X60"		;;
+	300)	dmnargs="-D16   -S10  -X30"		;;
+	*)	echo "$0: Unrecognised speed ${speed}"; exit 1;;
+	esac
+	;;
+
+hayesXON)
+	xonxoff="-Dxonxoff=1"
+	case "${speed}" in
+	EXTA)	dmnargs="-cD128  -S800 -X1920"		;;
+	19200)	dmnargs="-cD128  -S800 -X1920"		;;
+	9600)	dmnargs="-cD128  -S400 -X960"		;;
+	4800)	dmnargs="-cD128  -S200 -X480"		;;
+	2400)	dmnargs="-cD128  -S100 -X240"		;;
+	1200)	dmnargs="-cD64   -S50  -X120"		;;
+	600)	dmnargs="-cD32   -S25  -X60"		;;
+	300)	dmnargs="-cD16   -S10  -X30"		;;
+	*)	echo "$0: Unrecognised speed ${speed}"; exit 1;;
+	esac
+	;;
+
+interlink)
+	initstr='-Dinitstr=ATX2$S1$E0$C0'	# Turn off MNP!
+	case "${speed}" in
+	EXTA)	dmnargs="-D128  -S800 -X1920"		;;
+	19200)	dmnargs="-D128  -S800 -X1920"		;;
+	9600)	dmnargs="-D128  -S400 -X960"		;;
+	4800)	dmnargs="-D128  -S200 -X480"		;;
+	2400)	dmnargs="-D128  -S100 -X240"		;;
+	1200)	dmnargs="-D64   -S50  -X120"		;;
+	600)	dmnargs="-D32   -S25  -X60"		;;
+	300)	dmnargs="-D16   -S10  -X30"		;;
+	*)	echo "$0: Unrecognised speed ${speed}"; exit 1;;
+	esac
+	;;
+
+netcomm)
+	initstr='-Dinitstr=ATV1X1M1B2Y0&A1'
+	finishstr='-Dfinishstr=ATE0Q1V0X0M1B2Y0&A1'
+	case "${speed}" in
+	EXTA)	dmnargs="-D128  -S800 -X1920"		;;
+	19200)	dmnargs="-D128  -S800 -X1920"		;;
+	9600)	dmnargs="-D128  -S400 -X960"		;;
+	4800)	dmnargs="-D128  -S200 -X480"		;;
+	2400)	dmnargs="-D128  -S100 -X240"		;;
+	1200)	dmnargs="-D64   -S50  -X120"		;;
+	600)	dmnargs="-D32   -S25  -X60"		;;
+	300)	dmnargs="-D16   -S10  -X30"		;;
+	*)	echo "$0: Unrecognised speed ${speed}"; exit 1;;
+	esac
+	;;
+
+trailblazerRTS)
+#		RTS/CTS flow control
+#	initstr='-Dinitstr=ATS51=4S52=2S53=2S54=0S58=2S66=1S67=0S68=255S110=1X3V1'
+#	finishstr='-Dfinishstr=ATZ'	# Restores default settings
+	case "${speed}" in
+	EXTA)	 local="-not -D128 -S100 -X240"
+		remote="-nit -D128 -S100 -X240"		;;
+	19200)	 local="-not -D128 -S100 -X240"
+		remote="-nit -D128 -S100 -X240"		;;
+	9600)	 local="-not -D128 -S100 -X240"
+		remote="-nit -D128 -S100 -X240"		;;
+	4800)	dmnargs="-D128  -S100 -X240"		;;
+	2400)	dmnargs="-D128  -S100 -X240"		;;
+	1200)	dmnargs="-D64   -S50  -X120"		;;
+	600)	dmnargs="-D32   -S25  -X60"		;;
+	300)	dmnargs="-D16   -S10  -X30"		;;
+	*)	echo "$0: Unrecognised speed: ${speed}"; exit 1;;
+	esac
+	;;
+
+trailblazerXON)
+#		XON/XOFF flow control
+	xonxoff=			# NB: this was mis-spelt in early distributions
+#	initstr='-Dinitstr=ATS58=3S68=3'
+#	finishstr='-Dfinishstr=ATZ'	# Restores default settings
+	case "${speed}" in
+	EXTA)	 local="-cnot -D128 -S800 -X1800"
+		remote="-cnit -D128 -S800 -X1800"
+		xonxoff="-Dxonxoff=1"			;;
+	19200)	 local="-cnot -D128 -S800 -X1800"
+		remote="-cnit -D128 -S800 -X1800"
+		xonxoff="-Dxonxoff=1"			;;
+	9600)	 local="-cnot -D128 -S400 -X960"
+		remote="-cnit -D128 -S400 -X960"
+		xonxoff="-Dxonxoff=1"			;;
+	4800)	dmnargs="-D128  -S100 -X240"		;;
+	2400)	dmnargs="-D128  -S100 -X240"		;;
+	1200)	dmnargs="-D64   -S50  -X120"		;;
+	600)	dmnargs="-D32   -S25  -X60"		;;
+	300)	dmnargs="-D16   -S10  -X30"		;;
+	*)	echo "$0: Unrecognised speed: ${speed}"; exit 1;;
+	esac
+	;;
+
+*)	echo "Unknown modem: ${modem}"; exit 1;;
+esac
+
+SPOOLDIR=/usr/spool/MHSnet
+eval `egrep 'SPOOLDIR' /usr/lib/MHSnetparams 2>/dev/null`
+
+cd $SPOOLDIR
+umask 027
+
+case "$link" in
+*=*)	node=`expr ${link} : '[^=]*=\([^\.]*\)'`	;;
+*)	node=`expr ${link} : '\([^\.]*\)'`		;;
+esac
+
+log=_call/${node}.log
+olog=_call/${node}.ol
+
+if [ -s ${log} ]
+then
+	mv ${log} ${olog}
+fi
+
+case "${local}" in
+'')	local=${dmnargs}
+	remote=${dmnargs}
+	;;
+esac
+
+case "${permanent}" in
+'')	local="-B5 ${local}"
+	remote="-B5 ${remote}"
+	;;
+*)	local="-d ${local}"
+	remote="-d ${remote}"
+	;;
+esac
+
+exec _lib/VCcall ${andflag} -v $trace \
+	-D "dialstr=${dial}" \
+	-D "linespeed=${speed}" \
+	-D "localdmnargs=${local}" \
+	-D "loginstr=${login}" \
+	-D "modemdev=${device}" \
+	-D "passwdstr=${passwd}" \
+	-D "remotedmnargs=${remote}" \
+	"${initstr}" \
+	"${finishstr}" \
+	"${dial2}" \
+	${xonxoff} \
+	-S ${script}.cs \
+	-X ${log} \
+	${link}

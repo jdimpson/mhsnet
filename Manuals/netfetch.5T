@@ -1,0 +1,198 @@
+
+
+
+Headers, Environments, and Macros                     NETFETCH(5)
+
+
+
+NNNNAAAAMMMMEEEE
+     netfetch - format of network file availability register
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     SSSSPPPPOOOOOOOOLLLLDDDDIIIIRRRR////____lllliiiibbbb////ppppuuuubbbblllliiiiccccffffiiiilllleeeessss
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     This file contains a list of publicly accessible directories
+     containing  files  that  may be requested from remote sites,
+     together with permissions specifying which  users  at  which
+     sites  may  access  them.  It is scanned by the file service
+     handler, _f_i_l_e_s_e_r_v_e_r, before servicing a request.   The  name
+     of  this  file  may  be  changed dynamically by altering the
+     value of the handler parameter PUBLICFILES in the  parameter
+     file _params/fileserver (see _n_e_t_p_a_r_a_m_s(5)).
+
+     The  permissions  file  contains   records   terminated   by
+     newlines.  There are two fields in each record, separated by
+     <space> or <tab>, in the following format:
+
+     [<user>@]<address><space>[<space>...]<full_path_name>
+
+     Either <_u_s_e_r> or <_a_d_d_r_e_s_s>  may  be  *,  _w_h_i_c_h  _m_a_t_c_h_e_s  _a_n_y
+     _v_a_l_u_e.   _F_i_l_e_s_e_r_v_e_r reads this file, forwards, looking for a
+     match of <_u_s_e_r> and <_a_d_d_r_e_s_s> with those of the remote  user
+     who is making the request.  The first line that matches (ie:
+     the first line for which either the <_u_s_e_r> part is the  name
+     of  the  remote  user, or is missing, or is equal to <_u_s_e_r>,
+     and the <_a_d_d_r_e_s_s> part either matches the name of the remote
+     host,  or  is  *) _e_n_d_s _t_h_e _s_e_a_r_c_h.  _T_h_e <_a_d_d_r_e_s_s> may be any
+     legal network address, such  as  a  _m_u_l_t_i_c_a_s_t  or  _b_r_o_a_d_c_a_s_t
+     address.   The  <_f_u_l_l__p_a_t_h__n_a_m_e> on that line is used as the
+     name of the directory containing files that this  particular
+     user  may  access.   If  no  line  in  the  permissions file
+     matches, or if the line that does match does not  contain  a
+     <_f_u_l_l__p_a_t_h__n_a_m_e>, then the remote user is denied access.
+
+     In any case, users are permitted access to files relative to
+     the  final  directory  only,  and  may  not  use a path that
+     commences with ////, or that contains `........' anywhere within  it.
+     Furthermore,  they  will only be allowed to fetch files that
+     are either publicly readable, or that are  readable  by  the
+     user  or  group used by the file service handler: SERVERUSER
+     and SERVERGROUP (which may be altered in  the  file  service
+     handler  parameter  file  in  the  same  way  as PUBLICFILES
+     above).
+
+     An example might be:
+
+     network@*.ORG=co  /usr/spool/MHSnet
+     friend@neighbour  /
+     enemy@*
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+
+
+
+
+Headers, Environments, and Macros                     NETFETCH(5)
+
+
+
+     *                 /usr/spool/MHSnet/_public
+
+     This allows requests from  the  user  _n_e_t_w_o_r_k  at  any  site
+     within  the  organisation  `co'  to access publicly readable
+     files in your spool directory (such as __s_t_a_t_s/_A_c_c_u_m_u_l_a_t_e_d  -
+     but  not  network messages, which are always mode 0600 owned
+     by NETUSERNAME).  _F_r_i_e_n_d@_n_e_i_g_h_b_o_u_r is allowed to access  any
+     files   on   your   system,   provided  that  SERVERUSER  or
+     SERVERGROUP has read permissions  on  the  requested  files.
+     _E_n_e_m_y  is  not permitted any access at all, whatever host he
+     happens to be using, as there is no path specified for  him.
+     All others can access files in the public directory only.
+
+     Once this file is created, you should  make  sure  that  any
+     directories it names exist, and have suitable permissions.
+
+     You should also make sure that the user SERVERUSER exists in
+     your  password  file,  and that SERVERGROUP is in your group
+     file.
+
+     It is recommended that  a  recursive  directory  listing  be
+     prepared  and  placed  in a compressed file in the top-level
+     public directory to prevent requesters having to make  large
+     recursive verbose listing requests themselves.  This file is
+     usually called something like  `ls-lRt.Z'  You  may  disable
+     recursive    listing    requests    entirely    by   setting
+     FILESERVER_NOLR to 1  in  `_params/fileserver'.   Otherwise,
+     you  can  limit  the size of listing requests by setting the
+     desired maximum number of bytes  allowed  in  the  parameter
+     FILESERVER_MAXL.  You  can also change the maximum length of
+     pathnames shown  by  setting  FILESERVER_MAXC  to  something
+     other than the default [80].
+
+     If files  are  changing  frequently,  then  you  should  set
+     FILESERVER_NOX  to prevent `in-place' file transmission, and
+     instead force copies to be made.
+
+     If you wish, the file service handler will  keep  statistics
+     of  all files fetched from your site.  You should define the
+     FILESERVERLOG parameter, and make sure the file  exists  and
+     is  writable  by  SERVERUSER,  as otherwise the handler will
+     quietly avoid producing any statistics.
+
+FFFFIIIILLLLEEEESSSS
+     _lib/publicfiles      Publicly accessible files list.
+     _params/fileserver    Parameter file for  the  file  service
+                           handler.
+     _stats/fileserverlog  Optional  log  of  all  file   service
+                           requests.
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _n_e_t_f_e_t_c_h(1),    _n_e_t_f_i_l_e(1),     _n_e_t_g_e_t(1),     _n_e_t_p_a_r_a_m_s(5),
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    2
+
+
+
+
+
+
+Headers, Environments, and Macros                     NETFETCH(5)
+
+
+
+     _n_e_t_w_o_r_k(7).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    3
+
+
+

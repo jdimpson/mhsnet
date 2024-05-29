@@ -1,0 +1,155 @@
+.ds S1 NETHANDLERS
+.ds S2 Nethandlers
+.ds S3 nethandlers
+.ds S4 MHSnet
+.ds S5 network
+.TH \*(S1 5 "\*(S4 1.17" \^
+.nh
+.SH NAME
+nethandlers \- network message handlers description file
+.SH SYNOPSIS
+.BI \s-1SPOOLDIR\s0/_lib/handlers
+.SH DESCRIPTION
+.I \*(S2
+contains lines describing each message handler available locally.
+Each line contains a description of the handler,
+and fields representing protocols and permissions.
+Empty lines, and lines beginning with the character `#', are ignored.
+The contents can be printed selectively by the program
+.IR nethandlers (8).
+.PP
+This file is scanned regularly by the router to determine what sub-routers should be started.
+.PP
+The fields, separated from each other by tabs, are ordered as follows:
+.if n .ds tw 4
+.if t .ds tw \w'\fBmessage\ contents\fPX'u
+.TP "\*(tw"
+.BI "handler name"
+The name of the handler as installed in the directory
+.IR _handlers .
+.TP
+.BI "message contents"
+A one-word description of the message contents
+(for use by programs such as
+.IR netq (1)).
+[Default: null.]
+.TP
+.BI protocol
+A byte designating the message protocol expected by the handler.
+Allocated protocols are:
+\fB0\fP \(em routing protocol;
+\fB1\fP \(em file transfer protocol;
+\fB\-\fP \(em protocol unspecified.
+[Default: \fB\-\fP.]
+.TP
+.BI restriction
+A \fB1\fP,
+if use of this handler is restricted to privileged users (`root' or network
+.SM SU),
+\fB0\fP otherwise.
+.br
+[Default: \fB0\fP.]
+.TP
+.BI quality
+An asterisk, (indicating the default should be used),
+or a byte in the range \fB0\fP to \fB9\fP,
+which becomes the minimum
+.I "routing quality"
+that may be specified for this type of message.
+[Default: depends on message size.]
+.TP
+.BI order
+A byte defining whether messages for this handler should be ordered.
+Possibilities are:
+\fB0\fP \(em never ordered;
+\fB1\fP \(em always ordered;
+\fB\-\fP \(em ordering unspecified.
+[Default: \fB\-\fP.]
+.TP
+.BI nice
+An asterisk, (indicating the default should be used),
+or an integer in the range \-20 to 19, which becomes the
+.I nice
+value used when the handler is invoked to deliver a message.
+[Default: \s-1NICEHANDLERS\s0.]
+Anything other than an asterisk causes the message router
+to invoke a
+.I sub-router
+to handle messages for this handler asynchronously.
+The nice value can be followed by a colon and a 
+.I duration
+in seconds to specify a limited-duration sub-router (see
+.IR netrouter (8)
+for the meaning of the \fB\-B\fP flag).
+.TP
+.BI address
+An `@' sign, (indicating no address),
+or a network address (eg: a multicast address),
+or a file name containing a `\fB/\fP'.
+(If the file name doesn't begin with a leading `\fB/\fP',
+then the value of \s-1SPOOLDIR\s0 will be pre-pended.)
+The message insertion programs will check this list (or file)
+for legal destinations if it exists.
+[Default: null.]
+.TP
+.BI timeout
+An integer specifying maximum seconds allowed to handle this message type.
+[Default: set by 
+.RB - A
+flag to
+.IR netrouter (8)].
+.PP
+Only the first field need be present,
+the rest are optional,
+and will get default values if missing.
+However,
+default descriptions for three basic handlers will override any in the file
+\(em see the values shown for the handlers
+.IR stater ,
+.IR filer ,
+and
+.I mailer
+below.
+.PP
+If a handler is not specified in this file,
+then a user must either request that the message not be returned in the event of an error
+(as otherwise there would be no handler to receive it),
+or have network \s-1OTHERHANDLERS\s0 permission.
+.SH EXAMPLE
+.ft CW
+.ps -2
+.nf
+.if \n(.lu<6i .in -1c
+.if t \{
+.ta +\w'fileserverX'u +\w'RequestX'u +\w'ProtoX'u +\w'RestrctX'u +\w'QltyX'u +\w'OrderX'u +\w'00:000X'u
+# Handler	Desc	Proto	Restrct	Qlty	Order	Nice	Address\}
+.if n \{
+.ta +\w'fileserverX'u +\w'RequestX'u +\w'\-XX'u +\w'0XX'u +\w'0XX'u +\w'0XX'u +\w'00:000XX'u
+# Handler	Desc	P	R	Q	O	Nice	Address\}
+filer	Files	1
+fileserver	Request	\-	1	*	-	*	*.su.oz.au
+ftpserver	Request	\-	0	7	-	17:60
+mailer	Mail	1
+peter	Query	\-	1	*	-	*	*.oz.au
+printer	Print	1	1	7	1	*	/usr/lib/prsites
+stater	State	0	1	0	1	16:60
+reporter	News	\-	1	9	1	18:600
+.DT
+.if \n(.lu<6i .in 0
+.fi
+.ps
+.ft
+.PP
+Sub-routers are activated to handle messages for news,
+ftp service, and topology updates as background tasks
+(the numbers in the `Nice' column).
+They are `limited duration' sub-routers,
+as indicated by the number of seconds after the colon.
+.ne 3
+.SH "SEE ALSO"
+.IR netfile (1),
+.IR \*(S5 (7),
+.IR nethandlers (8),
+.IR netmsg (8),
+.IR netrouter (8).
+.br

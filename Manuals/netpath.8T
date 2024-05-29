@@ -1,0 +1,66 @@
+
+
+
+Maintenance Procedures                                 NETPATH(8)
+
+
+
+NNNNAAAAMMMMEEEE
+     netpath - convert pathnames to addresses, and vice-versa
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     ____bbbbiiiinnnn////nnnneeeettttppppaaaatttthhhh [-_f_l_a_g_s] _p_a_t_h|_a_d_d_r_e_s_s [_r_e_m_o_v_e|_p_r_e_f_i_x]
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_p_a_t_h converts a  pathname  into  the  equivalent  network
+     address,  or  _v_i_c_e-_v_e_r_s_a.   If the first argument contains a
+     `/', then it is assumed  to  be  a  pathname,  otherwise  an
+     address.   The  optional second argument is interpreted as a
+     prefix for a pathname derived from an address  argument,  or
+     as  a  prefix  to be removed from a pathname argument before
+     conversion to an address.
+
+     The result is written to _s_t_d_o_u_t.
+
+     The optional flags modify this behaviour:
+
+     ----aaaa  Force  the  first  argument  to  be  interpreted  as  an
+         address.
+
+     ----llll  Just print the link directory pathname for the  link  to
+         the first argument interpreted as an address.
+
+     ----pppp  Force  the  first  argument  to  be  interpreted  as   a
+         pathname.
+
+     ----ssss  Strip types from any pathname printed.
+
+     ----tttt[_t_y_p_e]
+         The default address style is _i_n_t_e_r_n_a_l, the  alternatives
+         are _e_x_t_e_r_n_a_l (----tttteeee), or _t_y_p_e_l_e_s_s (----tttt).
+
+     ----TTTT[_l_e_v_e_l]
+         Turns on tracing at _l_e_v_e_l (default: 1).  If  tracing  is
+         not compiled in, this flag will have no effect.
+
+     ----????  Explain argument options and exit.
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEESSSS
+     Convert pathname of a state message to an address:
+
+       _bin/netpath MSGS/au/oz/su/basser MSGS
+
+FFFFIIIILLLLEEEESSSS
+     _state/routefile  Routing  tables  for   resolving   address
+                       argument.
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _n_e_t_m_a_p(1), _n_e_t_w_o_r_k(7), _n_e_t_a_d_d_r(8).
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+

@@ -1,0 +1,7 @@
+
+	-a	Return all illegal addresses.
+	-f	No fork.
+	-o	One pass of routing directory, then exit.
+	-r	Don't write non-essential reports to log file.
+	-s	This invocation is a `sub-router' (delivery only).
+	-x	Don't write statistics to log file.

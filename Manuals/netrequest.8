@@ -1,0 +1,160 @@
+.ds S1 NETREQUEST
+.ds S2 \fINetrequest\fP
+.ds S3 \fInetrequest\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 _bin/netrequest
+.TH \*(S1 8 "\*(S4 1.10" \^
+.nh
+.SH NAME
+netrequest \- request network state updates from neighbours
+.SH SYNOPSIS
+.BI \*(S6
+.RI [\- flags \|]
+.RI [ address \ ...]
+.SH DESCRIPTION
+\*(S2
+is used to broadcast local routing information to neighbouring nodes,
+and to request routing information from other nodes.
+It can be used to initiate the routing tables at network installation time,
+or to recover the routing tables after local file-system crashes.
+Any addresses mentioned are included in a multicast address for the request,
+otherwise the request is sent to all active links.
+.PP
+Requests are sent out with a one week timeout on them,
+that is,
+if they have not been delivered to their destination(s) within one week,
+the request is discarded.
+.PP
+The optional flags are:
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-Z\fP\fI\ time-to-die\fPX'u
+.TP "\*(tw"
+.BI \-a
+Request all network topology information available,
+rather than a local sub-set in the routing tables.
+(All information is
+.I sent
+if the flag \fB\-e\fP is also specified.)
+This flag is ignored with broadcast or multicast addresses.
+.TP
+.BI \-b
+Broadcast the request to all sites within the local region.
+.TP
+.BI \-e
+Export the local routing information along with the request.
+If the address contains a broadcast,
+then only the local (node + links) routing details are exported,
+otherwise information about all regions in the routing tables is exported.
+.TP
+.BI \-i
+Read an exportable routing file off
+.I stdin
+to use instead of the default.
+(Implies \fB\-e\fP.)
+.TP
+.BI \-l
+Include all active direct links in the request
+(the default if no other addresses are specified).
+.TP
+.BI \-n
+Don't request \(em just send local routing information.
+(Implies \fB\-e\fP.)
+.TP
+.BI \-r
+Allow error returns from remote sites
+(otherwise the request will be discarded on error).
+.TP
+.BI \-t
+Don't include a timeout with the message
+(otherwise messages expire after one week).
+This flag is ineffective if any address is a
+.IR broadcast .
+.TP
+.BI \-R \ region
+Restrict broadcasts to
+.IR region .
+.TP
+.BI \-S \ source
+Specify a source address for non-default routing information
+(must be the name of a link).
+.TP
+.BI \-T \fR[\fPlevel\fR]\fP
+Turns on tracing at
+.I level
+(default: 1).
+If tracing is not compiled in,
+this flag will have no effect.
+.TP
+.BI \-X \ file
+Use the exportable routing information in
+.I file
+instead of the default.
+(Implies \fB\-e\fP.)
+.TP
+.BI \-Z " time-to-die"
+The message will be discarded on any route which takes more than
+.I time-to-die
+seconds before delivery.
+The default for all broadcast messages is one week,
+but this option may be used to shorten the message life further.
+.TP
+.BI \-?
+Explain argument options and exit.
+.SH EXAMPLES
+Broadcast local routing information to all sites in a particular region:
+.PP
+.RS 2
+.ft CW
+\*(S6 -en *.mu.oz.au
+.ft
+.RE
+.PP
+Request routing updates from all sites in local region:
+.PP
+.RS 2
+.ft CW
+\*(S6 -b
+.ft
+.RE
+.PP
+Send all local routing information to a particular site:
+.PP
+.RS 2
+.ft CW
+\*(S6 -aen munnari.cs.mu.oz.au
+.ft
+.RE
+.PP
+Broadcast state details for a directly connected foreign site
+.I link
+whose state details have been prepared in `link.cmds':
+.PP
+.RS 2
+.ft CW
+netstate -oncS <link.cmds | \*(S6 -bin -S link
+.ft
+.RE
+.SH FILES
+.PD 0
+.TP "\w'_state/exportfileXX'u"
+_state/exportfile
+Routing information from routing tables for export.
+Often an order of magnitude larger than the `sitefile'.
+.TP
+_state/routefile
+Routing tables for resolving address arguments,
+and finding links.
+.TP
+_state/sitefile
+Local routing information for export in broadcasts.
+.TP
+_state/statefile
+Entire network topology information.
+Often several orders of magnitude larger than the `sitefile'.
+This file can be fetched/sent from/to a remote site with the \fB\-a\fP flag.
+.PD
+.SH "SEE ALSO"
+.IR netmap (1),
+.IR \*(S5 (7),
+.IR netstate (8).

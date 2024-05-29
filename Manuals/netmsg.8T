@@ -1,0 +1,330 @@
+
+
+
+Maintenance Procedures                                  NETMSG(8)
+
+
+
+NNNNAAAAMMMMEEEE
+     netmsg - send network message
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     ____bbbbiiiinnnn////nnnneeeettttmmmmssssgggg [-[_f_l_a_g_s]] ----AAAA _h_a_n_d_l_e_r _d_e_s_t_i_n_a_t_i_o_n ...  [----] [_f_i_l_e
+     ...]
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_m_s_g inserts non-FTP  messages  into  the  network  to  be
+     transmitted  to  remote  destinations.   (See _n_e_t_f_i_l_e(1) for
+     sending messages using the `File Transfer  Protocol',  which
+     includes the ability to send messages to particular users.)
+
+     The network will generate  the  minimal  number  of  message
+     copies  to  deliver  the  message  to  each of the specified
+     destinations.  There is no limit to the number  of  separate
+     destinations  that may be specified, but note that the first
+     non-flag argument is always assumed to be a destination.   A
+     _d_e_s_t_i_n_a_t_i_o_n  may  also  be  specified  as ****...._d_e_s_t_i_n_a_t_i_o_n, for
+     _b_r_o_a_d_c_a_s_t routing, _d_e_s_t_i_n_a_t_i_o_n!!!!_d_e_s_t_i_n_a_t_i_o_n...  for  _e_x_p_l_i_c_i_t
+     routing,  or  as  _d_e_s_t_i_n_a_t_i_o_n,,,,_d_e_s_t_i_n_a_t_i_o_n...   for _m_u_l_t_i_c_a_s_t
+     routing,  although  these  modes  may   be   restricted   to
+     privileged users at some sites.
+
+     Destinations  are  usually  the  names  of  regions  in  the
+     network,  where  a region consists of domain names separated
+     by periods, as in _d_o_m_a_i_n_1...._d_o_m_a_i_n_2...._d_o_m_a_i_n_3.  Region addresses
+     may  be  shortened to exclude those domains which are common
+     to the origin  and  destination,  and  there  may  be  other
+     shorthand  forms  available  at your local site for commonly
+     used destinations - check with  your  local  administration.
+     See below for a full syntax for destination addresses.
+
+     If a _f_i_l_e argument is _n_u_l_l, it will cause an error,  but  if
+     it  is  the  name of a directory, it will be ignored after a
+     warning  message.   File  arguments  supply  data  for   the
+     message,  and  are  concatenated  in the order given.  If no
+     files are specified, data will be read from _s_t_d_i_n.
+
+     To use _n_e_t_m_s_g, you must be  validated  for  network  message
+     privileges  by  your  local  system  supervisor,  unless the
+     destination is a `local' node.
+
+     The flag arguments have meanings as follows:
+
+     ----aaaa  Requests that correct delivery of the  message  to  each
+         destination   be   acknowledged.   Acknowledgements  are
+         handled in a way specific to each message handler.
+
+     ----dddd  Prevents this  message  from  triggering  the  auto-call
+         mechanism if present.
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+
+
+
+
+Maintenance Procedures                                  NETMSG(8)
+
+
+
+     ----iiii  Causes  _n_e_t_m_s_g  to  ignore  syntax  errors  in  multiple
+         destinations,  provided at least one of the destinations
+         is correct.
+
+     ----mmmm  Messages over a  certain  size  (normally  set  by  site
+         administrators  to  be  2  megabytes),  are  split  into
+         multiple smaller messages that are sent individually and
+         re-assembled  at the destination.  This doesn't occur if
+         the destination is directly connected to the origin,  or
+         if  this  flag  is  used.  Only works for network _s_u_p_e_r-
+         _u_s_e_r_s.
+
+     ----oooo  Turns off message queueing optimization by  size.   This
+         message  will  instead  be  sent  as  though it were the
+         largest in its priority group.
+
+     ----qqqq  Report the unique message ID generated on _s_t_d_o_u_t.
+
+     ----rrrr  Requests that errors at destinations should be  ignored,
+         otherwise  any  error  causes  the  whole  message to be
+         returned with an explanation.
+
+     ----ssss  Don't issue warnings on stderr.
+
+     ----uuuu  Stops the usage message from being produced on _s_t_d_e_r_r if
+         there is any argument error.
+
+     ----xxxx  Set  reverse  charging  for  message.   Only  works  for
+         network _s_u_p_e_r-_u_s_e_r_s.
+
+     ----AAAA _h_a_n_d_l_e_r
+         The  message  will  be  passed   to   _h_a_n_d_l_e_r   at   the
+         destination.  The handler must not be one registered for
+         any of the standard protocols (see _n_e_t_h_a_n_d_l_e_r_s(5)),  and
+         it  must exist at both source and destination unless the
+         ----rrrr flag  is  used,  or  the  invoker  has  OTHERHANDLERS
+         permission,  in  which  case  it  need only exist at the
+         destination.   The  use  of  non-standard  handlers   is
+         normally   restricted  to  users  with  special  network
+         privileges.  This argument must be present.
+
+     ----DDDD _d_e_s_t_i_n_a_t_i_o_n
+         An explicit way of specifying a destination list.
+
+     ----EEEE _f_l_a_g_s
+         The string will be made available to the handler at  the
+         destination   as   the   header   environment   variable
+         ENV_FLAGS.
+
+     ----FFFF _n_a_m_e
+         _N_a_m_e will be interpreted explicitly as a file name.
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    2
+
+
+
+
+
+
+Maintenance Procedures                                  NETMSG(8)
+
+
+
+     ----IIII _I_D
+         Insert  a  message  ID  into  the  environment  variable
+         ENV_ID.
+
+     ----MMMM _s_i_z_e
+         Large messages will be split into  parts  not  exceeding
+         this  size.   _S_i_z_e must be in the range 8192 to 2097152,
+         unless the invoker has special network privileges.
+
+     ----OOOO[_o_r_i_g_i_n]
+         Renames the source of the message  to  be  _o_r_i_g_i_n  which
+         must  be  a  legal  address, unless the flag ----rrrr is used.
+         Note that _o_r_i_g_i_n, if present, may not be preceded  by  a
+         space.   This  flag  is restricted to the network _s_u_p_e_r-
+         _u_s_e_r.
+
+     ----PPPP _p_r_i_o_r_i_t_y
+         Set the message priority in the range `1' (high) to  `9'
+         (low).   Normal  message  priorities  are  determined by
+         message  size,  with  smaller  messages  having   higher
+         priority.  Messages with priorities greater than `4' are
+         routed via the cheapest route, other messages taking the
+         fastest  route.   Non-privileged  users  may  only lower
+         their message's priority.
+
+     ----TTTT[_l_e_v_e_l]
+         Turns on tracing at _l_e_v_e_l.  If tracing is  not  compiled
+         in, this flag will have no effect.
+
+     ----VVVV _p_r_i_v-_u_s_e_r
+         Informs _n_e_t_m_s_g to use _p_r_i_v-_u_s_e_r rather than the  invoker
+         to  calculate  the  network  permissions  for  following
+         arguments.  This  flag  is  restricted  to  the  network
+         _s_u_p_e_r-_u_s_e_r.
+
+     ----XXXX _f_i_l_e
+         Data from the file named will  be  transmitted  _i_n-_p_l_a_c_e
+         (without  being  copied  first).   If the file is on the
+         same file-system as MHSnet, then it will be linked  into
+         the spool area, othwerise it will be referenced directly
+         (in which case it musn't be removed  until  the  message
+         has  been transmitted).  CCCCaaaavvvveeeeaaaatttt: the file name must be a
+         full path name; the file must be readable by the message
+         transport  system  (ie:  it  should probably have public
+         read permission).
+
+     ----YYYY _t_r_a_v_e_l-_t_i_m_e
+         Specifies that the message has already  been  travelling
+         for  _t_r_a_v_e_l-_t_i_m_e  seconds.  Useful for messages arriving
+         from gateways.
+
+     ----ZZZZ _t_i_m_e-_t_o-_d_i_e
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    3
+
+
+
+
+
+
+Maintenance Procedures                                  NETMSG(8)
+
+
+
+         The message will be discarded on any route  which  takes
+         more than _t_i_m_e-_t_o-_d_i_e seconds before delivery.
+
+     ----   Data will be read from standard input at this point.
+
+     ----????  Explain argument options and exit.
+
+AAAADDDDDDDDRRRREEEESSSSSSSSEEEESSSS
+     The full syntax for a destination is:
+
+       destlist  ::= multicast|explicit|broadcast|dest
+       multicast ::=                 {explicit|broadcast|dest}<,,,,>
+                 {explicit|broadcast|dest}...
+       explicit  ::= {broadcast|dest}<!!!!>{broadcast|dest}...
+       broadcast ::= <****><....>dest
+       dest      ::= <alias>|domain[<....>domain...]
+       domain    ::= [<type><====>]<domain_name>
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEESSSS
+     Send a message containing news to two regions,  at  a  fixed
+     priority, timing out after a week (these parameters could be
+     used by the news posting program to propagate network news):
+
+     ... |
+     _bin/netmsg -dosxP9 -Areporter -Drgn1,rgn2 -Z600000
+
+FFFFIIIILLLLEEEESSSS
+     _lib/handlers    Names  of   common   handlers   and   their
+                      protocols (see _n_e_t_h_a_n_d_l_e_r_s(5)).
+     _lib/localnodes  Optional list  of  legal  sites  for  users
+                      without explicit network validation.
+     _lib/privsfile   Privileges   for   network    users    (see
+                      _n_e_t_p_r_i_v_s(5)).
+     _route/*         Message description commands for routing.
+     _state/routefile Routing tables for resolving addresses.
+     _work/*          Spooled messages.
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _n_e_t_f_i_l_e(1),   _n_e_t_p_r_i_v_s(1),   _n_e_t_h_a_n_d_l_e_r_s(5),    _n_e_t_p_r_i_v_s(5),
+     _n_e_t_w_o_r_k(7), _n_e_t_h_a_n_d_l_e_r_s(8).
+
+DDDDIIIIAAAAGGGGNNNNOOOOSSSSTTTTIIIICCCCSSSS
+     Most diagnostics indicate that you were attempting something
+     illegal, so consult the local network supervisor for further
+     advice.
+
+     illegal handler  The requested handler is either  registered
+                      for  a standard protocol, or you don't have
+                      permission to  use  this  handler,  or  the
+                      handler  is  unregistered,  and you haven't
+                      specified ----rrrr.
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    4
+
+
+
+
+
+
+Maintenance Procedures                                  NETMSG(8)
+
+
+
+     illegal <message> site
+                      The  network  doesn't  believe   that   the
+                      selected  message  type  can be serviced at
+                      the destination named.  This information is
+                      obtained    from   the   optional   address
+                      validation list in the _h_a_n_d_l_e_r_s  file  (see
+                      _n_e_t_h_a_n_d_l_e_r_s(8)).
+
+     no permission    You aren't validated to use the network, or
+                      to  use  a privileged network option.  This
+                      information is obtained from  the  optional
+                      user   network   privileges   list  in  the
+                      _n_e_t_p_r_i_v_s file (see _n_e_t_p_r_i_v_s(1)).
+
+     no routefile     _N_e_t_m_s_g  was  unable  to  read  the  routing
+                      tables into memory.
+
+     not enough space The file system holding the  network  spool
+                      area  has  too  little  space left to spool
+                      another message.  Try again later.
+
+BBBBUUUUGGGGSSSS
+     Because of the semantics of non-flag destination  arguments,
+     if   a   file   name   appears  immediately  after  a  legal
+     destination, but the named file doesn't exist,  then  _n_e_t_m_s_g
+     will attempt to interpret the name as an destination.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    5
+
+
+

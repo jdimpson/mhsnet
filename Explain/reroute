@@ -1,0 +1,12 @@
+
+	-a	Force all messages in holding queues to be re-routed.
+	-e	Re-route matching messages in `_bad' that seem re-routable.
+	-s	Silently.
+	-v	Show each message rerouted.
+
+	The <address> argument should be <old-link>
+	if any of the following three flags are used.
+
+	-b	Break link to <old-link>.
+	-d	Mark link to <old-link> dead.
+	-f	Force all messages queued for <old-link> to be re-routed.

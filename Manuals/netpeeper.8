@@ -1,0 +1,90 @@
+.ds S1 NETPEEPER
+.ds S2 \fINetpeeper\fP
+.ds S3 \fInetpeeper\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 netpeeper
+.TH \*(S1 8 "\*(S4 1.5" \^
+.nh
+.SH NAME
+netpeeper \- request domain information via internet \s-1DNS\s0 lookup
+.SH SYNOPSIS
+.BI \*(S6
+.RI [\- D
+.IR dig_server \|]
+.RI [\- Q
+.IR query_type \|]
+.RI [ @
+.IR DNS_server \|]
+.I domain
+.SH DESCRIPTION
+\*(S2
+will obtain domain information from internet Domain Name Servers (DNS)
+by using the internet
+.IR dig (1)
+program on the indicated
+.IR dig_server .
+[Default: the local host.]
+.PP
+The optional
+.I DNS_server
+argument specifies an alternative DNS server to query.
+.PP
+Information is returned by default on DNS `mx' records matching
+.IR domain .
+If
+.I query_type
+is provided, different record types can be selected. The available
+types are shown in the following table:
+.PP
+.ta \w'hinfoXX'u +\w'T_HINFOXX'u
+.nf
+a	T_A	network address
+any	T_ANY	all/any information about specified domain
+mx	T_MX	mail exchanger for the domain
+ns	T_NS	name servers
+soa	T_SOA	zone of authority record
+hinfo	T_HINFO	host information
+axfr	T_AXFR	zone transfer
+		 (must ask an authoritative server)
+txt	T_TXT	arbitrary number of strings
+		 (not yet supported by BIND)
+.fi
+.PP
+Query information and errors are returned by the
+.I dig_host
+executing
+.IR netmail (1)
+with appropriate arguments.
+.SH EXAMPLES
+Find out whether Personis P/L has an MX record
+registered with the internet name servers:
+.PP
+.RS 2
+.ft CW
+\*(S6 -D munnari.oz.au personis.oz.au
+.ft
+.RE
+.PP
+Obtain all available information about the internet
+address `129.78.8.50':
+.PP
+.RS 2
+.ft CW
+\*(S6 -D munnari.oz.au -Q any 50.8.78.129.in-addr.arpa
+.ft
+.RE
+.SH "SEE ALSO"
+.IR dig (1),
+.IR netmail (1),
+.IR netmsg (8).
+.SH DIAGNOSTICS
+Consult
+.IR netmsg (8)
+for possible diagnostic messages,
+as \*(S3 invokes that program to send the requests.
+See
+.IR dig (1)
+for an explanation of the reply to the domain query.
+If the type of entry returned is NXDOMAIN, the domain supplied
+in the request does not exist.

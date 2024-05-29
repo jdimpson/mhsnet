@@ -1,0 +1,66 @@
+
+
+
+Maintenance Procedures                               NETWINDUP(8)
+
+
+
+NNNNAAAAMMMMEEEE
+     netwindup - terminate network operations gracefully
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     ____bbbbiiiinnnn////nnnneeeettttwwwwiiiinnnndddduuuupppp
+     ____bbbbiiiinnnn////nnnneeeettttppppaaaauuuusssseeee
+     ____bbbbiiiinnnn////nnnneeeettttrrrreeeessssuuuummmmeeee
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_w_i_n_d_u_p is a shell program that stops all  network  links,
+     terminates  the  routing  process  after the current routing
+     queue is emptied, and then shuts down the network.  Mail  is
+     sent to the network administrator signalling the shutdown.
+
+     _N_e_t_w_i_n_d_u_p  scans  the  output  of  the  `netcontrol  status'
+     command for processes beginning with `admin' or `router' and
+     `curtails' them, all other processes are `stopped'.
+
+     _N_e_t_w_i_n_d_u_p  must  be  invoked  with  `root'  or   NETUSERNAME
+     privileges to stop the network.
+
+     NNNNooootttteeee:::: _n_e_t_w_i_n_d_u_p assumes a  certain  format  for  entries  in
+     `_lib/initfile'  as  reported  by `netcontrol status'.  Each
+     entry should begin with an identifier of the form: _t_y_p_e----_n_a_m_e
+     - where _t_y_p_e is common to entries of the same type.
+
+     If invoked as _n_e_t_p_a_u_s_e then only the routing daemons will be
+     curtailed  -  resumed  by _n_e_t_r_e_s_u_m_e.  These two commands are
+     useful to allow message transmission  to  continue,  but  to
+     stop local message delivery during backups.
+
+FFFFIIIILLLLEEEESSSS
+     _route/STOP       The   creation   of   this   file   causes
+                       _n_e_t_r_o_u_t_e_r(8)   to   terminate   after  one
+                       further pass of the routing queue.
+     _route/lock       This file is removed by the router when it
+                       terminates,  so  _n_e_t_w_i_n_d_u_p waits for it to
+                       disappear   before   shutting   down   the
+                       network.
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _n_e_t_m_a_i_l(1),    _n_e_t_w_o_r_k(7),    _n_e_t_c_o_n_t_r_o_l(8),     _n_e_t_i_n_i_t(8),
+     _n_e_t_r_o_u_t_e_r(8).
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+

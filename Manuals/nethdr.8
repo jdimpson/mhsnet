@@ -1,0 +1,66 @@
+.ds S1 NETHDR
+.ds S2 \fINethdr\fP
+.ds S3 \fInethdr\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 _bin/nethdr
+.TH \*(S1 8 "\*(S4 1.7" \^
+.nh
+.SH NAME
+nethdr \- print out contents of network message header files
+.SH SYNOPSIS
+.BI \*(S6
+.I "message-file ..."
+.SH DESCRIPTION
+\*(S2
+reads each argument in turn,
+interpeting it as the name of a file containing a network message header,
+and prints the header information on
+.IR stdout .
+.PP
+The optional flags modify this behaviour:
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-F\fP\ \fIpermissions\fPX'u
+.TP "\*(tw"
+.BI \-a
+Print header fields as shell variable assignments.
+.TP
+.BI \-d
+Don't print any headers.
+Instead, write data part of file to `stdout'.
+.TP
+.BI \-e
+Ignore header errors, and print header `as is'.
+.TP
+.BI \-r
+Queue a `commandsfile' describing message for router
+(ie: \fIre-route\fP the message).
+A link will be made to the message itself,
+so it must be on the same file-system as the network spool area.
+.TP
+.BI \-s
+Return a non-zero exit status if the message contains no data
+(ie: just headers).
+.TP
+.BI \-t
+Don't print any headers.
+Instead, truncate file to remove message headers.
+.TP
+.BI \-L link
+Name the link a message arrived on.
+This arg is optional with the \fB\-r\fP flag,
+and is used to pretend that the new message just arrived over a particular link.
+.TP
+.BI \-T \fR[\fPlevel\fR]\fP
+Turns on tracing at
+.I level
+(default: 1).
+If tracing is not compiled in,
+this flag will have no effect.
+.TP
+.BI \-?
+Explain argument options and exit.
+.SH "SEE ALSO"
+.IR \*(S5 (7),
+.IR netbad (8),
+.IR netcmds (8).

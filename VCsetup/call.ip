@@ -1,0 +1,127 @@
+#!/bin/sh
+
+#	Setup permanent circuit to "link" via a TCP/IP or UDP/IP link.
+#
+#	If the IP name of the target machine is different from the
+#	MHSnet name of the link, then two args should be supplied.
+#
+#	Assumes unreliable IP and 512 byte packets.
+#	For normal IP, use "-r".
+
+USAGE="[-d<daemon>] [-f] [-o<port>] [-p<password>] [-r] [-s<source>] link [target]"
+
+PATH=$PATH:/etc:/usr/ucb:/usr/local:/usr/local/bin
+
+argsdmn=	# -a<arg ...> - optional extra daemon args
+andflag="-&"	# -f - run in foregound [else background]
+daemon=		# -d<daemon> - alternate daemon name
+passwd=		# -p<passwd - optional network passwd
+port=		# -o<number> - optional mhsnet service port
+reliable=	# -r - no need for error detction
+source=		# -s<address> - alternate name for source 
+trace=		# "-Tn"- trace level <n>
+
+case $0 in
+*udp*)	service=udp	# Only on reliable circuits!
+	daemon=ENdaemon	
+	;;
+*tcp*)	service=tcp
+	daemon=VCdaemon	
+	;;
+*)	echo "service?"
+	exit 1		
+	;;
+esac
+
+for i
+do
+	case "${i}" in
+	-a)	shift; argsdmn="$1";			shift	;;
+	-a*)	argsdmn="`expr "${i}" : '-a\(.*\)'`";	shift	;;
+	-d)	shift; daemon="$1";			shift	;;
+	-d*)	daemon="`expr "${i}" : '-d\(.*\)'`";	shift	;;
+	-f)	andflag=;				shift	;;
+	-o)	shift; port="$1";			shift	;;
+	-o*)	port="`expr "${i}" : '-o\(.*\)'`";	shift	;;
+	-p)	shift; passwd="$1";			shift	;;
+	-p*)	passwd="`expr "${i}" : '-p\(.*\)'`";	shift	;;
+	-r)	reliable=true;				shift	;;
+	-s)	shift; source="$1";			shift	;;
+	-s*)	source="`expr "${i}" : '-s\(.*\)'`";	shift	;;
+	-T[0-9])trace="$i";				shift	;;
+	-*)	echo "Usage: $0 $USAGE";		exit 1	;;
+	esac
+done
+
+case $# in
+2)	target=$2			;;
+1)	target=$1			;;
+*)	echo "Usage: $0 $USAGE"; exit 1	;;
+esac
+
+case "$reliable" in
+true)	case "$daemon" in
+	ENdaemon)	dmnargs="-3dnr -G4 -D1024 -X50000"	;;
+	HTdaemon)	dmnargs="-dnr -D8192 -X50000"	;;
+	VCdaemon)	dmnargs="-dnr -D1024 -X50000"		;;
+	*)		echo "Unrecognised daemon!";	exit 1	;;
+	esac
+	;;
+*)	case "$daemon" in
+	ENdaemon)	echo "Only on reliable circuits!";exit 1;;
+	HTdaemon)	dmnargs="-dn -A20 -D512 -X500"	;;
+	VCdaemon)	dmnargs="-dn -D512 -X500"		;;
+	*)		echo "Unrecognised daemon!";	exit 1	;;
+	esac
+	;;
+esac
+
+case "$argsdmn" in
+'')						;;
+*)		dmnargs="$dmnargs $argsdmn"	;;
+esac
+
+daemon="-Ddmnname=$daemon"
+
+case "$port" in
+'')						;;
+*)		port="-Dport=$port"		;;
+esac
+
+case "$source" in
+'')						;;
+*)		source="-Dsource=$source"	;;
+esac
+
+link=$1
+
+SPOOLDIR=/usr/spool/MHSnet
+eval `egrep 'SPOOLDIR' /usr/lib/MHSnetparams 2>/dev/null`
+
+cd ${SPOOLDIR}
+umask 027
+
+case "$link" in
+*=*)	node=`expr ${link} : '[^=]*=\([^\.]*\)'`	;;
+*)	node=`expr ${link} : '\([^\.]*\)'`		;;
+esac
+log=_call/${node}.log
+olog=_call/${node}.ol
+
+if [ -s ${log} ]
+then
+	mv ${log} ${olog}
+fi
+
+exec _lib/VCcall ${andflag} -v $trace \
+	${daemon} \
+	-D "dmnargs=${dmnargs}" \
+	-D "passwdstr=${passwd}" \
+	${port} \
+	-D "server=mhsnet" \
+	-D "service=${service}" \
+	${source} \
+	-D "target=${target}" \
+	-S ip.cs \
+	-X ${log} \
+	${link}

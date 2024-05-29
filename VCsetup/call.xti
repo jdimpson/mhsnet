@@ -1,0 +1,78 @@
+#!/bin/sh
+
+#	Setup circuit to "address" via an XTI (X/Open Transport Interface - usually X25) link.
+
+USAGE="[-f] link cmx_local cmx_remote address circuit [service]"
+
+PATH=$PATH:/etc:/usr/ucb:/usr/local:/usr/local/bin
+
+andflag="-&"	# "-f" - run in foregound [else background]
+trace=		# "-Tn"- trace level <n>
+dmnargs="-dn"	# daemon arguments
+
+for i do
+	case "${i}" in
+	-T[0-9])trace="$i"	; shift	;;
+	-a*)	dmnargs="$dmnargs `expr "${i}" : '-a\(.*\)'`"; shift ;;
+	-f)	andflag=	; shift	;;
+	-*)	echo "Usage: $0 $USAGE"; exit 1;;
+	esac
+done
+
+case $# in
+5)	;;
+6)	service="$6";;
+*)	echo "Usage: $0 $USAGE"; exit 1;;
+esac
+
+link="$1"
+local="$2"
+remote="$3"
+address="$4"
+circuit="$5"
+
+SPOOLDIR=/usr/spool/MHSnet
+eval `egrep 'SPOOLDIR' /usr/lib/MHSnetparams 2>/dev/null`
+
+cd $SPOOLDIR
+umask 027
+
+case "$link" in
+*=*)	node=`expr ${link} : '[^=]*=\([^\.]*\)'`	;;
+*)	node=`expr ${link} : '\([^\.]*\)'`		;;
+esac
+log=_call/${node}.log
+olog=_call/${node}.ol
+
+if [ -s ${log} ]
+then
+	mv ${log} ${olog}
+fi
+
+case $# in
+5)
+	exec _lib/VCcall $andflag -v $trace \
+		-X ${log} \
+		-D "dmnargs=$dmnargs" \
+		-D "local=${local}" \
+		-D "remote=${remote}" \
+		-D "address=${address}" \
+		-D "circuit=${circuit}" \
+		-D "home=${home}" \
+		-S xti.cs \
+		${link}
+	;;
+6)
+	exec _lib/VCcall $andflag -v $trace \
+		-X ${log} \
+		-D "dmnargs=$dmnargs" \
+		-D "local=${local}" \
+		-D "remote=${remote}" \
+		-D "address=${address}" \
+		-D "circuit=${circuit}" \
+		-D "service=${service}" \
+		-D "home=${home}" \
+		-S xti.cs \
+		${link}
+	;;
+esac

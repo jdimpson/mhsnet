@@ -1,0 +1,186 @@
+.ds S1 NETPASSWD
+.ds S2 \fINetpasswd\fP
+.ds S3 \fInetpasswd\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 _bin/netpasswd
+.TH \*(S1 8 "\*(S4 1.8" \^
+.nh
+.SH NAME
+netpasswd \- create password for network site
+.SH SYNOPSIS
+.BI \*(S6
+.RB [\-[ c ][ d ][ n ]]
+.RB \- p |\c
+.I address
+.RI [ comment ...]
+.SH DESCRIPTION
+\*(S2
+creates or modifies entries in the network password file.
+.I Address
+can be any locally resolvable network address,
+and will protect connections from any sites whose node names match it,
+unless it is a broadcast address matching a site that has a valid entry in the
+.if t \f(CW/etc/passwd\fP
+.if n `/etc/passwd'
+file \(em which takes precedence.
+Any additional arguments are written to the entry's comment field.
+.PP
+Adding an entry for a broadcast address is also the way to allow 
+.I promiscuous
+connections to your site from any site within the broadcast region.
+.PP
+\*(S2 sorts the password file in reverse typed address order so that
+.IR netshell (8)
+can scan it looking for the first entry to match a calling site.
+In this way, a broadcast entry for a region can be overridden
+by an entry specific to a particular site.
+.PP
+\*(S2 will warn you if there is an entry
+matching the
+.I address
+argument with a non-null password in the
+.if t \f(CW/etc/passwd\fP
+.if n `/etc/passwd'
+file.
+If you wish to ignore
+.if t \f(CW/etc/passwd\fP
+.if n `/etc/passwd'
+entries and force all sites to be checked against matching network passwords,
+then you should set the parameter
+.SM IGN_ETCPASSWD
+to \fB1\fP in the parameters file
+.if t \f(CW_params/daemon\fP
+.if n `_params/daemon'
+(see
+.IR netshell(8)).
+.PP
+\*(S2 turns off echo when prompting for the password,
+which can be up to 127 characters in length
+(excess characters are ignored).
+An empty line removes the password.
+.PP
+The optional flags are:
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-A\fP\ \fIhandler\fPX'u
+.TP "\*(tw"
+.BI \-c
+Check the password for
+.IR address ,
+instead of creating or modifying it.
+.TP
+.BI \-d
+Delete the entry for
+.IR address .
+.TP
+.BI \-n
+Create a null password entry for
+.IR address .
+.TP
+.BI \-p
+Print the passwd file.
+.TP
+.BI \-T \fR[\fPlevel\fR]\fP
+Turns on tracing at
+.I level
+[default: 1].
+If tracing is not compiled in,
+this flag will have no effect.
+.TP
+.BI \-?
+Explain argument options and exit.
+.SH EXAMPLES
+Create password protection for a local site `castor':
+.PP
+.RS 2
+.ft CW
+\*(S6 castor
+.ft
+.RE
+.PP
+Create password protection for all sites in our organisation:
+.PP
+.RS 2
+.ft CW
+\*(S6 *.mhs.oz.au all sites except castor
+.ft
+.RE
+.PP
+All sites except `castor' (which has its own password)
+will then be prompted for the organisation password.
+The string ``all sites except castor''
+will be placed in the third field of castor's entry.
+.PP
+Create password protection for,
+and validate a promiscuous connection from, a foreign site:
+.PP
+.RS 2
+.ft CW
+\*(S6 NODE=pollux.ORG=XYZ.PRMD=com.COUNTRY=au
+.ft
+.RE
+.SH PARAMETERS
+On starting,
+\*(S3 reads a file in the `_params' directory with the same name as it was invoked under.
+This file can contain the following optional parameters:
+.TP 4
+.SM PASSWDSORT
+This is the command string used to sort the password file by passing it to the shell.
+The default is:
+
+.if n `sort -t. -k2nr %s -o %s'
+.if t \f(CWsort -t. -k2nr %s -o %s\fP
+
+It must sort the passwd file in reverse order on the leading chars after the first period,
+with input taken from the file named by the first `%s',
+and output sent to the file named by the second `%s'.
+.SH ERRORS
+.TP 4
+\f(CWCould not exec "sort ..."\fP
+\*(S2 runs
+.IR sort (1)
+to sort the network password file.
+If the sort fails, then you must fix the problem and try again.
+On some systems you must invoke \*(S3 as "root" for sort to work,
+on others you may be able to fix the problem by changing PASSWDSORT above
+.TP
+\f(CWCould not open "/dev/tty"\fP
+\*(S2 opens
+.I /dev/tty
+to prompt for passwords.
+If your real terminal device is unwriteable by your group id,
+this message may result.
+You can
+.if t \f(CWchmod ug+rw `tty`\fP
+.if n "chmod ug+rw `tty`"
+and try again.
+.TP
+\f(CWNo permission\fP
+You must have network super-user privilege to run \*(S3.
+(See 
+.IR netprivs (1).)
+If you do have network super-user privilege,
+then check that the program \*(S6 is
+.I setuid
+to
+.SM NETUSERNAME
+(see 
+.IR netparams (1)).
+.SH FILES
+.PD 0
+.TP "\w'\f(CW\s-1SPOOLDIR\s0/_call/passwd.lock\fPXX'u"
+\f(CW\s-1SPOOLDIR\s0/_call/passwd\fP
+The network password file.
+.TP
+\f(CW\s-1SPOOLDIR\s0/_call/passwd.lock\fP
+Lock file for the password file.
+.TP
+\f(CW\s-1SPOOLDIR\s0/_call/passwd.tmp\fP
+Temporary file.
+.PD
+.SH "SEE ALSO"
+.IR sort (1),
+.IR netparams (5),
+.IR netpasswd (5),
+.IR \*(S5 (7),
+.IT netshell (8).

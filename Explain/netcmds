@@ -1,0 +1,5 @@
+
+	-a	Print headers as shell assignments.
+	-d	Write data to `stdout'.
+	-e	Ignore header errors.
+	-m	Copy whole message to `stdout'.

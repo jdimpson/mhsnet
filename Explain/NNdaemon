@@ -1,0 +1,16 @@
+
+	-c	Cook bytes on virtual circuit.
+	-d	Terminate if non-batch-mode link goes down.
+	-f	Don't fork on invokation.
+	-g	Don't create "log" (use stderr).
+	-i	Inbound messages only.
+	-l	Don't set new lockfile.
+	-n	Don't adjust packet size to fit throughput.
+	-o	Outbound messages only.
+	-p	Ignore process id in lock file.
+	-r	Don't use CRC on packet data.
+	-s	Don't write statistics to log file.
+	-t	Turnaround - 1/2 duplex mode.
+	-u	Don't generate link UP/DOWN messages.
+	-v	(Ignored.)
+	-z	(Ignored.)

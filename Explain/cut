@@ -1,0 +1,5 @@
+
+	-n	Don't squeeze contiguous new-lines.
+	-s	Don't squeeze contiguous delimiters.
+
+	(List ranges start at `0', and end at `$'.)

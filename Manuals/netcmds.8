@@ -1,0 +1,68 @@
+.ds S1 NETCMDS
+.ds S2 \fINetcmds\fP
+.ds S3 \fInetcmds\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 _bin/netcmds
+.TH \*(S1 8 "\*(S4 1.7" \^
+.nh
+.SH NAME
+netcmds \- print out contents of network message command files
+.SH SYNOPSIS
+.BI \*(S6
+.I "commands-file ..."
+.SH DESCRIPTION
+\*(S2
+reads each argument in turn,
+interpeting it as the name of a file containing network message command descriptors,
+and prints the commands on
+.IR stdout .
+If any of the commands describes a message header,
+it will print out the header information.
+The beginning of the data from the first data file mentioned will also be shown.
+.PP
+The optional flags modify this behaviour:
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-F\fP\ \fIpermissions\fPX'u
+.TP "\*(tw"
+.BI \-a
+Print header fields as shell variable assignments.
+.TP
+.BI \-d
+Write data part of message to `stdout'.
+Don't print any commands or headers.
+.TP
+.BI \-e
+Ignore header errors, and print header `as is'.
+.TP
+.BI \-m
+Write whole message to `stdout', including headers (at end).
+Don't print any commands or headers.
+Result may be examined or re-spooled with 
+.IR nethdr (8).
+.TP
+.BI \-T \fR[\fPlevel\fR]\fP
+Turns on tracing at
+.I level
+(default: 1).
+If tracing is not compiled in,
+this flag will have no effect.
+.TP
+.BI \-?
+Explain argument options and exit.
+.SH EXAMPLES
+Show contents of commands-files describing spooled messages awaiting collection:
+.PP
+.RS 2
+.nf
+.ft CW
+cd SPOOLDIR
+\*(S6 _files/*
+.ft
+.fi
+.RE
+.PD
+.SH "SEE ALSO"
+.IR \*(S5 (7),
+.IR netbad (8),
+.IR nethdr (8).

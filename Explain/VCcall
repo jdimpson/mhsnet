@@ -1,0 +1,8 @@
+
+	-&	Run in background.
+	-p	Ignore old process-id in existing lock file.
+	-t	Testing -- won't create link.
+	-u	Don't let transport daemon signal link changes to router.
+	-v	Complain about locked circuits.
+
+	[Either specify a link, OR all the flags '-H', '-L', and '-N'.]

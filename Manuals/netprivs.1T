@@ -1,0 +1,66 @@
+
+
+
+User Commands                                         NETPRIVS(1)
+
+
+
+NNNNAAAAMMMMEEEE
+     netprivs - show network user privileges
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     ____bbbbiiiinnnn////nnnneeeettttpppprrrriiiivvvvssss [-_f_l_a_g_s] [_u_s_e_r]
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_p_r_i_v_s  prints  the  network  privileges  that  are  being
+     conferred   on   various   users.    If  the  optional  _u_s_e_r
+     argument(s) are present, and the invoker has network  _s_u_p_e_r-
+     _u_s_e_r  privilege,  then  _n_e_t_p_r_i_v_s displays the privileges for
+     each of the named users.  Otherwise the privileges  for  the
+     invoker are displayed.  See _n_e_t_p_r_i_v_s(5) for a description of
+     the privileges.
+
+     The optional flags are:
+
+     ----aaaa  This  flag  displays  the  privileges  for   each   user
+         explicitly  named in the privileges file.  (This flag is
+         restricted to network _s_u_p_e_r-_u_s_e_r_s.)
+
+     ----PPPP _p_r_i_v_s_f_i_l_e
+         Defines an alternative file from which  to  extract  the
+         privileges   information.    See   _n_e_t_p_r_i_v_s(5)   for   a
+         description     of      the      format.       [Default:
+         SPOOLDIR/_lib/privsfile.]
+
+     ----TTTT[_l_e_v_e_l]
+         Turns on tracing at _l_e_v_e_l [default: 1].  If  tracing  is
+         not compiled in, this flag will have no effect.
+
+     ----????  Explain argument options and exit.
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEESSSS
+     Show privileges for the user `daemon':
+
+       _bin/netprivs daemon
+
+FFFFIIIILLLLEEEESSSS
+     SPOOLDIR/_lib/privsfile  Specifies privileges for particular
+                              users   and   groups,  and  default
+                              privileges for the rest.
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _n_e_t_a_d_d_r_e_s_s(5), _n_e_t_p_r_i_v_s(5), _n_e_t_w_o_r_k(7).
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+

@@ -1,0 +1,264 @@
+
+
+
+Maintenance Procedures                               NETFILTER(8)
+
+
+
+NNNNAAAAMMMMEEEE
+     netfilter - filter for network messages to/from other sites
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     ____lllliiiibbbb////ffffiiiilllltttteeeerrrr [-_f_l_a_g_s]
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_f_i_l_t_e_r is an optional general purpose _f_i_l_t_e_r program  for
+     network messages being passed over links to other sites.  It
+     will be invoked by the network  routing  program  to  filter
+     messages  for  a  particular  link if it is specified as the
+     optional filter for the link via the ffffiiiilllltttteeeerrrr command  to  the
+     network  routing  management program.  See _n_e_t_r_o_u_t_e_r(8), and
+     _n_e_t_s_t_a_t_e(8).
+
+     _N_e_t_f_i_l_t_e_r will collect the data  part  of  the  message  and
+     invoke a message filtering program to process the data, with
+     the data from the message piped  into  its  standard  input.
+     The  message  filtering program may modify the data, writing
+     the modified data  to  its  standard  output,  or  leave  it
+     untouched,  informing  _n_e_t_f_i_l_t_e_r  what  has happened via its
+     exit code.  The message filtering program  will  be  invoked
+     with  some optional flags, one guaranteed flag, and eight or
+     ten arguments.  The message filtering program  name  can  be
+     specified  via  the  parameter  file, (see PARAMS below), or
+     defaults to `SPOOLDIR/_lib/name.sh' where _n_a_m_e is  the  name
+     that _n_e_t_f_i_l_t_e_r was invoked under.
+
+     If  the  message  filtering  program  doesn't  exist,   then
+     _n_e_t_f_i_l_t_e_r  will default to copying the message and appending
+     a     statistics     record     to     the     log      file
+     `_stats/<link>.fltr.log'.
+
+     The optional message filtering program flags are:
+
+     ----iiii  This message is _i_n_b_o_u_n_d.
+
+     ----oooo  This message is _o_u_t_b_o_u_n_d.  (One of either ----iiii  or  ----oooo  is
+         always present.)
+
+     ----DDDD_d_e_s_c_r
+         A description  of  the  data  files  that  make  up  the
+         message.   This is a description of where the data piped
+         in on standard input is coming from.   _D_e_s_c_r  takes  the
+         form `<filename>@<start>&<length>;' possibly repeated.
+
+     ----EEEE_f_l_a_g_s
+         All the  environment  flags  from  the  message  header,
+         (including  those  selected out by -F below).  Each flag
+         is terminated by a _s_e_m_i_c_o_l_o_n  (`;'),  and  its  name  is
+         separated from its value by an _a_m_p_e_r_s_a_n_d (`&').
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+
+
+
+
+Maintenance Procedures                               NETFILTER(8)
+
+
+
+     ----FFFF_f_l_a_g_s
+         Any message header _f_i_l_t_e_r flags specified at the source,
+         or  added  at  intermediate  sites (cf: details for exit
+         code  33332222  below).   Each  flag  is  terminated  with   a
+         _s_e_m_i_c_o_l_o_n (`;').
+
+     ----RRRR_r_o_u_t_e
+         The route from the message header.  Each node visited on
+         the route is terminated with a _s_e_m_i_c_o_l_o_n (`;'), with the
+         travel time separated from the nodename by an  _a_m_p_e_r_s_a_n_d
+         (`&').
+
+     The message filtering program arguments are (in order):
+
+      1: _h_o_m_e
+         The address of the local site.
+
+      2: _l_i_n_k
+         The address of the link involved.
+
+      3: _l_i_n_k_d_i_r
+         The directory name of the link involved
+
+      4: _s_i_z_e
+         The size of the data
+
+      5: _h_a_n_d_l_e_r
+         The name of the handler specified for the message.
+
+      6: _I_D[/_p_a_r_t:_m_a_x]
+         The message ID. If the message is one  of  a  number  of
+         parts,  then  the part number will be appended to the ID
+         with a `slash'.
+
+      7: _s_o_u_r_c_e
+         The source address of the message.
+
+      8: _d_e_s_t
+         The destination address for the message
+
+     If the message is using FTP then there will be  two  further
+     arguments:
+
+      9: _s_e_n_d_e_r
+         The name of the sender.
+
+     10: _r_e_c_i_p_i_e_n_t_s
+         The names and addresses of  destination  users  (as  one
+         argument).
+
+     All addresses are presented as internal network addresses.
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    2
+
+
+
+
+
+
+Maintenance Procedures                               NETFILTER(8)
+
+
+
+     The exit codes that can be returned by the message filtering
+     program are as follows:
+
+     0000   The data is untouched.
+
+     8888   The data has been modified.
+
+     11116666  The data is untouched, but the  message  should  not  be
+         delivered  locally.  (This exit code has the same effect
+         as 0000 for outbound messages.)
+
+     22224444  The data has been modified, but the message  should  not
+         be  delivered  locally.   (This  exit  code has the same
+         effect as 8888 for outbound messages.)
+
+     33332222  The data is untouched, but the additional  data  written
+         to  _s_t_d_e_r_r  will be incorporated in the message's header
+         as a filter flag -  which  will  be  made  available  to
+         subsequent  filters  via  the  ----FFFF  flag.  If the flag is
+         preceded by the string `DELETE '''',,,, tttthhhheeeennnn aaaa  mmmmaaaattttcccchhhhiiiinnnngggg  ffffllllaaaagggg
+         wwwwiiiillllllll   bbbbeeee  rrrreeeemmmmoooovvvveeeedddd  ffffrrrroooommmm  tttthhhheeee  hhhheeeeaaaaddddeeeerrrr....   NNNNooootttteeee  tttthhhhaaaatttt  aaaannnnyyyy
+         tttteeeerrrrmmmmiiiinnnnaaaattttiiiinnnngggg <<<<nnnneeeewwww----lllliiiinnnneeee>>>> wwwwiiiillllllll bbbbeeee rrrreeeemmmmoooovvvveeeedddd,,,, aaaannnndddd tttthhhhaaaatttt aaaa  ffffllllaaaagggg
+         wwwwiiiillllllll nnnnooootttt bbbbeeee aaaaddddddddeeeedddd iiiiffff aaaannnn iiiiddddeeeennnnttttiiiiccccaaaallll oooonnnneeee aaaallllrrrreeeeaaaaddddyyyy eeeexxxxiiiissssttttssss....
+
+     44440000  The same as 33332222, but the data has been modified.
+
+     44448888  The same as 33332222 for an outbound message, but  an  inbound
+         message will not be delivered locally.
+
+     55556666  The same as 44448888, but the data has been modified.
+
+     66664444  The message should be dropped.  (An inbound message will
+         be   removed,   an   outbound   message   will   not  be
+         transmitted.)
+
+     111122228888 The message should be returned to its  sender.   If  the
+         filtering  program writes any data to _s_t_d_e_r_r, it will be
+         incorporated in the message header as the reason for the
+         return.
+
+     Any other exit code is treated as an error condition.
+
+PPPPAAAARRRRAAAAMMMMEEEETTTTEEEERRRRSSSS
+     On  starting,  _n_e_t_f_i_l_t_e_r  reads  a  file  in  the  `_params'
+     directory  with the same name as it was invoked under.  This
+     file can contain the following optional parameters:
+
+     FILTERPROG
+         This is the name of the message filtering  program.   If
+         this    parameter   is   undefined,   it   defaults   to
+         `SPOOLDIR/_lib/name.sh' where  _n_a_m_e  is  the  name  that
+         _n_e_t_f_i_l_t_e_r was invoked under.  If the name does not start
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    3
+
+
+
+
+
+
+Maintenance Procedures                               NETFILTER(8)
+
+
+
+         with a leading `/', then `SPOOLDIR/' will be prepended.
+
+     LOGFILE
+         If the message filtering program doesn't  exist,  or  is
+         unexecutable,   then   _n_e_t_f_i_l_t_e_r   defaults  to  logging
+         information about the message in  the  file  defined  by
+         this  parameter.   If  this  parameter  is undefined, it
+         defaults to `SPOOLDIR/_stats/link.fltr.log'  where  _l_i_n_k
+         is  the  name of the link the filter is invoked for.  If
+         the name  does  not  start  with  a  leading  `/',  then
+         `SPOOLDIR/' will be prepended.
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEESSSS
+     Look at some of the example message filtering shell  scripts
+     for  a guide on how to use the arguments and exit codes, eg:
+     the     data     compression/decompression     filter     in
+     `SPOOLDIR/_lib/pressfilter.sh'.   NB:  this  type  of filter
+     must be activated simultaneously at both ends of a link,  as
+     otherwise   the   message  data  will  be  misunderstood  on
+     delivery.
+
+     To activate a new  message  filter,  say  `testfilter.sh'  -
+     which  you  have  created  in `SPOOLDIR/_lib/testfilter.sh',
+     link the filter control program to the new name:
+       cd _S_P_O_O_L_D_I_R
+       ln _lib/filter _lib/testfilter
+
+     Then update the routing tables to know about the filter  for
+     your chosen link:
+       _bin/netstate -rsc <<!
+       filter _l_i_n_k_n_a_m_e _lib/testfilter
+       !
+
+FFFFIIIILLLLEEEESSSS
+     _params/_f_i_l_t_e_r  Optional  parameters  for  _n_e_t_f_i_l_t_e_r   where
+                     _f_i_l_t_e_r  is  the  same  name as _n_e_t_f_i_l_t_e_r was
+                     invoked under.
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _n_e_t_p_a_r_a_m_s(5), _n_e_t_w_o_r_k(7), _n_e_t_r_o_u_t_e_r(8), _n_e_t_s_t_a_t_e(8).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    4
+
+
+

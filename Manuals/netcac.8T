@@ -1,0 +1,132 @@
+
+
+
+Maintenance Procedures                                  NETCAC(8)
+
+
+
+NNNNAAAAMMMMEEEE
+     netcac - network transport daemon connect accounting
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     ____bbbbiiiinnnn////nnnneeeettttccccaaaacccc [-_f_l_a_g_s] [[[[_l_i_n_k]]]]
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_c_a_c  is  a  shell  program  that   summaries   connection
+     statistics  from  the  connect  log.   The optional argument
+     names a particular link  to  be  summarised,  otherwise  all
+     links are summarised.
+
+     The flags are as follows:
+
+     ----DDDD  Turn on debugging - will complain  about  missing  input
+         records.
+
+     ----aaaa  Print both IN and OUT statistics.
+
+     ----cccc _c_o_s_t
+         Calculate cost for connection using _c_o_s_t  as  the  money
+         value per hour of connect time.
+
+     ----dddd  Show `down' time.
+
+     ----ffff _f_i_l_e
+         Take statistics from an alternate file.  If _f_i_l_e is `-',
+         then read from _s_t_d_i_n.
+
+     ----hhhh  Print a header describing each column of output.
+
+     ----iiii _l_i_n_k
+         Add _l_i_n_k to list of ignored links, that will be excluded
+         from the statistics.
+
+     ----kkkk _k_b_y_t_e_s
+         Selects only those  connections  that  transferred  more
+         than _k_b_y_t_e_s thousand bytes.
+
+     ----mmmm _m_i_n_s
+         Selects only those connections  that  lasted  more  than
+         _m_i_n_s minutes.
+
+     ----rrrr  Causes a throughput rate to be calculated for the  total
+         time logged.
+
+     ----ssss  Strip types from domain names (default shows  `internal'
+         type for each domain name).
+
+     ----uuuu  Round-up all connection times to nearest minute.
+
+     ----vvvv  _V_e_r_b_o_s_e listing: one line for every connection.
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+
+
+
+
+Maintenance Procedures                                  NETCAC(8)
+
+
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEE
+     Print   connection   statistics   summary   for   link    to
+     `tmx.mhs.oz.au',  with  a  header  for  each field, limiting
+     selection to connections lasting more than  10  minutes  and
+     transferring more than 10Kb, and print an overall throughput
+     rate:
+       netcac -h -k10 -m10 -r -s tmx.mhs.oz.au
+
+FFFFOOOORRRRMMMMAAAATTTT
+     Each line in the _c_o_n_n_e_c_t file has 8 or 9 fields as  follows:
+     start-date, start-time, weekday, direction, typed-link-name,
+     elapsed-time, messages and data-bytes.   An  optional  ninth
+     field   usually  contains  a  circuit-specific  description.
+     _U_n_i-_p_r_o_c_e_s_s daemons write a single line with  the  direction
+     marked as i&o.
+
+FFFFIIIILLLLEEEESSSS
+     _stats/connect  Connect accounting file with two  lines  per
+                     connection.  If this file does not exist, or
+                     is unwritable, then  connect  accounting  is
+                     disabled.
+     _stats/connect._y_y_m_m_d_d
+                     If  connect  accounting  is  enabled,  these
+                     files  are  created by rotating _c_o_n_n_e_c_t once
+                     every   week   (by    the    shell    script
+                     _lib/weekly).
+     __s_t_a_t_s/_c_o_n_n_e_c_t._y_y_m_m._Z
+                     If  connect  accounting  is  enabled,  these
+                     files  are  created by concatenating _c_o_n_n_e_c_t
+                     files for the previous month at the start of
+                     a   new   month   (by   the   shell   script
+                     _stats/turn-acct).
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _n_e_t_w_o_r_k(7),     _n_e_t_a_c(8),     _n_e_t_d_a_e_m_o_n(8),      _n_e_t_i_n_i_t(8),
+     _n_e_t_s_t_a_t_s_p_r(8).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    2
+
+
+

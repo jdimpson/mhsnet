@@ -1,0 +1,7 @@
+
+	-a	Print headers as shell assignments.
+	-d	Write data to `stdout'.
+	-e	Ignore header errors.
+	-r	Make `commandsfile' for message and route.
+	-s	Return non-zero exit status if no data.
+	-t	Truncate message to remove headers.

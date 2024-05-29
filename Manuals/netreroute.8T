@@ -1,0 +1,198 @@
+
+
+
+Maintenance Procedures                              NETREROUTE(8)
+
+
+
+NNNNAAAAMMMMEEEE
+     netreroute - reroute looping network messages
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     ____bbbbiiiinnnn////nnnneeeettttrrrreeeerrrroooouuuutttteeee [-_f_l_a_g_s] [_a_d_d_r_e_s_s] [_n_e_w-_l_i_n_k] [_f_o_r_w_a_r_d-_v_i_a]
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_r_e_r_o_u_t_e's primary purpose is to reroute  messages  queued
+     in  the  holding  directory for looping messages, but it may
+     also be used to manage link queues in general.
+
+     When a  looping  message  is  detected,  (ie:  one  that  is
+     attempting  to  traverse a particular link for the umpteenth
+     time), the routing process  diverts  it  into  the  __p_e_n_d_i_n_g
+     directory  and  informs  the  management.   Note  that these
+     messages are automatically  re-routed  by  _n_e_t_p_u_r_g_e(8)  when
+     invoked  with  its  ----rrrr  flag,  usually once a day.  However,
+     _n_e_t_r_e_r_o_u_t_e should be used to speed the rerouting, or to deal
+     with   messages  which  cannot  be  automatically  rerouted.
+     _N_e_t_r_e_r_o_u_t_e is then invoked with two arguments, the first the
+     defaulting  address,  and  the second the name of a suitable
+     alternative link.  The _a_d_d_r_e_s_s argument  may  be  a  complex
+     address to match a set of addresses.
+
+     The optional third argument can be specified  to  force  the
+     message  to  be  routed  via  the address _f_o_r_w_a_r_d-_v_i_a before
+     continuing to its original destination.  However, note  that
+     if _n_e_w-_l_i_n_k is the name of a site that is not a direct link,
+     then the message will be _f_o_r_w_a_r_d_e_d to that site anyway.   In
+     either   case,  any  existing  _e_x_p_l_i_c_i_t  addresses  will  be
+     removed, and replaced with _n_e_w-_l_i_n_k.
+
+     _N_e_w-_l_i_n_k may also be an address matching the local site,  in
+     which  case  messages will be re-presented for routing using
+     the routing tables.
+
+     Alternatively, whole queues can be managed by specifying one
+     of  the  flags ----bbbb, ----dddd or ----ffff, when the first address argument
+     should be the name of the link whose queue will be rerouted.
+     Using  the flag ----aaaa causes all messages in the holding queues
+     to be re-routed.
+
+     Any messages queued in the holding  directory  __r_e_r_o_u_t_e  are
+     also re-routed if their destinations match _a_d_d_r_e_s_s.
+
+     Note that the holding directory  for  looping  messages  may
+     also  contain messages whose addresses are unroutable, which
+     you may need to  return  to  their  origin  with  _n_e_t_s_t_o_p(1)
+     unless  you  know  of a suitable intermediate site with more
+     routing information.
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+
+
+
+
+Maintenance Procedures                              NETREROUTE(8)
+
+
+
+     _N_e_t_r_e_r_o_u_t_e attempts to establish a _l_o_c_k file in each of  the
+     directories as it re-routes messages from them.  If the lock
+     can't be made, then  _n_e_t_r_e_r_o_u_t_e  prints  a  warning  message
+     before continuing with another directory.
+
+     The optional flags are:
+
+     ----aaaa  Cause all messages in  the  holding  queues  to  be  re-
+         routed.  May only be used with the ----eeee and ----ssss flags.
+
+     ----bbbb  Break the link to _o_l_d-_l_i_n_k. (Turns  on  flag  ffff.)   Note
+         that  this  will  only break the _o_u_t-_b_o_u_n_d side of links
+         with a filter specified, so that any messages  re-routed
+         can be properly _d_e-_f_i_l_t_e_r_e_d.
+
+     ----dddd  Mark the link to _o_l_d-_l_i_n_k as _d_e_a_d.  (Turns on flag ffff.)
+
+     ----eeee  Search the __b_a_d directory for undamaged messages  to  be
+         re-routed.
+
+     ----ffff  Force all messages queued for _o_l_d-_l_i_n_k  to  be  rerouted
+         via _n_e_w-_l_i_n_k.
+
+     ----ssss  Don't report number of messages re-routed.
+
+     ----vvvv  Show each message rerouted.
+
+     ----LLLL _l_i_n_k
+         Use _l_i_n_k as  the  link  which  is  to  be  searched  for
+         messages with addresses that match _a_d_d_r_e_s_s which will be
+         forwarded via _n_e_w-_l_i_n_k.
+
+     ----PPPP _p_r_i_o_r_i_t_y
+         Only move messages with priorities higher than or  equal
+         to _p_r_i_o_r_i_t_y.
+
+     ----TTTT[_l_e_v_e_l]
+         Turns on tracing at _l_e_v_e_l (default: 1).  If  tracing  is
+         not compiled in, this flag will have no effect.
+
+     ----????  Explain argument options and exit.
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEE
+     Reroute all messages for a particular  region  via  a  well-
+     known site:
+
+       _bin/netreroute *.new.oz.au cs.mu.oz.au
+
+FFFFIIIILLLLEEEESSSS
+     _bad/*            Messages passed to the _b_a_d_h_a_n_d_l_e_r.
+     _pending/*        Looping messages.
+     _reroute/*        Delayed messages.
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    2
+
+
+
+
+
+
+Maintenance Procedures                              NETREROUTE(8)
+
+
+
+     _state/routefile  Routing tables  for  resolving  link  name
+                       arguments.
+     _l_i_n_k/cmds/*       Messages queued for _l_i_n_k.
+     */reroute.lock    Lock  file  established  while  re-routing
+                       messages from a directory.
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _n_e_t_m_a_p(1),  _n_e_t_q(1),  _n_e_t_s_t_o_p(1),  _n_e_t_w_o_r_k(7)   _n_e_t_p_u_r_g_e(8),
+     _n_e_t_c_h_a_n_g_e(8).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    3
+
+
+

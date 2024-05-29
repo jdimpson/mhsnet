@@ -1,0 +1,84 @@
+#
+#	SCCSID	@(#)Makefile0	1.10 96/09/13
+#
+
+BIN		= Bin
+DIRLIB		= Dirlib
+FTHEADER	= FtHeader
+HEADER		= Header
+INC		= Include
+LIB		= Lib
+LIBC		= Libc
+ROUTE		= Route
+STATE		= State
+VCLIB		= VClib
+
+BINDIRLIB	= ../$(BIN)/$(DIRLIB)$(AR_SUFX)
+BINFTHEADER	= ../$(BIN)/$(FTHEADER)$(AR_SUFX)
+BINHEADER	= ../$(BIN)/$(HEADER)$(AR_SUFX)
+BINLIB		= ../$(BIN)/$(LIB)$(AR_SUFX)
+BINLIBC		= ../$(BIN)/$(LIBC)$(AR_SUFX)
+BINROUTE	= ../$(BIN)/$(ROUTE)$(AR_SUFX)
+BINSTATE	= ../$(BIN)/$(STATE)$(AR_SUFX)
+BINVCLIB	= ../$(BIN)/$(VCLIB)$(AR_SUFX)
+
+INCaddress	= ../$(INC)/address.h
+INCArgs		= ../$(INC)/Args.h
+INCcommandfile	= ../$(INC)/commandfile.h
+INCcommands	= ../$(INC)/commands.h
+INCdebug	= ../$(INC)/debug.h
+INCexec		= ../$(INC)/exec.h
+INCexpand	= ../$(INC)/expand.h
+INCforward	= ../$(INC)/forward.h
+INCftheader	= ../$(INC)/ftheader.h
+INCglobal	= ../$(INC)/global.h
+INChandlers	= ../$(INC)/handlers.h
+INCheader	= ../$(INC)/header.h
+INClicence	= ../$(INC)/licence.h
+INClink		= ../$(INC)/link.h
+INClockfile	= ../$(INC)/lockfile.h
+INCmsgsdb	= ../$(INC)/msgsdb.h
+INCndir		= ../$(INC)/ndir.h
+INCparams	= ../$(INC)/params.h
+INCPasswd	= ../$(INC)/Passwd.h
+INCroute	= ../$(INC)/route.h
+INCroutefile	= ../$(INC)/routefile.h
+INCsite		= ../$(INC)/site.h
+INCspool	= ../$(INC)/spool.h
+INCstatefile	= ../$(INC)/statefile.h
+INCstats	= ../$(INC)/stats.h
+INCstrings	= ../$(INC)/_strings.h
+INCstrings-data	= ../$(BIN)/strings-data.h
+INCsub_proto	= ../$(INC)/sub_proto.h
+INCsysexits	= ../$(INC)/sysexits.h
+INCtypedefs	= ../$(INC)/typedefs.h
+
+CFLAGS		= -g
+CONFIG		=
+DEBUG		= -DEBUG=2
+DFLAGS		= $(DEBUG) $(CONFIG)
+INCLUDE		= -I../$(INC) -I../$(BIN)
+LFLAGS		= $(INCLUDE) $(DFLAGS) -DNO_VOID_STAR
+
+LINT		= -lint -a -c -u
+LSED		= sed -e 's/^/	/' -e '/: can.t take & of cmdv/d' \
+		  -e '/: warning: enumeration type clash, operator CAST/d' \
+		  -e '/: warning: long assignment may lose accuracy/d'
+
+.SUFFIXES:	.t .c
+
+.c.o:
+		@echo $(CC) $(CFLAGS) $(INCLUDE) -DEFINES... -c $<; \
+		$(CC) $(CFLAGS) $(INCLUDE) $(DFLAGS) -c $<
+
+.s.o:
+		$(CC) $(CFLAGS) -c $<
+
+.c.t:
+		$(LINT) $(LFLAGS) -DSUN3SPOOLDIR -DSUN3=1 $< \
+		../$(FTHEADER)/llib.ln \
+		../$(HEADER)/llib.ln \
+		../$(ROUTE)/llib.ln \
+		../$(STATE)/llib.ln \
+		../$(LIB)/llib.ln \
+		2>&1 | $(LSED) >$*.t

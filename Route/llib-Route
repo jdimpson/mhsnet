@@ -1,0 +1,64 @@
+#	Copyright 2012 Piers Lauder
+
+#	This file is part of MHSnet.
+
+#	MHSnet is free software: you can redistribute it and/or modify
+#	it under the terms of the GNU General Public License as published by
+#	the Free Software Foundation, either version 3 of the License, or
+#	(at your option) any later version.
+
+#	MHSnet is distributed in the hope that it will be useful,
+#	but WITHOUT ANY WARRANTY; without even the implied warranty of
+#	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#	GNU General Public License for more details.
+
+#	You should have received a copy of the GNU General Public License
+#	along with MHSnet.  If not, see <http://www.gnu.org/licenses/>.
+
+
+#define	STDIO
+
+#include	"global.h"
+#include	"address.h"
+#include	"link.h"
+#include	"Passwd.h"
+#include	"routefile.h"
+
+/*        */	void	AddAddr(ap,b) Addr **ap, *b; { return; }
+/*        */	bool	AddrAtHome(ap,r,f) Addr **ap; bool r,f; { return false; }
+/*        */	char *	AddrInToStr(a,s,t) Addr *a; char *s; bool t; { return NULLSTR; }
+/*        */	bool	AddrIsBC(ap) Addr *ap; { return false; }
+/*        */	char *	AddrToString(a,t) Addr *a; ExpType t; { return NULLSTR; }
+/*        */	char *	CanonString(a) char *a; { return a; }
+/*        */	char *	CheckAddr(ap,p,e,b) Addr **ap; Passwd *p; vFuncp e; bool b; { return NULLSTR; }
+/*        */	bool	CheckRoute(b) bool b; { return false; }
+/*        */	Addr *	CloneAddr(a) Addr *a; { return a; }
+/*        */	bool	DoRoute(s,d,k,l,f,e) Addr *s, **d; int k; Link *l; vFuncp f, e; { return false; }
+/*        */	char *	ExpTypAddress(a) Addr *a; { return NULLSTR; }
+/*        */	char *	ExpTypName(a) Addr *a; { return NULLSTR; }
+/*        */	Addr *	ExtractAddr(ap) Addr **ap; { return *ap; }
+/*        */	What	FindAddr(a,l,r) Addr *a; Link *l; int r; { return wh_none; }
+/*        */	What	FindDest(a,l,r) Dest *a; Link *l; int r; { return wh_none; }
+/*        */	bool	FindLink(n,l) char *n; Link *l; { return false; }
+/*        */	char *	FirstUnTypedName(a) Addr *a; { return NULLSTR; }
+/*        */	void	FreeAddr(ap) Addr **ap; { return; }
+/*        */	void	FreeDest(ap) Dest **ap; { return; }
+/*        */	char *	FwdDest(d) char *d; { return NULLSTR; }
+/*        */	void	GetLink(l,i) Link *l; Index i; { return; }
+/*        */	char *	MapDest(d) char *d; { return NULLSTR; }
+/*        */	char *	MapRegion(d) char *d; { return NULLSTR; }
+/*        */	char *	MapType(d) char *d; { return NULLSTR; }
+/*        */	void	MatchTypes(d) Dest *d; { return; }
+/*        */	void	PrintMaps(f,v) FILE *f; bool v; { return; }
+/*        */	void	PrintRoute(f,v) FILE *f; bool v; { return; }
+/*        */	bool	ReadRoute(b) bool b; { return false; }
+/*        */	void	RemoveAddr(ap) Addr **ap; { return; }
+/*        */	char *	SearchNames(a) char *a; { return NULLSTR; }
+/*        */	TypeEnt *	SearchTypeTab(t,n,s) TypeEnt *t; Index n; char *s; { return (TypeEnt *)0; }
+/*        */	Dest *	SplitDest(s) char *s; { return (Dest *)0; }
+/*        */	bool	StringAtHome(s) char *s; { return false; }
+/*        */	Addr *	StringToAddr(s, r) char *s; bool r; { return (Addr *)0; }
+/*        */	char *	TypedAddress(a) Addr *a; { return NULLSTR; }
+/*        */	char *	TypedName(a) Addr *a; { return NULLSTR; }
+/*        */	char *	UnTypAddress(a) Addr *a; { return NULLSTR; }
+/*        */	char *	UnTypName(a) Addr *a; { return NULLSTR; }

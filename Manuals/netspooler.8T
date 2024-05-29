@@ -1,0 +1,198 @@
+
+
+
+Maintenance Procedures                              NETSPOOLER(8)
+
+
+
+NNNNAAAAMMMMEEEE
+     netspooler - spooler for messages for foreign networks
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     ____lllliiiibbbb////ssssppppoooooooolllleeeerrrr [-_f_l_a_g_s]
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_s_p_o_o_l_e_r  is  an  optional  _s_p_o_o_l_e_r  program  for  network
+     messages being passed to a foreign network gateway.  It will
+     be invoked by the network routing program to spool  messages
+     for  a  particular  link  if it is specified as the optional
+     spooler for the link via the ssssppppoooooooolllleeeerrrr command to the  network
+     routing   management   program.    See   _n_e_t_r_o_u_t_e_r(8),   and
+     _n_e_t_s_t_a_t_e(8).    _N_e_t_s_p_o_o_l_e_r   will   parse   each   message's
+     addresses,  and  invoke  a message receiving program once to
+     handle each address part, with the  data  from  the  message
+     piped into its standard input.
+
+     The default message receiving  program  is  a  shell  script
+     called `SPOOLDIR/_lib/spooler.sh' (where _s_p_o_o_l_e_r is the name
+     that _n_e_t_s_p_o_o_l_e_r is invoked under).   The  message  receiving
+     program  will  be  invoked  with several optional flags, and
+     seven or ten arguments, depending  on  whether  the  message
+     contains  an  FTP  header.   As  well  as  the  full  domain
+     versions,  source  and  destination   addresses   are   also
+     presented as node names, or perhaps _e_x_p_l_i_c_i_t in UUCP style.
+
+     The optional message receiving program flags are:
+
+     ----DDDD_d_u_p_a_d_d_r
+         The address of a site where the message  may  have  been
+         duplicated.
+
+     ----EEEE_e_r_r_o_r
+         The message encountered a delivery error, and  is  being
+         returned for this reason.
+
+     ----FFFF_f_l_a_g_s
+         Any message header flags for the  handler  specified  at
+         the source.
+
+     ----IIII_I_D
+         This message is the result of an earlier message,  whose
+         unique identifier was ID.
+
+     ----LLLL_n_a_m_e
+         If the local routing tables specify  an  alternate  name
+         for the link for which _n_e_t_s_p_o_o_l_e_r is being invoked, then
+         it is passed via this flag.
+
+     ----OOOO_o_r_i_g_i_n
+         The first address in the header route if it is  not  the
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+
+
+
+
+Maintenance Procedures                              NETSPOOLER(8)
+
+
+
+         same as the source address.
+
+     ----TTTT_t_r_u_n_c_a_d_d_r
+         The address of a site where the message was truncated.
+
+     The message receiving program arguments are (in order):
+
+      1: _h_a_n_d_l_e_r
+         The name of the message handler.
+
+      2: _I_D
+         The message ID from the header.
+
+      3: _s_i_z_e
+         The size of the data in the message.
+
+      4: _s_o_u_r_c_e
+         The source node name.
+
+      5: _s_o_u_r_c_e._d_o_m_a_i_n_s
+         The full source address.
+
+      6: _d_e_s_t_i_n_a_t_i_o_n
+         The destination address.
+
+      7: _d_e_s_t._d_o_m_a_i_n_s
+         The full destination address.
+
+     If the message is using FTP then there will be three further
+     arguments:
+
+      8: _s_e_n_d_e_r
+         The name of the sender.
+
+      9: _r_e_c_e_i_v_e_r
+         The name of the intended recipient.
+
+     10: _n_a_m_e
+         The name of the data.
+
+PPPPAAAARRRRAAAAMMMMEEEETTTTEEEERRRRSSSS
+     On starting,  _n_e_t_s_p_o_o_l_e_r  reads  a  file  in  the  `_params'
+     directory  with the same name as it was invoked under.  This
+     file can contain the following optional parameters:
+
+     FOREIGNUSERNAME
+         The name of  the  user  to  run  the  message  receiving
+         program under [default: `daemon'].
+
+     RECEIVER
+         The name of  the  message  receiving  program  [default:
+         `SPOOLDIR/_lib/spooler.sh'].  If the name does not start
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    2
+
+
+
+
+
+
+Maintenance Procedures                              NETSPOOLER(8)
+
+
+
+         with a leading `/', then `SPOOLDIR/' will be prepended.
+
+     TRACEFLAG
+         Turn on tracing to aid debugging.  A value of  1  should
+         be sufficient.
+
+     TRACELOG
+         The full pathname of a file where the _t_r_a_c_e output  will
+         be appended.
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEESSSS
+     Look at the UUCP message receiving program for an example on
+     how to parse these arguments for a UUCP gateway.
+
+     To activate a new message spooler,  say  `testspooler.sh'  -
+     which  you  have  created in `SPOOLDIR/_lib/testspooler.sh',
+     link the spooler control program to the new name:
+       cd _S_P_O_O_L_D_I_R
+       ln _lib/spooler _lib/testspooler
+
+     Then update the routing tables to know about the spooler for
+     your chosen link:
+       _bin/netstate -rsc <<!
+       spooler _l_i_n_k_n_a_m_e _lib/testspooler
+       !
+
+FFFFIIIILLLLEEEESSSS
+     _lib/UUCP.sh    This  is  the  default   message   receiving
+                     program  for  UUCP  gateways.  It is a shell
+                     script that  parses  the  arguments  into  a
+                     format  suitable for invoking _u_u_x to deliver
+                     the message via a UUCP connection.
+     _lib/SMTP.sh    This is another message  receiving  program.
+                     It   parses  the  arguments  into  a  format
+                     suitable for invoking  /_u_s_r/_l_i_b/_s_e_n_d_m_a_i_l  to
+                     process a mail message via an SMTP gateway.
+     _params/_s_p_o_o_l_e_r Optional  parameters  for  _n_e_t_s_p_o_o_l_e_r  where
+                     _s_p_o_o_l_e_r  is  the same name as _n_e_t_s_p_o_o_l_e_r was
+                     invoked under.
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _n_e_t_p_a_r_a_m_s(5), _n_e_t_w_o_r_k(7), _n_e_t_r_o_u_t_e_r(8), _n_e_t_s_t_a_t_e(8).
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    3
+
+
+

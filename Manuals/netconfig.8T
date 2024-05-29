@@ -1,0 +1,66 @@
+
+
+
+Maintenance Procedures                               NETCONFIG(8)
+
+
+
+NNNNAAAAMMMMEEEE
+     netconfig - start network configuration program
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     ____bbbbiiiinnnn////nnnneeeettttccccoooonnnnffffiiiigggg
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_c_o_n_f_i_g should be run with `root' privileges to  configure
+     the network, and start or restart operation.  _N_e_t_c_o_n_f_i_g is a
+     shell script that changes to the network directory `_config'
+     and  executes the menu-driven configuration programs.  These
+     programs help create the various network control files, such
+     as  the  site  and  link  details, and incorporate them into
+     network operations.
+
+FFFFIIIILLLLEEEESSSS
+     _lib/initfile        Network control  instructions  used  by
+                          _n_e_t_i_n_i_t(8).
+     _state/commandsfile  Site details describing  local  network
+                          topology to control _n_e_t_s_t_a_t_e(8).
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _n_e_t_w_o_r_k(7),    _n_e_t_c_o_n_t_r_o_l(8),    _n_e_t_i_n_i_t(8),    _n_e_t_s_t_a_r_t(8),
+     _n_e_t_s_t_a_t_e(8), _n_e_t_w_i_n_d_u_p(8).
+
+CCCCAAAAVVVVEEEEAAAATTTT
+     If you manually edit either of the  files  above,  then  you
+     should  be  aware that reusing _n_e_t_c_o_n_f_i_g will overwrite your
+     changes.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+

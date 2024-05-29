@@ -1,0 +1,1254 @@
+
+
+
+Maintenance Procedures                                 NETCALL(8)
+
+
+
+NNNNAAAAMMMMEEEE
+     netcall - create a virtual circuit  to  a  remote  host  and
+     start a network daemon
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     ____lllliiiibbbb////VVVVCCCCccccaaaallllllll [-_f_l_a_g_s] [_l_i_n_k]
+
+     ____bbbbiiiinnnn////nnnneeeettttccccaaaallllllll [_l_i_n_k]
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_c_a_l_l is the default program used  to  set  up  a  virtual
+     circuit   to   another  site  to  exchange  spooled  network
+     messages.  It is either invoked automatically by the routing
+     program  for  links marked as _a_u_t_o-_c_a_l_l (see AUTO_CALL LINKS
+     below), or can be invoked directly, eg: by _n_e_t_i_n_i_t(8).   The
+     program `_bin/netcall' is a shell program that starts a call
+     to _l_i_n_k by invoking `_lib/VCcall' from _n_e_t_i_n_i_t.
+
+     Hosts may either have permanent connections to the  network,
+     or   can  be  called  at  regular  intervals,  via  whatever
+     communication  means  that  are  available,  possibly  X.25,
+     TCP/IP,  _a_u_t_o-_d_i_a_l  modems,  or even direct connections over
+     RS-232 circuits.  For the sake of security, the remote  host
+     should  have  a  _l_o_g_i_n account configured with a _n_e_t_s_h_e_l_l(8)
+     and a password (see also _n_e_t_p_a_s_s_w_d(8)).
+
+     An alternate program to set up  a  virtual  circuit  can  be
+     specified  using  the  _n_e_t_s_t_a_t_e  command ccccaaaalllllllleeeerrrr.  It will be
+     invoked with the flags as noted below (those tagged with *),
+     although the flag ----SSSS will only appear if a file named `call'
+     containing a _c_a_l_l-_s_c_r_i_p_t exists in the  target  host's  link
+     directory.  The call-script language is described later.
+
+     After opening the file containing the  call-script,  _n_e_t_c_a_l_l
+     changes  its  working  directory  to  the target host's link
+     directory (creating it if necessary) and proceeds to execute
+     the call-script statements.
+
+     _N_e_t_c_a_l_l  interprets  _c_a_l_l-_s_c_r_i_p_t_s  written   in   a   simple
+     language.   The _c_a_l_l-_s_c_r_i_p_t should be designed to understand
+     the peculiarities of the connection process, _l_o_g _i_n  to  the
+     remote  account  successfully,  using  statements  from  the
+     language described below,  and  invoke  a  suitable  virtual
+     circuit transport daemon.
+
+     If a file named `callprog' exists in  the  link's  operating
+     directory,  or  if not there, then in the "_call" directory,
+     it will be executed  in  the  transport  daemon's  operating
+     directory  by  _s_h(1)  before the message transport daemon is
+     started.  It will be passed three arguments: the name of the
+     link,  the  name  of  the  transport daemon, and the name of
+     _n_e_t_c_a_l_l.  It will have standard input and output set to  the
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+
+
+
+
+Maintenance Procedures                                 NETCALL(8)
+
+
+
+     virtual circuit.  Note that if `callprog' has an owner other
+     than NETUSERNAME or a group other than NETGROUPNAME,  or  is
+     publicly writable, then it will be ignored.
+
+     On termination,  _n_e_t_c_a_l_l  writes  a  one  line  call  status
+     summary to the file `SPOOLDIR/_call/log'.
+
+     _N_e_t_c_a_l_l's action may be modified by the following flags:
+
+     ----&&&&* Fork, and run the call in the background.
+
+     ----tttt  Testing only - no links will be created.   The  linkname
+         argument  will create a spooling directory with the same
+         name.
+
+     ----pppp  Ignore old _p_r_o_c_e_s_s _i_d in any existing lock file.
+
+     ----uuuu  Don't let transport daemon signal link  status  changes.
+         Otherwise,  link status messages are sent to the router.
+         This is the default if the `nochange' flag  is  set  for
+         the link.
+
+     ----vvvv  Verbose - complains if another call is already active on
+         _l_i_n_k.
+
+     ----DDDD _d_e_f_i_n_i_t_i_o_n
+         Pre-define a symbol for  the  script.   _D_e_f_i_n_i_t_i_o_n  must
+         take  the  form _s_y_m_b_o_l====_v_a_l_u_e as in: -D linespeed=9600 If
+         there are spaces in _v_a_l_u_e then they must be  quoted,  as
+         in: -D args="-D512 -X960"
+
+     ----HHHH _h_o_m_e _a_d_d_r_e_s_s****
+         Specifies the full network name of the host that _n_e_t_c_a_l_l
+         is   running  on.   [Default:  taken  from  the  routing
+         tables.]
+
+     ----KKKK _a_c_c_t _s_t_r_i_n_g
+         Optional string to be passed to the transport daemon  to
+         be appended to the _c_o_n_n_e_c_t log on termination.  Default:
+         device name, or circuit type.
+
+     ----LLLL _l_i_n_k _a_d_d_r_e_s_s****
+         Specifies the full network name for the target host that
+         _n_e_t_c_a_l_l  is being invoked to call.  [Default: taken from
+         the routing tables.]
+
+     ----NNNN _l_i_n_k _d_i_r****
+         Specifies the pathname (relative to  SPOOLDIR)  for  the
+         directory for the target host.  [Default: taken from the
+         routing tables.]
+
+     ----SSSS _c_a_l_l-_s_c_r_i_p_t****
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    2
+
+
+
+
+
+
+Maintenance Procedures                                 NETCALL(8)
+
+
+
+         The pathname of the call script to be interpreted.  This
+         will  be  interpreted  relative  the  target host's link
+         directory.  If no file name _c_a_l_l-_s_c_r_i_p_t exists,  and  it
+         doesn't  start  with  a leading `/', then if _c_a_l_l-_s_c_r_i_p_t
+         contains a `/', _n_e_t_c_a_l_l will try `SPOOLDIR/_c_a_l_l-_s_c_r_i_p_t',
+         otherwise   _n_e_t_c_a_l_l   will  try  `SPOOLDIR/_l_i_n_k_d_i_r/_c_a_l_l-
+         _s_c_r_i_p_t',   followed   by   `SPOOLDIR/_call/_c_a_l_l-_s_c_r_i_p_t',
+         [Default:  the  file  named  `call' in the target host's
+         link directory.]
+
+     ----TTTT_n Activate tracing at level _n.  If tracing is not compiled
+         in,  this flag will not produce _t_r_a_c_e output.  This flag
+         also controls the _m_o_n_i_t_o_r level (see below).
+
+     ----XXXX _l_o_g-_f_i_l_e
+         Use _l_o_g-_f_i_l_e (opened in  _a_p_p_e_n_d  mode)  for  all  _s_t_d_e_r_r
+         output.
+
+     ----????  Explain argument options and exit.
+
+     The optional non-flag argument may be used instead  of  both
+     the  ----LLLL  and ----NNNN flags.  In which case it can be any suitable
+     address that uniquely identifies a particular link.
+
+CCCCAAAALLLLLLLL----SSSSCCCCRRRRIIIIPPPPTTTT LLLLAAAANNNNGGGGUUUUAAAAGGGGEEEE
+     A script to be interpreted by _n_e_t_c_a_l_l consists of  a  series
+     of statements that take the form:
+
+          [label:] command [parameter[,...]];
+
+     The  term  _s_t_r_i_n_g  indicates  either  a  literal  string  of
+     characters  enclosed  in double quotes or a string variable.
+     The term _p_a_t_t_e_r_n is  also  a  _s_t_r_i_n_g  containing  a  regular
+     expression  as  for  _e_g_r_e_p(1),  but without alternation (||||).
+     The term _i_n_t_e_g_e_r indicates either a literal  integer  or  an
+     integer variable.  Comments are enclosed between ////**** and ****////.
+
+     Note that strings may be made  to  contain  non-alphanumeric
+     characters  by  using the escape sequence `\n' (where `n' is
+     one or more octal digits representing the ASCII value of the
+     character).   The  more  common  cases  may  be  encoded  as
+     follows: `\b' (back-space - `\10'), `\t' (tab - `\11'), `\n'
+     (new-line  -  `\12'),  `\f'  (form-feed  -  `\14'), and `\r'
+     (carriage-return - `\15').
+
+     The commands and optional parameters are as follows:
+
+     ccccaaaallllllll _p_a_t_h_n_a_m_e
+         A call script in the  file  _p_a_t_h_n_a_m_e  is  invoked  as  a
+         subroutine.   Execution  returns  to  the current script
+         when the end of the subroutine script is reached.  If no
+         file   name  _p_a_t_h_n_a_m_e  exists,  then  _n_e_t_c_a_l_l  will  try
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    3
+
+
+
+
+
+
+Maintenance Procedures                                 NETCALL(8)
+
+
+
+         alternate pathnames as for the ----SSSS flag above.
+
+     cccclllloooosssseeee
+         The communication line is closed.
+
+     ccccrrrrcccc _i_d_e_n_t_i_f_i_e_r _s_t_r_i_n_g [_s_t_r_i_n_g ...]
+         Set _i_d_e_n_t_i_f_i_e_r to be the string value of the 16-bit  CRC
+         of the concatenated string parameters.
+
+     ddddaaaaeeeemmmmoooonnnn _p_a_t_h_n_a_m_e
+         Specify an alternate virtual circuit transport daemon in
+         _p_a_t_hname.   If no program called _p_a_t_h_n_a_m_e exists, and it
+         doesn't start with  a  leading  `/',  then  if  _p_a_t_h_n_a_m_e
+         contains  a  `/',  _n_e_t_c_a_l_l  will  try SPOOLDIR/_p_a_t_h_n_a_m_e,
+         otherwise _n_e_t_c_a_l_l will try SPOOLDIR/_lib/_p_a_t_h_n_a_m_e.
+
+     ddddeeeevvvviiiicccceeee _f_u_n_c_t_i_o_n [_a_r_g_u_m_e_n_t ...]
+         Perform  some  operation  defined  by  _f_u_n_c_t_i_o_n  on  the
+         currently open device (the same as that specified for an
+         earlier _o_p_e_n command).  Optional arguments may be passed
+         to _f_u_n_c_t_i_o_n.  Common functions are:
+
+         "break"
+             Output a _b_r_e_a_k condition on an RS-232 line.
+
+         "cook"
+             Turn off _R_A_W mode.
+
+         "flush"
+             Flush both input and output.
+
+         "local"
+             Ignore  modem  control  signals  (_C_L_O_C_A_L  or  _L_N_O_M_D_M
+             mode).   This flag may also be passed as a parameter
+             to the ooooppppeeeennnn command below.
+
+         "offdelay"
+             Turn off the O_NDELAY flag and unset  O_NDELAY  mode
+             for  the circuit.  This flag may also be passed as a
+             parameter to the ooooppppeeeennnn command below.
+
+         "ondelay"
+             Turn on the O_NDELAY flag and set O_NDELAY mode  for
+             circuit.    This  flag  may  also  be  passed  as  a
+             parameter to the ooooppppeeeennnn command below.
+
+         "raw" [vmin [vtime]]
+             Set device in _R_A_W mode.  The optional arguments  are
+             the  VMIN and VTIME parameters for SYSTEM V _t_t_y I/O,
+             [default: "1" "0"].  NB: if VMIN is > 1, then  VTIME
+             must be > 0 (and defaults to 1).  A read will not be
+             satisfied until at least VMIN characters  have  been
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    4
+
+
+
+
+
+
+Maintenance Procedures                                 NETCALL(8)
+
+
+
+             received  or  the  timeout  value VTIME (in units of
+             1/10 of a second) has  expired  between  characters.
+             This   allows  fast  bursts  of  input  to  be  read
+             efficiently.
+
+         "remote"
+             Turn off `local' mode.  This flag may also be passed
+             as a parameter to the ooooppppeeeennnn command below.
+
+         "speed" number
+             Set the speed of the device as per argument.
+
+         "stty" [argument ...]
+             Run the _s_t_t_y (_1) program on the line with the passed
+             arguments.
+
+         "uucplock"
+             Set a  `uucp'  style  lock  on  the  device  if  the
+             parameter  UUCPLOCKS  is set (see PARAMETERS below).
+             This  function  should  only  be  used  with  `open'
+             commands,  and  precludes  the use of the _e_x_e_c_d_a_e_m_o_n
+             command (use _f_o_r_k_d_a_e_m_o_n instead).
+
+         "xonoff"
+             Place the line in XON/XOFF mode.
+
+         These functions are provided  by  device-specific  code,
+         and  so  not  all  functions  are  available  with every
+         device.
+
+         A string describing  the  result  of  the  operation  is
+         placed  in  the  variable RESULT. The predefined strings
+         DEVOK (the function was successful) and  DEVFAIL  (there
+         was  a  fatal error, with the reason written to the log)
+         are available to match against the RESULT  string.   Any
+         other  value  is  a  non-fatal  reason  returned  by the
+         function.
+
+     eeeexxxxeeeeccccddddaaaaeeeemmmmoooonnnn [_a_r_g_u_m_e_n_t_s]
+         Execute the  chosen  transport  daemon  at  this  point.
+         _N_e_t_c_a_l_l  invokes  the  daemon  directly,  so there is no
+         return - which implies  there  must  be  no  outstanding
+         locks.  An optional set of arguments to be passed to the
+         daemon may also be specified.  If a file named  `params'
+         exists  in  the link directory, then it will be read for
+         additional daemon arguments.
+
+     eeeexxxxppppeeeecccctttt _p_a_t_t_e_r_n _l_a_b_e_l [[, _p_a_t_t_e_r_n _l_a_b_e_l] ...]
+         This command reads input from the communication line  up
+         to  and including one of the characters appearing in the
+         string variable DELIMCHARS, and  matches  the  resulting
+         string against the list of patterns.  [The default value
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    5
+
+
+
+
+
+
+Maintenance Procedures                                 NETCALL(8)
+
+
+
+         for DELIMCHARS is  ":\n\r".]   On  a  successful  match,
+         interpretation  continues  at  the  given  label.  If no
+         match is  found,  the  next  string  is  read  from  the
+         communication  line, and so on.  In order to prevent the
+         script from `hanging' at this point,  it  is  normal  to
+         include the _b_u_i_l_t-_i_n pattern TIMEOUT with an appropriate
+         label to allow processing to continue (see  the  _t_i_m_e_o_u_t
+         statement below).  Other _b_u_i_l_t-_i_n patterns are:
+
+         EOF Signals the reception of an `end-of-file' indication
+             from the communication line.
+
+         TERMINATE
+             Signals that system termination has been  requested.
+             The script should clean up and exit.
+
+         The input line matched  is  available  in  the  variable
+         INPUT.
+
+     ffffaaaaiiiillll _s_t_r_i_n_g ...
+         Terminate  the  interpretation  of  this  script  giving
+         _s_t_r_i_n_g as the termination message.
+
+     ffffoooorrrrkkkkccccoooommmmmmmmaaaannnndddd _c_o_m_m_a_n_d [_a_r_g_u_m_e_n_t_s]
+         Execute _c_o_m_m_a_n_d with optional arguments.  If any  device
+         has  been  opened,  it  is  passed  to  _c_o_m_m_a_n_d  on file
+         descriptors 0  &  1.   _C_o_m_m_a_n_d  must  be  owned  by  the
+         network, and not be publicly writable.
+
+     ffffoooorrrrkkkkddddaaaaeeeemmmmoooonnnn [_a_r_g_u_m_e_n_t_s]
+         Execute the chosen transport daemon as a sub-process  at
+         this  point.   When  the daemon terminates, control will
+         return to the script after this statement.  An  optional
+         set  of arguments to be passed to the daemon may also be
+         specified.  If a file named `params' exists in the  link
+         directory,  then  it  will be read for additional daemon
+         arguments.
+
+     mmmmaaaattttcccchhhh _s_t_r_i_n_g _p_a_t_t_e_r_n _l_a_b_e_l [[, _p_a_t_t_e_r_n _l_a_b_e_l] ...]
+         The string is matched against the patterns in order.  If
+         a   match  is  found,  control  is  transferred  to  the
+         associated  label.   If  no  match  occurs,   the   next
+         statement is executed.  Undefined strings can be matched
+         with the _b_u_i_l_t-_i_n pattern UNDEFINED.
+
+     mmmmooooddddeeee _a_r_g_u_m_e_n_t ...
+         Optional arguments to be passed to the transport daemon.
+
+     mmmmoooonnnniiiittttoooorrrr [_i_n_t_e_g_e_r]
+         Switch on debug monitoring.  Three levels  are  normally
+         provided,  each  of  increasing verbosity.  Level 1 will
+         cause all output to the communications line to be echoed
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    6
+
+
+
+
+
+
+Maintenance Procedures                                 NETCALL(8)
+
+
+
+         to  _s_t_d_e_r_r.   Level 2 will also cause all input from the
+         communications line to be echoed  to  _s_t_d_e_r_r.   Level  3
+         shows  patterns  being matched against input.  [Default:
+         toggle the level between 0000 and 1111.]
+
+     nnnneeeexxxxtttt _l_a_b_e_l
+         The next command to be interpreted will be after _l_a_b_e_l.
+
+     ooooppppeeeennnn _d_e_v_i_c_e-_n_a_m_e [_a_r_g_u_m_e_n_t ...]
+         A function is called to open the device specified by the
+         string _d_e_v_i_c_e-_n_a_m_e.  Optional arguments may be passed to
+         the function.  This device stays open until a  following
+         _c_l_o_s_e  command,  and is operated on by all other device-
+         specific commands.  Common _d_e_v_i_c_e-_n_a_m_e_s are:
+
+         "fd" number
+             Uses  the  file  descriptor  _n_u_m_b_e_r  opened   before
+             activation  of _n_e_t_c_a_l_l.  If needed, the `device raw'
+             command must be used.
+
+         "file" name
+             Opens the file _n_a_m_e for read/write.
+
+         "tcp" name server [port [source]]
+             Opens a TCP/IP circuit.  The first argument  is  the
+             target  IP name, the second is the server name.  The
+             optional third  argument  specifies  a  port  number
+             [default `0' causes lookup in `/etc/services'].  The
+             optional fourth argument specifies a source  address
+             to  _b_i_n_d(2)  a  socket  for  an IP circuit.  This is
+             sometimes necessary when the source host has many IP
+             interfaces, each with a different source IP address.
+             An argument of `0' sets  INADDR_ANY,  otherwise  the
+             argument  should be a resolvable `Internet' address,
+             or an `Internet' number.
+
+         "test" [device] [...]
+             Opens  a  test  file  for  read/write.   The   first
+             argument  is optional and names a file to be opened,
+             default: `/dev/null'.  Other arguments are ignored.
+
+         "tty" device [function ...]
+             Opens an RS-232 circuit.  The first argument is  the
+             device  name,  other  arguments  can  be  the _d_e_v_i_c_e
+             functions   described   above.    The   device    is
+             automatically  put  into  `raw'  mode.   If the open
+             fails, it is retried if the `retry' command has been
+             specified  (after  a  delay  set  by  the  `timeout'
+             command).
+
+         "udial" telno speed
+             Connects   using   the   UUCP-compatible   `dialler'
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    7
+
+
+
+
+
+
+Maintenance Procedures                                 NETCALL(8)
+
+
+
+             service.    The  first  argument  is  the  telephone
+             number, the second is the line speed.
+
+         "udp" name server [port]
+             Opens a UDP/IP circuit.  The first argument  is  the
+             target  IP name, the second is the server name.  The
+             optional third  argument  specifies  a  port  number
+             [default `0' causes lookup in `/etc/services'].  The
+             optional fourth argument specifies a source  address
+             to  _b_i_n_d(2)  a  socket  for  an IP circuit.  This is
+             sometimes necessary when the source host has many IP
+             interfaces, each with a different source IP address.
+             An argument of `0' [the  default]  sets  INADDR_ANY,
+             otherwise   the  argument  should  be  a  resolvable
+             `Internet' address, or an `Internet' number.
+
+         "x25" address controller line home
+             Opens an X.25 circuit.  The first  argument  is  the
+             address,  the  second  argument  is  the  controller
+             number, the third argument is the line  number,  and
+             the final argument is the local node address.
+
+         A string describing  the  result  of  the  operation  is
+         placed  in  the  variable  RESULT with values as for the
+         ddddeeeevvvviiiicccceeee command.
+
+     rrrreeeeaaaadddd _i_d_e_n_t_i_f_i_e_r
+         The input is  read  up  to  and  including  one  of  the
+         characters  appearing in the string variable DELIMCHARS,
+         and returned in _i_d_e_n_t_i_f_i_e_r.
+
+     rrrreeeeaaaaddddcccchhhhaaaarrrr _i_d_e_n_t_i_f_i_e_r
+         The next character is read from input  and  concatenated
+         to the string in _i_d_e_n_t_i_f_i_e_r.
+
+     rrrreeeettttrrrryyyy _i_n_t_e_g_e_r
+         Control any retry count in  _d_e_v_i_c_e  and  _o_p_e_n  commands.
+         The  value  set here is available to device code via the
+         global parameter Retries.
+
+     rrrreeeettttuuuurrrrnnnn
+         Return from current script.
+
+     sssseeeetttt _i_d_e_n_t_i_f_i_e_r _s_t_r_i_n_g [_s_t_r_i_n_g ...]
+         Give a variable a string value.
+
+     sssseeeetttt _i_d_e_n_t_i_f_i_e_r _i_n_t_e_g_e_r
+         Give a variable an integer value.
+
+     sssshhhheeeellllllll _c_o_m_m_a_n_d [_a_r_g_u_m_e_n_t ...]
+         Execute the command  and  arguments  using  the  command
+         interpreter  defined  by  the  parameter  SHELL, usually
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    8
+
+
+
+
+
+
+Maintenance Procedures                                 NETCALL(8)
+
+
+
+         /_b_i_n/_s_h (See sssshhhh(_1).)  Note that the shell variable  PATH
+         is  set  to `/bin:/usr/bin', and that the command is run
+         with the same _u_i_d and _g_i_d as _n_e_t_c_a_l_l's invoker.
+
+         The exit code is converted to a string which  is  placed
+         in the variable RESULT.
+
+     sssshhhhiiiifffftttt _i_d_e_n_t_i_f_i_e_r _s_e_p_a_r_a_t_o_r_s _s_t_r_i_n_g
+         The next string delineated by characters  from  the  set
+         _s_e_p_a_r_a_t_o_r_s  (or the rest of the string if no separators)
+         is moved from _s_t_r_i_n_g into _i_d_e_n_t_i_f_i_e_r.
+
+     sssslllleeeeeeeepppp _i_n_t_e_g_e_r
+         Go to sleep for _i_n_t_e_g_e_r seconds.
+
+     sssslllloooowwwwwwwwrrrriiiitttteeee _s_t_r_i_n_g [_s_t_r_i_n_g ...]
+         Send  the  _s_t_r_i_n_g  to  the  communication   line.    The
+         difference between this command and _w_r_i_t_e below, is that
+         the characters of _s_t_r_i_n_g are separated by  approximately
+         67  milliseconds  to give a write-rate of 15 chars./sec.
+         This is for the benefit of some older modems which can't
+         handle commands at full speed.
+
+     tttteeeesssstttt _i_d_e_n_t_i_f_i_e_r _l_a_b_e_l
+         The value of integer variable _i_d_e_n_t_i_f_i_e_r is decremented.
+         If  the  result is less than or equal to zero, execution
+         continues at _l_a_b_e_l.
+
+     ttttiiiimmmmeeeeoooouuuutttt _i_n_t_e_g_e_r
+         Set a timeout value in seconds.  After a period of  this
+         length has elapsed without a character being received on
+         the communication line, or a _p_a_t_t_e_r_n being matched,  the
+         _b_u_i_l_t-_i_n  pattern TIMEOUT is generated as if it had come
+         from the communication line.  This value is also used to
+         delay before retrying `device' commands.
+
+     ttttrrrraaaacccceeee _s_t_r_i_n_g [_s_t_r_i_n_g ...]
+         The _s_t_r_i_n_g is written to the standard error file.
+
+     wwwwrrrriiiitttteeee _s_t_r_i_n_g [_s_t_r_i_n_g ...]
+         Send the _s_t_r_i_n_g to the communication line.
+
+     Any  transport  daemon  invoked  by  the   script   commands
+     _e_x_e_c_d_a_e_m_o_n  or  _f_o_r_k_d_a_e_m_o_n  will  automatically be given the
+     arguments ----HHHH, ----LLLL and ----NNNN as specified for _n_e_t_c_a_l_l, as well as
+     ----ffffpppp, in addition to any specified in the script.
+
+PPPPRRRREEEEDDDDEEEEFFFFIIIINNNNEEEEDDDD VVVVAAAARRRRIIIIAAAABBBBLLLLEEEESSSS
+     DELIMCHARS
+         The set of characters used to delimit input for the _r_e_a_d
+         or _e_x_p_e_c_t commands.  Default: ":\n\r".
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    9
+
+
+
+
+
+
+Maintenance Procedures                                 NETCALL(8)
+
+
+
+     DEVFAIL
+         A  string  placed  in  the  variable  RESULT  by  device
+         operations to indicate failure.
+
+     DEVOK
+         A  string  placed  in  the  variable  RESULT  by  device
+         operations  to  indicate success.  Any string other than
+         this is an error condition.
+
+     EOF A string returned by the  _r_e_a_d  or  _e_x_p_e_c_t  commands  to
+         indicate the device is closing.
+
+     HOMENAME
+         Pre-defined to be the local site address.
+
+     INPUT
+         This variable always contains the last string passed  to
+         the _r_e_a_d or _e_x_p_e_c_t commands.
+
+     LINKDIR
+         Pre-defined to be the directory name for the link  being
+         established.   The  full path name of the link directory
+         is obtained by concatenating this string  with  SPOOLDIR
+         below.
+
+     RESULT
+         Contains the result of the last device command.
+
+     SPOOLDIR
+         Pre-defined to be the  directory  name  of  the  network
+         spool area (ends in '/').
+
+     TERMINATE
+         A string passed to the _r_e_a_d or _e_x_p_e_c_t commands to signal
+         that system termination has been requested.
+
+     TIMEOUT
+         A string passed  to  the  _r_e_a_d  or  _e_x_p_e_c_t  commands  to
+         indicate that the timeout period has expired.
+
+     UNDEFINED
+         All string variables are initialised to this value.
+
+     VERSION
+         A   string   containing   the   distribution's   version
+         information.  This is in the form:
+         release serial date CPU-operating_system
+
+CCCCAAAALLLLLLLL PPPPAAAARRRRAAAAMMMMEEEETTTTEEEERRRR NNNNEEEEGGGGOOOOTTTTIIIIAAAATTTTIIIIOOOONNNN
+     If the remote _n_e_t_s_h_e_l_l is uncertain about your  address,  it
+     will send the line
+          QUERY HOMENAME
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                   10
+
+
+
+
+
+
+Maintenance Procedures                                 NETCALL(8)
+
+
+
+     and expect a reply
+          HOMENAME <address>[ {CRC}]
+     within 20 seconds.  You should supply the  string  from  the
+     variable HOMENAME in place of _a_d_d_r_e_s_s.  (See _n_e_t_s_h_e_l_l(8).)
+
+     If a network password has been set for  your  site  _n_e_t_s_h_e_l_l
+     will send the line
+          QUERY PASSWORD
+     and expect a reply
+          PASSWORD <password>[ {CRC}]
+     within 20 seconds.
+
+     The call script must also  negotiate  the  transport  daemon
+     parameters   with  the  remote  shell  before  invoking  the
+     transport daemon.  The remote shell will send the line:
+          SHELL STARTS 2V
+     and expect the optional reply:
+          VCCONF <arg> ... [ {CRC}]
+     to which it will reply:
+          QUERY DAEMON
+     and expect the optional reply:
+          DAEMON <daemon name> [ {CRC}]
+     to which it will reply:
+          QUERY PARAMS
+     and expect the reply:
+          PARAMS <daemon arg> ... [ {CRC}]
+     to which it will reply:
+          DAEMON STARTS DAEMON STARTS
+
+     The optional trailer for  the  HOMENAME,  PASSWORD,  VCCONF,
+     DAEMON and PARAMS lines is a 16-bit CRC generated by the ccccrrrrcccc
+     command.  If it doesn't match, then the  shell  will  ignore
+     the line and prompt for another.
+
+     If the shell receives no PARAMS line within 20  seconds,  it
+     will reply with the message:
+          DEFAULT DAEMON STARTS
+     and invoke the transport daemon with  the  following  _w_o_r_s_t-
+     _c_a_s_e parameters:
+          -c -B -D16 -R300 -S10 -X30
+     Ie: cooked mode, batch mode, 16 byte  packets,  maximum  run
+     time  of  5  minutes,  minimum speed of 10 bytes/second, and
+     expected throughput of 30 bytes/second.  (See _n_e_t_d_a_e_m_o_n(8).)
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEESSSS
+     The following script establishes a virtual  circuit  via  an
+     _R_S-_2_3_2  _t_t_y device, and invokes a permanent transport daemon
+     for it.
+
+     /*
+     **   Invoke from eg:
+     **   _lib/VCcall -D linespeed=9600 \
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                   11
+
+
+
+
+
+
+Maintenance Procedures                                 NETCALL(8)
+
+
+
+     **        -D localdmnargs="-D512 -X960" \
+     **        -D ttydevice=/dev/ttya \
+     **        -S /path/scriptname \
+     **        linkname
+     **
+     **   (Should be run from both ends.)
+     */
+          open "tty" ttydevice "local";
+          match RESULT DEVOK openok;
+          fail "Can't open " ttydevice ", reason: " RESULT;
+     openok:
+          device "speed" linespeed;
+          device "flush";
+          execdaemon localdmnargs;
+
+     Other examples can be found in the _call directory with  the
+     filename  suffix `.cs', and some are listed below.  They all
+     `import' parameters that  must  be  set  via  -D _p_a_r_a_m=_v_a_l_u_e
+     arguments  to  _n_e_t_c_a_l_l.  The following parameters are common
+     to all scripts:
+
+     dmnargs        Sets  both  localdmnargs  and   remotedmnargs
+                    below.
+     localdmnargs   If  the  local  transport  daemon  will  have
+                    different  parameters to the remote, set this
+                    to be the local transport  daemon  parameters
+                    instead of dmnargs above.
+     remotedmnargs  If the  remote  transport  daemon  will  have
+                    different  parameters  to the local, set this
+                    to be the remote transport daemon  parameters
+                    instead of dmnargs above.
+
+  ffffdddd....ccccssss
+     This is a call-script for controlling  connections  using  a
+     pre-assigned  `tty'  type  file-descriptor  for  the virtual
+     circuit.  The script uses the indicated file-descriptor  for
+     the  circuit  to  a  remote  site,  and  starts  a daemon to
+     communicate over it.  It imports the following parameters:
+
+     dmnname        Optional daemon name [default: VCdaemon].
+     fd             A number between 0  and  9  representing  the
+                    file-descriptor.
+     linespeed      Optional speed for virtual circuit.
+
+  hhhhaaaayyyyeeeessss____0000....ccccssss
+     This is  a  call-script  for  controlling  Hayes  compatible
+     modems.  It calls other call-scripts (named `hayes_*.cs') to
+     control the various stages of the  connection  process.   It
+     imports the following parameters:
+
+     cook           Optional daemon parameter to turn on  circuit
+                    _c_o_o_k_i_n_g (usually `-c').
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                   12
+
+
+
+
+
+
+Maintenance Procedures                                 NETCALL(8)
+
+
+
+     dialstrings    String(s) to cause modem to dial remote  site
+                    in the format _n_u_m_b_e_r@@@@_s_p_e_e_d[||||...].
+     dmnname        Optional daemon name [default: VCdaemon].
+     fixedspd       Optional flag  to  indicate  modem  does  not
+                    change speed to match connection.
+     loginstr       The login name at the remote site.
+     longterm       Optional seconds for  slow  transport  daemon
+                    terminate [default: 5].
+     modems         Modem(s) attached to device(s) in the  format
+                    _t_y_p_e@@@@_d_e_v_i_c_e[||||...].
+     myscript       Optional name for additional call  script  to
+                    be  run  after the modem connects, but before
+                    the unix login sequence is  processed.   This
+                    can be used to log into terminal servers etc.
+     noisy          Optional parameter set to  `true'  for  noisy
+                    lines (small packets, low throughput).
+     passwdstr      An optional password required by  the  remote
+                    login account.
+     permanent      Optional parameter set  to  `true'  for  non-
+                    batch mode connections.
+     priority       Optional parameter set to the maximum message
+                    priority to be transmitted.
+     sun3           Optional parameter set to `true' if making  a
+                    connection to a site running SUN III.
+
+  iiiipppp....ccccssss
+     This is a call-script for controlling connections using  the
+     `Internet Protocol'.  It imports the following parameters:
+
+     dmnname        Optional daemon name [default: VCdaemon].
+     passwdstr      An optional network password if set  for  the
+                    calling  region  at  the  remote site.  (See:
+                    _n_e_t_p_a_s_s_w_d(8).)
+     port           Needed if there  is  no  file  equivalent  to
+                    `/etc/services'  to  select the port from the
+                    server name.
+     server         The name of the IP server used  to  select  a
+                    port (eg: mhsnet).
+     service        Either tcp or udp.
+     source         Needed if there is more  than  one  local  IP
+                    address (for multiple networks).
+     target         The IP name of the remote site.
+
+     For IP type connections, suitable entries should be made  in
+     the `/etc/services' file:
+
+          mhsnet 1988/udp # MHSnet connections
+          mhsnet 1989/tcp # MHSnet connections
+
+     Note that if the IP name of the local site is different from
+     its  MHSnet  address,  then  the remote site must install an
+     alias for the IP name to `map' it  to  the  MHSnet  address.
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                   13
+
+
+
+
+
+
+Maintenance Procedures                                 NETCALL(8)
+
+
+
+     See the `map' command in _n_e_t_s_t_a_t_e(8).
+
+  llllooooggggiiiinnnn....ccccssss
+     This  is  a  call-script  for  starting  links  to  directly
+     connected  sites,  eg:  a  direct  RS-232  connection with a
+     _l_o_g_i_n.  It imports the following parameters:
+
+     linespeed      Speed for device interface.
+     loginstr       The login name at the remote site.
+     passwdstr      An optional password required by  the  remote
+                    login account.
+     ttydevice      The special device  attached  to  the  remote
+                    site.
+
+  ttttttttyyyy....ccccssss
+     This  is  a  call-script  for  starting  links  to  directly
+     connected  sites,  eg:  a direct RS-232 connection without a
+     _l_o_g_i_n.  The same script must be run from the  other  end  to
+     start  the  companion  transport  daemon.   It  imports  the
+     following parameters:
+
+     linespeed      Speed for device interface.
+     ttydevice      The special device  attached  to  the  remote
+                    site.
+
+  xxxx22225555....ccccssss
+     This is a call-script for making  connections  via  an  X.25
+     service.  It imports the following parameters:
+
+     address        X.25 address for remote node.
+     controller     X.25 controller number [default 0].
+     home           Local node name.
+     line           X.25 controller line number [default 0].
+
+  uuuuddddiiiiaaaallll....ccccssss
+     This script uses the _d_i_a_l(3) C library routine to  establish
+     a UUCP style connection.  This should be entirely compatible
+     with _c_u(1), _u_u_c_p(1) etc.  The  success  of  this  call  will
+     depend  on  the  configuration  files  for  UUCP, located in
+     `/usr/lib/uucp'.  In particular `L-devices'  (`Devices'  and
+     `Callers'  in  Honey-Dan-Ber  UUCP)  needs  to  be set up to
+     describe the autocall units and direct  lines  to  be  used.
+     The script imports the following parameters:
+
+     linespeed      Speed for device interface.
+     loginstr       The login name at the remote site.
+     passwdstr      An optional password required by  the  remote
+                    login account.
+     telno          The telephone number used to connect  to  the
+                    remote site.
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                   14
+
+
+
+
+
+
+Maintenance Procedures                                 NETCALL(8)
+
+
+
+SSSSUUUUNNNN IIIIIIIIIIII CCCCOOOONNNNNNNNEEEECCCCTTTTIIIIOOOONNNNSSSS
+     Call scripts are provided for making calls to sites  running
+     the  old version of the software, which can be identified by
+     the fact that they all end in `...3.cs'.  They take the same
+     parameters  as  their  equivalent  script  above, except for
+     `udp3.cs' which is specific to using `ENdaemon' over  UDP/IP
+     connections,  and  `tcp3.cs'  which  is  specific  to  using
+     `NNdaemon' or `PNdaemon' over TCP/IP connections.
+
+     Note that the  SUN  III  software  cannot  manage  transport
+     daemon   parameter  negotiation,  so  that  any  non-default
+     transport daemon parameters must be pre-set  in  a  `params'
+     file at the called site.
+
+     For IP type connections, suitable entries should be made  in
+     the `/etc/services' file:
+
+          acsnet 1986/udp # SUN III UDP connections
+          acsnet 1986/tcp # SUN III TCP connections
+
+AAAAUUUUTTTTOOOO----CCCCAAAALLLLLLLL LLLLIIIINNNNKKKKSSSS
+     You may arrange for a connection to a link to be established
+     automatically  by  setting the _c_a_l_l flag for a link with the
+     _f_l_a_g command to _n_e_t_s_t_a_t_e(8).  This will  cause  the  routing
+     program  to  initiate the call whenever a message is spooled
+     for the link and there is no active transport  daemon.   The
+     router's  default  action will be to invoke _n_e_t_c_o_n_t_r_o_l(8) to
+     start a call  for  the  link  using  the  arguments:  `start
+     <link>'  where  _l_i_n_k  is  the  type-less  name  of the link.
+     Alternatively, you may install a special  call-script  under
+     the name `call' in the link's spooling directory, which will
+     be passed to _n_e_t_c_a_l_l via the ----SSSS flag.  A  third  possibility
+     is  to  specify  an alternate calling program via _n_e_t_s_t_a_t_e's
+     _c_a_l_l_e_r command.
+
+PPPPAAAARRRRAAAAMMMMEEEETTTTEEEERRRRSSSS
+     On   starting,   _n_e_t_c_a_l_l   reads    the    parameter    file
+     `_params/daemon'.   This  file  can  contain  the  following
+     optional parameters:
+
+     NICEDAEMON
+         The _n_i_c_e(2) value for  the  transport  daemon  [default:
+         system dependant].
+
+     UUCPLCKDIR
+         The  place  to   create   lockfiles   [default:   system
+         dependant].
+
+     UUCPLCKPRE
+         The pre-fix used for lockfiles in  UUCPLCKDIR  [default:
+         `LCK..'].
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                   15
+
+
+
+
+
+
+Maintenance Procedures                                 NETCALL(8)
+
+
+
+     UUCPLOCKS
+         Set this to 1111 to cause _n_e_t_c_a_l_l to activate UUCP  locking
+         in  response  to the `uucplock'.  function.  0000 turns off
+         locking [default: 1111].
+
+     UUCPLOWERDEV
+         Set this to 1111 if `uucp' lock files must  have  the  last
+         char  of  the `tty' name forced to lower-case, common in
+         SCO versions where `tty' names have an  upper-case  char
+         to  indicate  dial-out  copy  of a modem line, [default:
+         system dependant].
+
+     UUCPMLOCKDEV
+         Set this to 1111 if `uucp' lock files are named  after  the
+         major/minor  device  numbers, rather than the `tty' name
+         in `/dev', [default: system dependant].
+
+     UUCPSTRPID
+         Set this to 1111 if lockfiles contain the `pid' as a string
+         rather   than   a   binary   integer   [default:  system
+         dependant].
+
+     VCDAEMON
+         The name  of  the  default  transport  daemon  [default:
+         `SPOOLDIR/_lib/VCdaemon'].
+
+FFFFIIIILLLLEEEESSSS
+     _call              Default  directory  searched   for   call
+                        scripts.
+     _call/*.cs         Call scripts.
+     _call/call*        Shell programs  to  invoke  _n_e_t_c_a_l_l  with
+                        parameters  appropriate  to various types
+                        of connection.  (See _n_e_t_c_a_l_l_e_r_s(8).)
+     _call/callprog     Optional default shell program.
+     _call/log          Every call writes one final  status  line
+                        to this file.
+     _lib/VCdaemon      Default _v_i_r_t_u_a_l-_c_i_r_c_u_i_t message transport
+                        daemon.
+     _state/routefile   Routing tables for resolving addresses.
+     _l_i_n_k_d_i_r/call       Default    _c_a_l_l-_s_c_r_i_p_t    for     circuit
+                        establishment.
+     _l_i_n_k_d_i_r/callprog   Optional shell program.
+     _l_i_n_k_d_i_r/cmds/lock  Lockfile    established    to     prevent
+                        simultaneous calls for this link.
+     _l_i_n_k_d_i_r/params     Optional parameters for message transport
+                        daemon.
+     _params/daemon     Alternate  parameters  for  the   message
+                        transport daemon.
+
+BBBBUUUUGGGGSSSS
+     _N_e_t_c_a_l_l runs as  `root',  so  it  is  not  possible  to  use
+     _n_e_t_c_o_n_t_r_o_l  to  inform  _n_e_t_i_n_i_t (which runs with the network
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                   16
+
+
+
+
+
+
+Maintenance Procedures                                 NETCALL(8)
+
+
+
+     id) to stop a call while _n_e_t_c_a_l_l  is  active.   Instead  use
+     `netcontrol  status'  to  find  the process id, and then use
+     `kill <pid>' to terminate it.
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _s_h(1), _s_t_t_y(1),  _n_e_t_w_o_r_k(7),  _n_e_t_c_a_l_l_e_r_s(8),  _n_e_t_c_o_n_t_r_o_l(8),
+     _n_e_t_d_a_e_m_o_n(8),    _n_e_t_i_n_i_t(8),    _n_e_t_p_a_s_s_w_d(8),   _n_e_t_s_h_e_l_l(8),
+     _n_e_t_s_t_a_t_e(8).
+
+DDDDIIIIAAAAGGGGNNNNOOOOSSSSTTTTIIIICCCCSSSS
+     attempt to write null string
+         The _w_r_i_t_e command was called with an empty string.
+
+     Can't "execdaemon" with locked device
+         An attempt has been made to use the  _e_x_e_c_d_a_e_m_o_n  command
+         while  the  circuit  device is still locked.  This means
+         there would be no way to unlock the device when the call
+         terminates.  Use _f_o_r_k_d_a_e_m_o_n instead.
+
+     cannot compile pattern
+         An irregular expression has been passed as a pattern  to
+         the _e_x_p_e_c_t or _m_a_t_c_h commands.
+
+     Could not bind
+         The _b_i_n_d(2) system call returned the error shown.
+
+     Could not connect
+         The _c_o_n_n_e_c_t(2) system call returned the error shown.
+
+     could not find IP address for:
+         The _g_e_t_h_o_s_t_b_y_n_a_m_e(3) library routine returned the  error
+         shown.
+
+     could not find my inet address
+         The EXCELAN routine _r_h_o_s_t(3) returned an error.
+
+     Could not gethostname
+         The _g_e_t_h_o_s_t_n_a_m_e(3) subroutine returned the error shown.
+
+     Could not getsockname
+         The _g_e_t_s_o_c_k_n_a_m_e(3) subroutine returned the error shown.
+
+     Could not recvfrom
+         The _r_e_c_v_f_r_o_m(2) system call returned the error shown.
+
+     Could not sendto
+         The _s_e_n_d_t_o(2) system call returned the error shown.
+
+     Could not socket
+         The _s_o_c_k_e_t(2) system call returned the error shown.
+
+     daemon mode?
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                   17
+
+
+
+
+
+
+Maintenance Procedures                                 NETCALL(8)
+
+
+
+         Null parameter passed to the _m_o_d_e command.
+
+     daemon name?
+         Null parameter passed to the _d_a_e_m_o_n command.
+
+     device control?
+         Null parameter passed to the _d_e_v_i_c_e command.
+
+     device name not specified in open
+         Null parameter passed to the _o_p_e_n command.
+
+     device not open
+         A device command has been issued when there is  no  open
+         device.
+
+     device already open
+         An second open command has been issued before a close.
+
+     file descriptor number?
+         The file descriptor parameter for the _f_d device must  be
+         between 0 and 9.
+
+     home address?
+         The X.25 device needs the `home'  address  specified  in
+         the third argument.
+
+     line speed?
+         The _u_d_i_a_l device  needs  a  line  speed  as  the  second
+         parameter.
+
+     No permission
+         The  invoker  does   not   have   `network   super-user'
+         privileges.
+
+     no strings specified
+         A command needing parameters has been invoked with none.
+
+     phone number?
+         The _u_d_i_a_l device needs  a  phone  number  as  the  first
+         parameter.
+
+     recvfrom() timed out
+         The remote end of a UDP/IP circuit didn't respond to the
+         circuit  setup  request  within  the  interval  set by a
+         _t_i_m_e_o_u_t command.
+
+     retries must be >= 0
+         The _r_e_t_r_y command requires a positive integer
+
+     Service not available
+         The `udp' or `tcp' device type isn't available.
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                   18
+
+
+
+
+
+
+Maintenance Procedures                                 NETCALL(8)
+
+
+
+     sleep period is 0
+         The _s_l_e_e_p command requires a positive integer.
+
+     too few parameters for "shift"
+         The _s_h_i_f_t command needs at least three parameters.
+
+     unknown service:
+         The _g_e_t_s_e_r_v_b_y_n_a_m_e(3) routine returned an error  for  the
+         parameters shown.
+
+     Other  errors  are  those  returned  by  sub-processes,  eg:
+     _n_e_t_d_a_e_m_o_n(8).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                   19
+
+
+

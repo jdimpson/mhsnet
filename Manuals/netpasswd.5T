@@ -1,0 +1,66 @@
+
+
+
+Headers, Environments, and Macros                    NETPASSWD(5)
+
+
+
+NNNNAAAAMMMMEEEE
+     netpasswd - network password file
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     SSSSPPPPOOOOOOOOLLLLDDDDIIIIRRRR////____ccccaaaallllllll////ppppaaaasssssssswwwwdddd
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     `SPOOLDIR/_call/passwd'   contains   lines   with    network
+     addresses   and   their  respective  passwords.   Each  line
+     contains a network address, an encrypted password delineated
+     by  semi-colons (`::::'), and an optional comment field.  Empty
+     lines, and lines  beginning  with  the  character  `#',  are
+     ignored.   Each address field may be any legal typed network
+     address.  If the node name of any site making  a  connection
+     matches  an  address  in the file, then _n_e_t_s_h_e_l_l will prompt
+     the caller for a password to be encryped and matched against
+     the  password  field.   Null  passwords  are indicated by an
+     empty password field.
+
+     The passwords are maintained by the program _n_e_t_p_a_s_s_w_d(8).
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEE
+     .9=pollux.3=mhs.2=oz.0=au:Mf8GSTaaenqko:specifically pollux
+     .9=castor.3=mhs.2=oz.0=au::no password for castor
+     *.3=mhs.2=oz.0=au:JtFyNzqwXdENQ:all other MHS sites
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _n_e_t_w_o_r_k(7), _n_e_t_p_a_s_s_w_d(8), _n_e_t_s_h_e_l_l(8).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+

@@ -1,0 +1,112 @@
+.ds S1 NETLISTEN
+.ds S2 \fINetlisten\fP
+.ds S3 \fInetlisten\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 _lib/tcplisten
+.TH \*(S1 8 "\*(S4 1.8" \^
+.nh
+.SH NAME
+netlisten \- listen for incoming TCP/IP calls
+.SH SYNOPSIS
+.BI \*(S6
+.RI [\- flags \|]
+.SH DESCRIPTION
+This program is for those systems
+that don't have a version of the \s-1BSD\s0 4.3 program known as
+.IR inetd .
+Its purpose is to listen for incoming \s-1TCP/IP\s0 calls
+on the port number allocated for \*(S4,
+and invoke a
+.I netshell
+to set up a virtual circuit and start the transport daemon.
+.PP
+The optional flags are:
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-P\fP\ \fIpriority\fPX'u
+.TP "\*(tw"
+.BI \-f
+Prevents \*(S3 from forking on invocation
+to run a child process in the background,
+and returning from the parent.
+.TP
+.BI \-L \ log
+Set the name of the exception message log file.
+[Default: \f(CWtcplisten.log\fP]
+.TP
+.BI \-N \ service
+Change the service type being listened for.
+This is only used in exception messages,
+and can also be changed in the parameters file,
+under the name \s-1SERVICE\s0.
+[Default: mhsnet]
+.TP
+.BI \-P \ port
+Change the port number being listened for.
+Can also be changed in the parameters file,
+under the name \s-1PORT\s0.
+[Default: 1989]
+.TP
+.BI \-S \ server
+Change the name of the server program started to create the virtual circuit.
+Can also be changed in the parameters file,
+under the name \s-1SERVER\s0.
+[Default: \f(CWSPOOLDIR/_lib/tcpshell\fP]
+.TP
+.BI \-T \fR[\fPlevel\fR]\fP
+Turns on tracing at
+.I level
+(default: 1).
+If tracing is not compiled in,
+this flag will have no effect.
+.TP
+.BI \-?
+Explain argument options and exit.
+.SH EXAMPLE
+To start \*(S3 from
+.if n `SPOOLDIR/_lib/initfile',
+.if t \f(CWSPOOLDIR/_lib/initfile\fP,
+add the line:
+.PP
+.RS 2
+.if \n(.lu<6i .ps -2
+.ft CW
+.ta +\w'listenXXXX'u +\w'restartXXXX'u
+listen	restart	\*(S6 -f
+.DT
+.ft
+.if \n(.lu<6i .ps
+.RE
+.SH PARAMETERS
+On starting,
+\*(S3 reads a file in the `_params' directory with the same name as it was invoked under.
+This file can contain the following optional parameters:
+.TP 4
+.SM PORT
+The port used for
+.SM TCP/IP
+connections to \*(S4.
+.TP 4
+.SM SERVER
+The name of the program invoked to handle incoming
+.SM TCP/IP
+connections.
+.TP 4
+.SM SERVICE
+The symbolic name for the port number.
+.SH FILES
+.PD 0
+.TP "\w'_lib/tcplisten.lockXX'u"
+_lib/tcplisten.lock
+Lock file for \*(S3 to prevent multiple invocations.
+.TP
+_lib/tcplisten.log
+Log file for exception messages.
+.TP
+_params/tcplisten
+Alternate default parameter specifications.
+.PD
+.SH "SEE ALSO"
+.IR netparams (5),
+.IR netinit (8),
+.IR netshell (8).

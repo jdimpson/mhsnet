@@ -1,0 +1,49 @@
+# recognition/delivery rules for mail
+#
+#	Each line contains the following fields, 
+#		- regular expression matching an address
+#		- a command to use to deliver the mail (default is local delivery)
+#		- next hop in the address (optional)
+#		- address after next hop (optional)
+#		- conversion to be performed on output (optional)
+#		- system name to use for return address (default in /etc/whoami)
+
+# rfc822 conformant postmaster
+^[Pp][Oo][Ss][Tt][Mm][Aa][Ss][Tt][Ee][Rr]$	"/bin/mail -F \s root" "" "" ACSnet
+
+# a local address
+^[^@:.,]+$
+
+^.*\.test$	"sh -c '(echo -o\h -s\u ; cat) >>/tmp/goo'" "" "" rfc822
+# ^.*\.test$	"/usr/spool/MHSnet/_bin/netfile -oP3 -Amailer -NMail -O\h -S\u root" "" "" ACSnet
+^(.*)\.rfc822-test$	"/usr/spool/MHSnet/_bin/netfile -oP3 -Amailer -NMail -O\h -S\u \1" "" "" rfc822
+
+# munnari pseudo-domains
+
+^.*\.[Aa][Rr][Pp][Aa]$	"/usr/spool/MHSnet/_bin/netfile -oP3 -Amailer -NMail -U& -Dmunnari -O\h -S\u" "" "" ACSnet
+^.*\.[Cc][Ss][Nn][Ee][Tt]$	"/usr/spool/MHSnet/_bin/netfile -oP3 -Amailer -NMail -U& -Dmunnari -O\h -S\u" "" "" ACSnet
+^.*\.[Uu][Kk]$	"/usr/spool/MHSnet/_bin/netfile -oP3 -Amailer -NMail -U& -Dmunnari -O\h -S\u" "" "" ACSnet
+^.*\.[Bb][Ii][Tt][Nn][Ee][Tt]$	"/usr/spool/MHSnet/_bin/netfile -oP3 -Amailer -NMail -U& -Dmunnari -O\h -S\u" "" "" ACSnet
+^.*\.[Uu][Uu][Cc][Pp]$	"/usr/spool/MHSnet/_bin/netfile -oP3 -Amailer -NMail -U& -Dmunnari -O\h -S\u" "" "" ACSnet
+^.*\.[Mm][Aa][Ii][Ll][Nn][Ee][Tt]$	"/usr/spool/MHSnet/_bin/netfile -oP3 -Amailer -NMail -U& -Dmunnari -O\h -S\u" "" "" ACSnet
+^.*\.[Ee][Dd][Uu]$	"/usr/spool/MHSnet/_bin/netfile -oP3 -Amailer -NMail -U& -Dmunnari -O\h -S\u" "" "" ACSnet
+^.*\.[Cc][Oo][Mm]$	"/usr/spool/MHSnet/_bin/netfile -oP3 -Amailer -NMail -U& -Dmunnari -O\h -S\u" "" "" ACSnet
+^.*\.[Gg][Oo][Vv]$	"/usr/spool/MHSnet/_bin/netfile -oP3 -Amailer -NMail -U& -Dmunnari -O\h -S\u" "" "" ACSnet
+^.*\.[Mm][Ii][Ll]$	"/usr/spool/MHSnet/_bin/netfile -oP3 -Amailer -NMail -U& -Dmunnari -O\h -S\u" "" "" ACSnet
+^.*\.[Oo][Rr][Gg]$	"/usr/spool/MHSnet/_bin/netfile -oP3 -Amailer -NMail -U& -Dmunnari -O\h -S\u" "" "" ACSnet
+^.*\.[Nn][Ee][Tt]$	"/usr/spool/MHSnet/_bin/netfile -oP3 -Amailer -NMail -U& -Dmunnari -O\h -S\u" "" "" ACSnet
+^.*\.[Nn][Ll]$		"/usr/spool/MHSnet/_bin/netfile -oP3 -Amailer -NMail -U& -Dmunnari -O\h -S\u" "" "" ACSnet
+^.*\.[Jj][Uu][Nn][Ee][Tt]$	"/usr/spool/MHSnet/_bin/netfile -oP3 -Amailer -NMail -U& -Dmunnari -O\h -S\u" "" "" ACSnet
+^.*\.[Cc][Dd][Nn]$	"/usr/spool/MHSnet/_bin/netfile -oP3 -Amailer -NMail -U& -Dmunnari -O\h -S\u" "" "" ACSnet
+^.*\.[Ss][Ee]$	"/usr/spool/MHSnet/_bin/netfile -oP3 -Amailer -NMail -U& -Dmunnari -O\h -S\u" "" "" ACSnet
+^.*\.[Dd][Ee]$	"/usr/spool/MHSnet/_bin/netfile -oP3 -Amailer -NMail -U& -Dmunnari -O\h -S\u" "" "" ACSnet
+
+# .AU domain: inject .OZ.AU straight into ACSnet, other .FOO.AU to munnari
+^(.*\.[oO][zZ])\.[Aa][Uu]$	"/usr/spool/MHSnet/_bin/netfile -oP3 -Amailer -NMail -O\h -S\u &" "" "" ACSnet
+^.*\.[Aa][Uu]$	"/usr/spool/MHSnet/_bin/netfile -oP3 -Amailer -NMail -U& -Dmunnari -O\h -S\u" "" "" ACSnet
+
+# .SPAN pseudo-domain: gateway is vlsi.JPL.NASA.GOV
+^(.*)@(.*)\.[Ss][Pp][Aa][Nn]$	"/usr/spool/MHSnet/_bin/netfile -oP3 -Amailer -NMail -U\1%\2.SPAN@vlsi.JPL.NASA.GOV -Dmunnari -O\h -S\u" "" "" ACSnet
+
+# ACSnet address
+^.*$	"/usr/spool/MHSnet/_bin/netfile -oP3 -Amailer -NMail -O\h -S\u &" "" "" ACSnet

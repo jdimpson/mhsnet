@@ -1,0 +1,153 @@
+.ds S1 NETSTATS
+.ds S2 \fINetstats\fP
+.ds S3 \fInetstats\fP
+.ds S4 MHSnet
+.ds S5 network
+.TH \*(S1 5 "\*(S4 1.8" \^
+.nh
+.SH NAME
+netstats \- formats of network statistics files
+.SH SYNOPSIS
+.BI \s-1SPOOLDIR\s0/_stats/Accumulated
+.br
+.BI \s-1SPOOLDIR\s0/_stats/servedfiles
+.SH DESCRIPTION
+These files are maintained by network programs to track messages as they pass through the system.
+If they don't exist, then statistics records won't be written to them,
+so to turn on statistics collection, create the relevant file.
+.SS Accumulated
+This file is written by
+.IR netrouter (8)
+and printed by
+.IR netstatspr (8).
+It contains records terminated by newlines.
+There are eleven fields in each record, separated by colons (`:'),
+as follows (in record order):
+.if n .ds tw 12
+.if t .ds tw \w'\fBtravel\ time\fPX'u
+.TP "\*(tw"
+.BI type
+Indicates whether the message was inbound (`I'), or outbound (`O').
+.TP
+.BI date
+The date the record was written.
+(In `\s-1UNIX\s0' time, usually decimal seconds since 1 Jan 1970, GMT)
+.TP
+.BI ID
+The message ID that is unique to its source.
+(If there are any
+.I multi-part
+messages,
+the part numbers are converted from the message header form
+.IB part : max
+to
+.IB part / max\c
+).
+.TP
+.BI flags
+A decimal number representing the routing flags for the message.
+(See below.)
+.TP
+.BI handler
+The handler for the message.
+.TP
+.BI "travel time"
+The total travel time for the message (in seconds).
+.TP
+.BI size
+The final size of the message (in bytes).
+.TP
+.BI source
+The source address for the message.
+.TP
+.BI destination
+The destination address for the message.
+.TP
+.BI link
+The link that the message arrived on,
+or was queued to depart on.
+.TP
+.BI delay
+The delay measured over the link that the message arrived on (in seconds).
+(Always 0 for outbound messages.)
+.SS servedfiles
+This file is written by
+.IR fileserver ,
+the message handler for
+.IR fetchfile (1),
+and printed by
+.IR netstatspr (8).
+It also contains records terminated by newlines.
+There are seven fields in each record, separated by colons (`:'),
+as follows (in record order):
+.if n .ds tw 12
+.if t .ds tw \w'\fBtravel\ time\fPX'u
+.TP "\*(tw"
+.BI type
+Indicates that the record is from a fileserver request (`F').
+.TP
+.BI date
+The date the record was written.
+(In `\s-1UNIX\s0' time, usually decimal seconds since 1 Jan 1970, GMT)
+.TP
+.BI ID
+The message ID from the request.
+.TP
+.BI size
+The size of the response (in bytes).
+.TP
+.BI destination
+The destination of the response (source of the request).
+.TP
+.BI service
+Service requested.
+.TP
+.BI names
+File names in response.
+.SH "ROUTING FLAGS"
+Message routing flags have the following values:
+.PP
+.RS 2
+.nf
+.ta +\w'\f(CW00001\fPXX'u +\w'\s-1NO_AUTOCALL\s0XX'u
+\fBOctal	Name	Decription\fP
+.sp .5
+.if t \{
+\f(CW00001\fP	\s-1RQA\s0	Request for acknowledgement
+\f(CW00002\fP	\s-1ACK\s0	This message is an acknowlegement
+\f(CW00004\fP	\s-1ENQ\s0	Reply requested
+\f(CW00010\fP	\s-1NAK\s0	Negative acknowlegement
+\f(CW00020\fP	\s-1NOOPT\s0	Don't optimise message order
+\f(CW00040\fP	\s-1NO_AUTOCALL\s0	Ignore auto-call flag when spooling
+\f(CW00100\fP	\s-1RETURNED\s0	Message is being returned with error
+\f(CW00200\fP	\s-1NORET\s0	Don't return if error
+\f(CW00400\fP	\s-1REV_CHARGE\s0	Reverse charging for this message
+\f(CW01000\fP	\s-1REGISTERED\s0	Message has registered delivery\}
+.if n \{
+00001	RQA	Request for acknowledgement
+00002	ACK	This message is an acknowlegement
+00004	ENQ	Reply requested
+00010	NAK	Negative acknowlegement
+00020	NOOPT	Don't optimise message order
+00040	NO_AUTOCALL	Ignore auto-call flag when spooling
+00100	RETURNED	Message is being returned with error
+00200	NORET	Don't return if error
+00400	REV_CHARGE	Reverse charging for this message
+01000	REGISTERED	Message has registered delivery\}
+.DT
+.fi
+.RE
+.SH FILES
+.PD 0
+.TP "\w'\f(CW_stats/Accumulated\fPXX'u"
+\f(CW_stats/Accumulated\fP
+Current message statistics file.
+.TP
+\f(CW_stats/servedfiles\fP
+Current fileserver request log.
+.PD
+.SH "SEE ALSO"
+.IR \*(S5 (7),
+.IR netrouter (8),
+.IR netstatspr (8).
+.br

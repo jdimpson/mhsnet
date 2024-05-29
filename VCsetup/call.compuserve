@@ -1,0 +1,271 @@
+#!/bin/sh
+
+#	Setup circuit to "link" via `Compuserver' and a `Hayes' type modem.
+#
+#	If "modem" == Trailblazer, assumes configured correctly
+#	for use with RTS/CTS flow control for speeds >= 9600.
+
+USAGE="[-f] [-p] [-q] link modem device speed clogin cpass ulogin upass dial [dial2]"
+
+andflag="-&"	# "-f" - don't fork
+permanent=	# "-p" - permanent connection
+queuecheck=	# "-q" - check queues after call and restart if non-empty
+trace=		# "-Tn"- trace level <n>
+
+PATH=$PATH:/etc:/usr/ucb:/usr/local:/usr/local/bin
+
+for i
+do
+	case "${i}" in
+	'-?')	echo "Usage: $0 $USAGE"; exit 1;;
+	-f)	andflag=	; shift	;;
+	-p)	permanent=true	; shift	;;
+	-q)	queuecheck=true	; shift	;;
+	-T[0-9])trace="$i"	; shift	;;
+	esac
+done
+
+case $# in
+9|10)	;;
+*)	echo "Usage: $0 $USAGE"; exit 1;;
+esac
+
+link=$1
+modem=$2
+device=$3
+speed=$4
+clogin=$5
+cpass=$6
+ulogin=$7
+upass=$8
+case "$9" in
+ATD*|atd*)	dial=$9		;;
+*)		dial=ATD$9	;;
+esac
+shift
+case "$9" in
+'')		dial2=				;;
+ATD*|atd*)	dial2="-Ddialstr2=$9"		;;
+*)		dial2="-Ddialstr2=ATD$9"	;;
+esac
+
+script=compuserve
+initstr=
+
+#	"compuserve.cs" initialises the modem with ATE0Q0S0=0S2=43
+#	followed by "initstr". At the end it sets the modem
+#	with ATH0 followed by "finishstr" [default: ATE0Q1S0=1]
+
+case "${modem}" in
+*hayes)
+	case "${speed}" in
+	19200)	dmnargs="-D1024 -S200 -X960"		;;
+	9600)	dmnargs="-D1024 -S200 -X960"		;;
+	4800)	dmnargs="-D256  -S100 -X480"		;;
+	2400)	dmnargs="-D128  -S50  -X240"		;;
+	1200)	dmnargs="-D64   -S20  -X120"		;;
+	600)	dmnargs="-D32   -S10  -X60"		;;
+	300)	dmnargs="-D16   -S5   -X30"		;;
+	*)	echo "$0: Unrecognised speed ${speed}"; exit 1;;
+	esac
+	;;
+
+hayesXON)
+	xonxoff="-Dxonxoff=1"
+	case "${speed}" in
+	19200)	dmnargs="-cnD256 -S200 -X960"		;;
+	9600)	dmnargs="-cnD256 -S200 -X960"		;;
+	4800)	dmnargs="-cD256  -S100 -X480"		;;
+	2400)	dmnargs="-cD128  -S50  -X240"		;;
+	1200)	dmnargs="-cD64   -S20  -X120"		;;
+	600)	dmnargs="-cD32   -S10  -X60"		;;
+	300)	dmnargs="-cD16   -S5   -X30"		;;
+	*)	echo "$0: Unrecognised speed ${speed}"; exit 1;;
+	esac
+	;;
+
+interlink)
+	initstr='-Dinitstr=ATX2$S1$E0$C0&D2'
+
+# X2	send result codes 0-6 and 8-15, and wait for dial tone
+# $S1	set baud rate between modem and computer to telecom line baud rate
+# $E0	turn off MNP
+# $C0	do not try to negotiate compression (as MNP is off)
+# &D2	enter command mode and hang up phone when DTR drops
+
+	case "${speed}" in
+	19200)	dmnargs="-nD256 -S200 -X960"		;;
+	9600)	dmnargs="-D1024 -S200 -X960"		;;
+	4800)	dmnargs="-D256  -S100 -X480"		;;
+	2400)	dmnargs="-D128  -S50  -X240"		;;
+	1200)	dmnargs="-D64   -S20  -X120"		;;
+	600)	dmnargs="-D32   -S10  -X60"		;;
+	300)	dmnargs="-D16   -S5   -X30"		;;
+	*)	echo "$0: Unrecognised speed ${speed}"; exit 1;;
+	esac
+	;;
+
+trailblazerRTS)
+#		RTS/CTS flow control
+#	initstr='-Dinitstr=ATS51=4S52=2S53=2S54=0S58=2S66=1S67=0S68=255S110=1X3V1'
+#	finishstr='-Dfinishstr=ATZ'	# Restores default settings
+	case "${speed}" in
+	19200)	 local="-not -D1024 -S200 -X1380"
+		remote="-nit -D1024 -S200 -X1380"	;;
+	9600)	 local="-not -D1024 -S200 -X960"
+		remote="-nit -D1024 -S200 -X960"	;;
+	4800)	dmnargs="-D256  -S100 -X480"		;;
+	2400)	dmnargs="-D128  -S50  -X240"		;;
+	1200)	dmnargs="-D64   -S20  -X120"		;;
+	600)	dmnargs="-D32   -S10  -X60"		;;
+	300)	dmnargs="-D16   -S5   -X30"		;;
+	*)	echo "$0: Unrecognised speed: ${speed}"; exit 1;;
+	esac
+	speed=19200	# fixed speed between modem and CPU
+	;;
+
+trailblazerXON)
+#		XON/XOFF flow control
+	xonxoff=
+#	initstr='-Dinitstr=ATS58=3S68=3'
+#	finishstr='-Dfinishstr=ATZ'	# Restores default settings
+	case "${speed}" in
+	19200)	 local="-not -CX -D1024 -S200 -X1380"
+		remote="-nit -CX -D1024 -S200 -X1380"
+		xonxoff="-Dxonxoff=1"			;;
+	9600)	 local="-not -CX -D1024 -S200 -X960"
+		remote="-nit -CX -D1024 -S200 -X960"
+		xonxoff="-Dxonxoff=1"			;;
+	4800)	dmnargs="-D256  -S100 -X480"		;;
+	2400)	dmnargs="-D128  -S50  -X240"		;;
+	1200)	dmnargs="-D64   -S20  -X120"		;;
+	600)	dmnargs="-D32   -S10  -X60"		;;
+	300)	dmnargs="-D16   -S5   -X30"		;;
+	*)	echo "$0: Unrecognised speed: ${speed}"; exit 1;;
+	esac
+	;;
+
+*)	echo "Unknown modem: ${modem}"; exit 1;;
+esac
+
+SPOOLDIR=/usr/spool/MHSnet
+eval `egrep 'SPOOLDIR' /usr/lib/MHSnetparams 2>/dev/null`
+
+cd $SPOOLDIR
+umask 027
+
+case "$link" in
+*=*)	node=`expr ${link} : '[^=]*=\([^\.]*\)'`	;;
+*)	node=`expr ${link} : '\([^\.]*\)'`		;;
+esac
+log=_call/${node}.log
+olog=_call/${node}.ol
+
+if [ -s ${log} ]
+then
+	mv ${log} ${olog}
+fi
+
+case "${local}" in
+'')	local=${dmnargs}
+	remote=${dmnargs}
+	;;
+esac
+
+case "${permanent}" in
+'')	local="-B5 ${local}"
+	remote="-B5 ${remote}"
+	;;
+*)	local="-d ${local}"
+	remote="-d ${remote}"
+	;;
+esac
+
+case "${queuecheck}.${permanent}.${andflag}" in
+true.false.)
+	count=2
+	while [ "$count" -gt 1 ]
+	do
+		_lib/VCcall -v $trace \
+		-D "clogin=${clogin}" \
+		-D "cpasswd=${cpass}" \
+		-D "dialstr=${dial}" \
+		-D "linespeed=${speed}" \
+		-D "localdmnargs=${local}" \
+		-D "modemdev=${device}" \
+		-D "ulogin=${ulogin}" \
+		-D "upasswd=${upass}" \
+		-D "remotedmnargs=${remote}" \
+		"${initstr}" \
+		"${finishstr}" \
+		"${dial2}" \
+		${xonxoff} \
+		-S ${script}.cs \
+		-X ${log} \
+		${link} &
+
+		child=$!
+		trap "kill $child; wait $child; exit $?" 15
+		wait $child
+		trap "" 15
+
+		netq -cfs ${link} && exit 0
+		count=`expr "$count" - 1`
+	done
+	exit 0
+	;;
+esac
+
+_lib/VCcall ${andflag} -v $trace \
+	-D "clogin=${clogin}" \
+	-D "cpasswd=${cpass}" \
+	-D "dialstr=${dial}" \
+	-D "linespeed=${speed}" \
+	-D "localdmnargs=${local}" \
+	-D "modemdev=${device}" \
+	-D "ulogin=${ulogin}" \
+	-D "upasswd=${upass}" \
+	-D "remotedmnargs=${remote}" \
+	"${initstr}" \
+	"${finishstr}" \
+	"${dial2}" \
+	${xonxoff} \
+	-S ${script}.cs \
+	-X ${log} \
+	${link} &
+
+child=$!
+
+case "$andflag" in
+'')	;;
+*)	exit 0
+	;;
+esac
+
+trap "kill $child; wait $child; exit $?" 15
+wait $child
+retval=$?
+trap "" 15
+case $retval in
+0)	exit 0	;;
+esac
+
+#	Look for serious errors, and mail NCC_ADMIN.
+
+reason=`tail -1 ${log}`
+case "$reason" in
+*modem*|*password*|*directory*|*unrecognised*|*MISMATCH*|*SYNC*|*ECHO*)
+	;;
+*)	exit $retval
+	;;
+esac
+
+eval `_bin/netparams NCC_ADMIN`
+echo "Details from ${SPOOLDIR}/${log}:
+$reason
+
+Mail generated by network program \"${Name}\" [$$]" | _bin/netmail -mrt \
+	LOGNAME=network \
+	NAME="Network Administration" \
+	SUBJECT="problem with last call to ${node} (from ${log})" \
+	$NCC_ADMIN >/dev/null

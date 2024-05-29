@@ -1,0 +1,75 @@
+.ds S1 NETPRIVS
+.ds S2 \fINetprivs\fP
+.ds S3 \fInetprivs\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 _bin/netprivs
+.TH \*(S1 1 "\*(S4 1.7" \^
+.nh
+.SH NAME
+netprivs \- show network user privileges
+.SH SYNOPSIS
+.BI \*(S6
+.RI [\- flags ]
+.RI [ user ]
+.SH DESCRIPTION
+\*(S2
+prints the network privileges that are being conferred on various users.
+If the optional
+.I user
+argument(s) are present,
+and the invoker has network
+.I super-user
+privilege,
+then
+\*(S3
+displays the privileges for each of the named users.
+Otherwise the privileges for the invoker are displayed.
+See
+.IR netprivs (5)
+for a description of the privileges.
+.PP
+The optional flags are:
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-P\fP\ \fIprivsfile\fPX'u
+.TP "\*(tw"
+.BI \-a
+This flag displays the privileges for each user explicitly named in the privileges file.
+(This flag is restricted to network
+.IR super-users .)
+.TP
+.BI \-P \ privsfile
+Defines an alternative file from which to extract the privileges information.
+See
+.IR netprivs (5)
+for a description of the format.
+[Default: \f(CW\s-1SPOOLDIR\s0/_lib/privsfile\fP.]
+.TP
+.BI \-T \fR[\fPlevel\fR]\fP
+Turns on tracing at
+.I level
+[default: 1].
+If tracing is not compiled in,
+this flag will have no effect.
+.TP
+.BI \-?
+Explain argument options and exit.
+.SH EXAMPLES
+Show privileges for the user `daemon':
+.PP
+.RS 2
+.ft CW
+\*(S6 daemon
+.ft
+.RE
+.SH FILES
+.PD 0
+.TP "\w'\f(CW\s-1SPOOLDIR\s0/_lib/privsfile\fPXX'u"
+\f(CW\s-1SPOOLDIR\s0/_lib/privsfile\fP
+Specifies privileges for particular users and groups,
+and default privileges for the rest.
+.PD
+.SH "SEE ALSO"
+.IR netaddress (5),
+.IR netprivs (5),
+.IR \*(S5 (7).

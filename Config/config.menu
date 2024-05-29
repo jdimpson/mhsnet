@@ -1,0 +1,17 @@
+
+
+	M H S n e t   C o n f i g u r a t i o n   P r o g r a m
+
+	Configure your site details or links to other machines.
+
+&
+Site details
+site.sh; exec menu config.menu
+Links
+if [ -s site.details ]; then exec menu links.menu; else echo "	You need to create your site details first."; sleep 2; exec menu config.menu; fi
+Stop the network
+stop.sh
+Finish
+finish.sh
+Start or restart the network
+start.sh

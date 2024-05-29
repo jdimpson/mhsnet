@@ -1,0 +1,198 @@
+
+
+
+Maintenance Procedures                               NETPASSWD(8)
+
+
+
+NNNNAAAAMMMMEEEE
+     netpasswd - create password for network site
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     ____bbbbiiiinnnn////nnnneeeettttppppaaaasssssssswwwwdddd [-[cccc][dddd]] -pppp|_a_d_d_r_e_s_s [_c_o_m_m_e_n_t...]
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_p_a_s_s_w_d  creates  or  modifies  entries  in  the   network
+     password  file.   _A_d_d_r_e_s_s  can  be  any  locally  resolvable
+     network address, and will protect connections from any sites
+     whose  node names match it, unless it is a broadcast address
+     matching a site that has a valid entry in the  `/etc/passwd'
+     file - which takes precedence.  Any additional arguments are
+     written to the entry's comment field.
+
+     Adding an entry for a broadcast address is also the  way  to
+     allow  _p_r_o_m_i_s_c_u_o_u_s  connections  to  your site from any site
+     within the broadcast region.
+
+     _N_e_t_p_a_s_s_w_d sorts the password file in reverse  typed  address
+     order  so that _n_e_t_s_h_e_l_l(8) can scan it looking for the first
+     entry to match a calling site.  In  this  way,  a  broadcast
+     entry for a region can be overridden by an entry specific to
+     a particular site.
+
+     _N_e_t_p_a_s_s_w_d will warn you if there is an  entry  matching  the
+     _a_d_d_r_e_s_s   argument   with   a   non-null   password  in  the
+     `/etc/passwd' file.  If you  wish  to  ignore  `/etc/passwd'
+     entries  and  force all sites to be checked against matching
+     network  passwords,  then  you  should  set  the   parameter
+     IGN_ETCPASSWD  to  1111 in the parameters file `_params/daemon'
+     (see _n_e_t_s_h_e_l_l(_8)).
+
+     _N_e_t_p_a_s_s_w_d turns off echo when prompting  for  the  password,
+     which  can  be  up  to  127  characters  in  length  (excess
+     characters  are  ignored).   An  empty  line   removes   the
+     password.
+
+     The optional flags are:
+
+     ----cccc  Check the password for _a_d_d_r_e_s_s, instead of  creating  or
+         modifying it.
+
+     ----dddd  Delete the entry for _a_d_d_r_e_s_s.
+
+     ----nnnn  Create a null password entry for _a_d_d_r_e_s_s.
+
+     ----pppp  Print the passwd file.
+
+     ----TTTT[_l_e_v_e_l]
+         Turns on tracing at _l_e_v_e_l [default: 1].  If  tracing  is
+         not compiled in, this flag will have no effect.
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+
+
+
+
+Maintenance Procedures                               NETPASSWD(8)
+
+
+
+     ----????  Explain argument options and exit.
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEESSSS
+     Create password protection for a local site `castor':
+
+       _bin/netpasswd castor
+
+     Create  password   protection   for   all   sites   in   our
+     organisation:
+
+       _bin/netpasswd *.mhs.oz.au all sites except castor
+
+     All sites except `castor' (which has its own password)  will
+     then  be prompted for the organisation password.  The string
+     ``all sites except castor'' will  be  placed  in  the  third
+     field of castor's entry.
+
+     Create password protection for, and validate  a  promiscuous
+     connection from, a foreign site:
+
+       _bin/netpasswd NODE=pollux.ORG=XYZ.PRMD=com.COUNTRY=au
+
+PPPPAAAARRRRAAAAMMMMEEEETTTTEEEERRRRSSSS
+     On  starting,  _n_e_t_p_a_s_s_w_d  reads  a  file  in  the  `_params'
+     directory  with the same name as it was invoked under.  This
+     file can contain the following optional parameters:
+
+     PASSWDSORT
+         This is the command string used  to  sort  the  password
+         file by passing it to the shell.  The default is:
+
+         `sort -t. +1nr %s -o %s'
+
+         It must sort the passwd file in  reverse  order  on  the
+         leading  chars  after the first period, with input taken
+         from the file named by the first `%s', and  output  sent
+         to the file named by the second `%s'.
+
+EEEERRRRRRRROOOORRRRSSSS
+     Could not exec "sort ..."
+         _N_e_t_p_a_s_s_w_d runs _s_o_r_t(1)  to  sort  the  network  password
+         file.   If the sort fails, then you must fix the problem
+         and  try  again.   On  some  systems  you  must   invoke
+         _n_e_t_p_a_s_s_w_d  as "root" for sort to work, on others you may
+         be able to fix the problem by changing PASSWDSORT above
+
+     Could not open "/dev/tty"
+         _N_e_t_p_a_s_s_w_d opens /_d_e_v/_t_t_y to prompt  for  passwords.   If
+         your  real  terminal device is unwriteable by your group
+         id, this message  may  result.   You  can  "chmod  ug+rw
+         `tty`" and try again.
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    2
+
+
+
+
+
+
+Maintenance Procedures                               NETPASSWD(8)
+
+
+
+     No permission
+         You  must  have  network  super-user  privilege  to  run
+         _n_e_t_p_a_s_s_w_d.   (See  _n_e_t_p_r_i_v_s(1).)  If you do have network
+         super-user  privilege,  then  check  that  the   program
+         _bin/netpasswd    is    _s_e_t_u_i_d   to   NETUSERNAME   (see
+         _n_e_t_p_a_r_a_m_s(1)).
+
+FFFFIIIILLLLEEEESSSS
+     SPOOLDIR/_call/passwd       The network password file.
+     SPOOLDIR/_call/passwd.lock  Lock file for the password file.
+     SPOOLDIR/_call/passwd.tmp   Temporary file.
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _s_o_r_t(1), _n_e_t_p_a_r_a_m_s(5), _n_e_t_p_a_s_s_w_d(5), _n_e_t_w_o_r_k(7),
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    3
+
+
+

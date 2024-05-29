@@ -1,0 +1,66 @@
+
+
+
+User Commands                                       NETTIMEOUT(1)
+
+
+
+NNNNAAAAMMMMEEEE
+     nettimeout - timeout a command
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     nnnneeeettttttttiiiimmmmeeeeoooouuuutttt [-_w] _t_i_m_e_o_u_t _c_m_d [_a_r_g...]
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_t_i_m_e_o_u_t runs a command after setting a  timeout,  in  the
+     manner  of  _t_i_m_e(1).   The  timeout is specified in seconds,
+     followed by the command and its arguments which  are  passed
+     to  a  new  process group via _s_h(_1).  The optional parameter
+     causes a time-stamped message to be printed if  the  command
+     times out.
+
+     If  the  command  completes  within  the   specified   time,
+     _n_e_t_t_i_m_e_o_u_t  just  exits  with  the  same  exit  code as that
+     returned by the command.   Otherwise  _n_e_t_t_i_m_e_o_u_t  kills  the
+     command  process  group  with  SIGTERM  and  exits with code
+     EX_NOINPUT [66].  (Persistent commands are  sent  a  SIGKILL
+     after 2 seconds.)
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEESSSS
+     nettimeout -w 2 sleep 3
+     echo $?
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     sh(1), time(1).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6               Last change: 1.3                        1
+
+
+

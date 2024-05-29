@@ -1,0 +1,234 @@
+.ds S1 NETINIT
+.ds S2 \fINetinit\fP
+.ds S3 \fInetinit\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 _lib/netinit
+.ds S8 \fInetcontrol\fP
+.TH \*(S1 8 "\*(S4 1.18" \^
+.nh
+.SH NAME
+netinit \- network control program
+.SH SYNOPSIS
+.BI \*(S6
+.RI [\- flags ]
+.RI [ init-file ]
+.SH DESCRIPTION
+\*(S2 runs network processes described in the file
+.if t \f(CW_lib/initfile\fP.
+.if n `_lib/initfile'.
+.PP
+Each program that is to be run by \*(S3 has an entry in
+.I initfile
+of the form:
+.PP
+.RS 2
+\fIprocess-id\ \ process-type\ \ command\fP
+.RE
+.PP
+The
+.I process-id
+starts at the beginning of a line.
+It is used as an identifier for the process
+when \*(S3 is asked by \*(S8(8) to start or stop it.
+The three fields are delimited by space, tab, or a newline followed by space or tab.
+.PP
+The
+.I process-type
+can be one of the following:
+.RS 2
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-R\fP\fI\ log-file\fPX'u
+.TP "\*(tw"
+.BR restart
+The process will be started immediately,
+and restarted every time it terminates.
+However, if it terminates in less than a minute,
+it will be delayed before being restarted
+by an increasing amount up to 6 minutes.
+.TP
+.BR runonce
+The process will be run once every time a
+.I start
+command from \*(S8 is received for it.
+.TP
+.BR "`string'"
+A specification of the time to run the process in the same form as that used by
+.IR cron (8),
+enclosed in double quotes.
+.RE
+.PP
+The
+.I command
+specifies a
+.I shell
+command to execute using
+.if t \f(CW/bin/sh\fP
+.if n `/bin/sh'
+(see
+.IR sh (1)).
+Processes will be started or restarted on the minute.
+.PP
+Lines beginning with white space are interpreted as continuations of the current entry.
+An empty line terminates an entry and a line beginning with
+non-white space signifies the beginning of a new entry.
+Comments begin with a \fB#\fP character and end at a newline.
+.PP
+\*(S2 will check the modify time of
+.I initfile
+once a minute, and rescan the contents if it changes.
+See also the
+.I scan
+command in \*(S8(8).
+.PP
+The optional flags for \*(S3 are:
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-R\fP\fI\ log-file\fPX'u
+.TP "\*(tw"
+.BI \-f
+Don't fork off parent when starting.
+When this flag is specified and \*(S3's parent is \fIinit\fP,
+\*(S3 will pause when the \fBshutdown\fP command is complete.
+A further \fISIGTERM\fP is required to cause \*(S3 to exit.
+.TP
+.BI \-L " log-file"
+Write logging information to the file
+.I log-file
+(default:
+.if t \f(CW_lib/log\fP).
+.if n "_lib/log").
+.TP
+.BI \-T \fR[\fPlevel\fR]\fP
+Turns on tracing at
+.I level
+(default: 1).
+If tracing is not compiled in,
+this flag will have no effect.
+.br
+.ne 22
+.SH EXAMPLE
+.nf
+.ft CW
+.if \n(.lu<6i .ps -1
+.ta +\w'call-basserXX'u +\w'"10\ 8,15\ *\ *\ *"XX'u
+# daemons:
+router	restart	_lib/router -f
+# admin:
+admin-purge	"15 4 * * *"	_lib/daily
+admin-tidy	"5 12 * * 7"	_lib/weekly
+admin-stats	"25 4 1 * *"	_lib/monthly
+# calls:
+# 	permanent RS-232 link
+call-basser	restart	_call/call.tty -f basser
+# 	permanent TCP/IP link
+call-mango	restart	_call/call.tcp -f mango
+# 	explicit call via Hayes modem
+call-castor	"10 8,15 * * *"	_call/call.modem_0
+	-c -n	# "cooked" mode, "noisy" line
+	-f castor	# nofork, linkname
+	hayes@/dev/cua	# modem @ device
+	T7654321@2400	# dial string @ speed
+	cluster	# login name
+	password	# password
+.DT
+.if \n(.lu<6i .ps
+.ft
+.fi
+.PP
+\*(S2 will immediately run the commands
+.if n \fIrouter\fP, \fIcall-basser\fP and \fIcall-mango\fP,
+.if t \f(CWrouter\fP, \f(CWcall-basser\fP and \f(CWcall-mango\fP,
+and will restart them if they terminate.
+The other entries in the file specify that commands are to be run at particular times.
+.PP
+Note that if any of the commands are to become a target for the
+.IR netrouter (8)
+.I auto-call
+facility, then the link names should be specified fully,
+as in
+.br
+.if t \f(CWcall-basser.cs.su.oz.au\fP.
+.if n `call-basser.cs.su.oz.au'.
+.SH "PS LISTING"
+\*(S2
+alters its argument list to indicate current status.
+The result has two fields:
+program name, and number of active children.
+On BSD systems, the
+.IR ps (1)
+output shows the altered argument list.
+.SH FILES
+.PD 0
+.TP "\w'_lib/netinit.argsXX'u"
+_call/call.*
+Shell scripts to start connections on various types of circuit.
+.TP
+_lib/daily
+Shell script run once every day.
+.TP
+_lib/initfile
+Description of network processes to run.
+.TP
+_lib/lock
+Lock file for \*(S3.
+.TP
+_lib/log
+Log file for \*(S3.
+.TP
+_lib/monthly
+Shell script run once every month.
+.TP
+_lib/netinit.args
+Arguments being sent from \*(S8.
+.TP
+_lib/weekly
+Shell script run once every week.
+.TP
+_params/netinit
+Parameters for \*(S3.
+.PD
+.SH DIAGNOSTICS
+If there is a negative system time change of more than 10 seconds
+(the period set in the
+.SM NVETIMECHANGE
+parameter),
+\*(S3 will mail the people identified in the
+.SM NCC_ADMIN
+parameter
+(including `root', if not specified),
+and shut down the network for 10 minutes
+(the period set in the 
+.SM NVETIMEDELAY
+parameter).
+Use
+.IR kill (1)
+followed by
+.IR netstart (8)
+to restart it sooner.
+.PP
+If any program started by \*(S3 terminates with a
+.IR core ,
+then \*(S3 will disable the process and mail the person identified in the
+.SM NCC_ADMIN
+parameter.
+.PP
+If any program started by \*(S3 terminates with an error,
+the error reason is reported in the log
+(see the respective program manual for error explanation).
+.PP
+If any process with a
+.I process-type
+of `restart' terminates,
+the time and
+.SM PID
+are logged.
+.PP
+All \*(S8 commands and process starts are logged.
+.SH "SEE ALSO"
+.IR netparams (5),
+.IR \*(S5 (7),
+.IR cron (8),
+.IR netcallers (8),
+\*(S8(8),
+.IR netrouter (8),
+.IR netstart (8).

@@ -1,0 +1,198 @@
+
+
+
+Headers, Environments, and Macros                     NETPRIVS(5)
+
+
+
+NNNNAAAAMMMMEEEE
+     netprivs - network people privileges description file
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     SSSSPPPPOOOOOOOOLLLLDDDDIIIIRRRR////____lllliiiibbbb////pppprrrriiiivvvvssssffffiiiilllleeee
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_p_r_i_v_s contains network permissions for  people  accessing
+     the   network.    Each   line  in  the  file  describes  the
+     permissions to be allowed for a particular person, or for  a
+     group.   The  contents  can  be  printed  selectively by the
+     program _n_e_t_p_r_i_v_s(1).
+
+     Lines start with a user or group name in  the  first  field,
+     followed  immediately  by one colon (`::::') for a user, or two
+     colons for a group, then a list of privileges  separated  by
+     _s_p_a_c_e.   _S_p_a_c_e is any combination of <tab>, <space>, `,', or
+     `;'.   Privileges  may  be  spread  over  several  lines  by
+     preceding  the  continuation lines with _s_p_a_c_e.  Comments may
+     be introduced with a hash (`####'),  and  continue  to  end-of-
+     line.   Any  _s_p_a_c_e colon or hash character may be escaped by
+     preceding it with a back-slash (`\\\\').
+
+     An  asterisk  (`****')  in  the  first  field  allows   default
+     privileges  to  be  set.   Subsequent  default  lists modify
+     previous default lists.
+
+     Named users inherit the current composite set  of  defaults.
+     Group entries set defaults for all users who are a member of
+     that group and have not  been  named  explicily  before  the
+     group  name  occurs.   Any users not explicitly named in the
+     file, and whose group is not named, will inherit  the  final
+     composite of defaults.
+
+     Each privilege listed is conferred  -  a  leading  plus-sign
+     (`++++')  is ignored.  Alternatively a privilege may be removed
+     by preceding it with either a minus-sign (`----'),  exclamation
+     point  (`!!!!'),  or  tilde  (`~~~~').   Conferred  privileges are
+     enabled first,  and  then  denied  privileges  are  removed,
+     except  in  the  special  case of `----****' (see below), when all
+     current privileges  are  turned  off,  before  enabling  the
+     conferred ones.
+
+     A  user's  privileges  consist  of  enabling  flags  and  an
+     optional   address  restriction.   The  address  restriction
+     prevents a user from sending messages  outside  the  regions
+     named, and is introduced with an _a_t sign (`@@@@').
+
+     The (case insensitive) flags are as follows:
+
+     ****   All flags.
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+
+
+
+
+Headers, Environments, and Macros                     NETPRIVS(5)
+
+
+
+     BBBBrrrrooooaaaaddddccccaaaasssstttt
+         Broadcast routing allowed.
+
+     EEEExxxxeeeecccc
+         _R_e_m_o_t_e _e_x_e_c_u_t_i_o_n requests allowed (if supported).
+
+     EEEExxxxpppplllliiiicccciiiitttt
+         Explicit routing allowed.
+
+     MMMMuuuullllttttiiiiccccaaaasssstttt
+         Multicast routing allowed.
+
+     OOOOtttthhhheeeerrrrhhhhaaaannnnddddlllleeeerrrrssss
+         Message types not defined by _n_e_t_h_a_n_d_l_e_r_s(5) are allowed.
+
+     RRRReeeecccceeeeiiiivvvveeee
+         User is allowed to receive  network  messages.   So  far
+         only applies to the ability to use _n_e_t_g_e_t(1).
+
+     SSSSeeeennnndddd
+         User is allowed to send network messages.
+
+     SSSSUUUU  This user is a network _s_u_p_e_r-_u_s_e_r.
+
+     WWWWoooorrrrlllldddd
+         Messages addressed to the top-level (global) region  are
+         allowed.
+
+     Any program running under the uid NETUSERNAME  automatically
+     gets all privileges.  If the invoker of a network program is
+     the _s_u_p_e_r-_u_s_e_r or is a member of the group NETGROUPNAME then
+     they   are   automatically   conferred  the  _S_U,  _B_r_o_a_d_c_a_s_t,
+     _O_t_h_e_r_h_a_n_d_l_e_r_s, _S_e_n_d and _E_x_e_c flags.p
+
+
+     If the file doesn't exist, or is empty, then users  get  the
+     following  default  privileges:  _M_u_l_t_i_c_a_s_t,  _E_x_p_l_i_c_i_t, _S_e_n_d,
+     _R_e_c_e_i_v_e.
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEE
+     #       This is a comment line.
+     #       (Note that empty lines are ignored.)
+
+     *:      *               # Turn on everything for these:
+     root:
+     daemon:
+
+     *:      -WORLD          # Following are network super-users:
+     kre:
+     bob:
+
+     *:      -BROADCAST      # Mortals can't broadcast,
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    2
+
+
+
+
+
+
+Headers, Environments, and Macros                     NETPRIVS(5)
+
+
+
+             -OTHERHANDLERS  # use weird handlers,
+             -SU             # manipulate network messages,
+             @COUNTRY=au     # or send messages outside the country.
+     tom:
+     jane:   +OTHERHANDLERS  # (except for Jane,
+                             # who is testing a new handler).
+
+     #       Staff are restricted to particular networks.
+     staff:: @PRMD=mhs\,PRMD=oz
+
+     #       The rest may only receive or send within XYZ.
+     *:      -*; SEND, RECEIVE, MULTICAST, @ORG=xyz
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _n_e_t_f_i_l_e(1),   _n_e_t_p_r_i_v_s(1),   _n_e_t_a_d_d_r_e_s_s_e_s(5),    _n_e_t_w_o_r_k(7),
+     _n_e_t_m_s_g(8).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    3
+
+
+

@@ -1,0 +1,81 @@
+.ds S1 NETCON
+.ds S2 \fINetcon\fP
+.ds S3 \fInetcon\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 _bin/netcon
+.TH \*(S1 8 "\*(S4 1.2" \^
+.nh
+.SH NAME
+netcon \- connect terminal to remote systems
+.SH SYNOPSIS
+.BI \*(S6
+.I special
+.RI [ speed ]
+.br
+.BI /usr/lib/Receive
+.I file
+.br
+.BI /usr/lib/Send
+.I file
+.SH DESCRIPTION
+\*(S2
+connects the invoker's terminal to the device connected to
+.IR special ,
+normally a modem.
+If
+.I special
+does not start with `/', then `/dev/' will be prepended.
+.I Special
+must either be writable by the invoker,
+or the invoker must be a network
+.IR super-user .
+(See
+.IR netprivs (1).)
+The optional second parameter is the speed of the link in bits/second
+[default: 9600].
+.PP
+Characters typed by the invoker sre sent to the device,
+characters received from the device are sent to the terminal.
+.PP
+\*(S2
+recognises an escape character [default: CTRL-y]
+which breaks out from character transmission into command mode.
+Command mode allows changing parity, speed, and escape character,
+also sending breaks, changing directory, and sending and receiving files.
+Type `?' for a command list.
+.PP
+For file transfer, a version of \*(S3 must be linked into the alternate
+file names above on the host at the remote end of the link.
+File transfer uses a simple error-correcting protocol.
+.PP
+\*(S2
+obeys the
+.SM UUCP
+locking protocol for devices.
+.SH FILES
+.PD 0
+.TP "\w'\f(CW/usr/lib/Receive\fRX'u"
+\f(CW/usr/lib/Receive\fR
+When invoked with this name,
+\*(S3 acts as a file receiver using the error correcting protocol.
+.TP
+\f(CW/usr/lib/Send\fR
+When invoked with this name,
+\*(S3 acts as a file transmitter using the error correcting protocol.
+.TP
+\f(CW_params/daemon\fR
+Alternate parameters for
+.SM UUCP
+locking.
+.TP
+\f(CW_params/netcon\fR
+Parameters specific to \*(S3.
+.PD
+.br
+.ne 3
+.SH "SEE ALSO"
+.IR cu (1),
+.IR kermit (1),
+.IR netprivs (1),
+.IR netparams (5).

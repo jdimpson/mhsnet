@@ -1,0 +1,1080 @@
+.nr S3 1 \" 1 for ACSnet
+.ds S1 NETDAEMON
+.ds S2 \fINetdaemon\fP
+.ds S3 \fInetdaemon\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 _lib/VCdaemon
+.ds S7 \s-1SUN\ III\s0
+.TH \*(S1 8 "\*(S4 1.49" \^
+.ds sT \v'-0.2v'\s-1*\s0\v'0.2v'
+.nh
+.SH NAME
+netdaemon \- network transport daemon
+.SH SYNOPSIS
+.BI \*(S6
+.RI [\- flags ]
+\-\fBH\fP \fIhome_address\fP
+\-\fBL\fP \fIlink_address\fP
+\-\fBN\fP \fIlink_name\fP
+.br
+.BI _lib/HTdaemon " ..."
+.SH DESCRIPTION
+\*(S2
+is the network transport daemon for standard virtual circuits.
+It is started by the system at initialization time
+to transmit messages to,
+and receive messages from,
+a remote host.
+The daemon can also be started by the network daemon shell
+.IR netshell (8),
+or by the virtual circuit establishment program
+.IR netcall (8),
+to exchange messages in
+.I "batch mode"
+for intermittent connections.
+The daemon expects a readable virtual circuit to be presented as file descriptor 0,
+and a writable virtual circuit as file descriptor 1.
+.if \n(S3 \{\
+.PP
+There are alternate versions for connecting
+to ACSnet sites running the \*(S7 software (see
+.SM "SUN\ III\ DAEMONS"
+below),
+and these take additional flags as indicated.\}
+.PP
+The optional flags have meanings as follows
+(those marked with an asterisk
+must be enabled at both ends of a link to be effective):
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-H\fP\fI\ home\ address\fPX'u
+.TP "\*(tw"
+.BI \-3
+Prevent \*(S7-compatible daemon from specifying \*(S7 filter for new links.
+.br
+NB: this flag should be specified when using the \*(S7-compatible daemons between two MHSnet sites.
+.TP
+.BI \-c \*(sT
+This flag requests that the default
+.I cooked
+mode be used on the virtual circuit,
+and is intended for circuits that allow \s-1ASCII\s0 printing characters only.
+(See \fB\-C\fP below for alternatives.)
+.TP
+.BI \-d
+Terminate if a link goes down.
+Otherwise the daemon will wait for the link to come back up.
+(Default for \fB\-B\fP.)
+.TP
+.BI \-f
+Prevents the daemon from forking after execution.
+.TP
+.BI \-g
+Prevents the daemon from creating the file
+.if n `log'.
+.if t \f(CWlog\fP.
+Instead, log messages are written to
+.IR stderr .
+.TP
+.BI \-i
+Allow inbound messages only.
+.TP
+.BI \-l
+Don't create a new lockfile,
+presumably one is in place already from the program invoking the daemon.
+.TP
+.BI \-n
+Don't adjust packet sizes to take account of low/high error rates.
+If the expected throughput is set via the \fB\-X\fP flag,
+then the protocol will attempt to improve the actual throughput
+towards the expected throughput by adjusting packet sizes,
+unless this flag is set.
+.TP
+.BI \-o
+Allow outbound messages only.
+(The flags \fB\-i\fP and \fB\-o\fP are exclusive.)
+.TP
+.BI \-p
+Ignore old
+.I "process id"
+in any existing lock file.
+.TP
+.BI \-r \*(sT
+Don't generate a \s-1CRC\s0 for packet data.
+Presumably the virtual circuit already guarantees the data.
+.TP
+.BI \-s
+Don't write transmission statistics to the log file.
+.TP
+.BI \-t \*(sT
+Turn around a 1/2 duplex link whenever one end drains its output queue.
+May only be used with either one of \fB-i\fP or \fB-o\fP
+(which control the initial direction).
+.TP
+.BI \-u
+Don't signal link status changes.
+Otherwise, link status messages are sent to the router.
+.TP
+.BI \-v
+Turn on message control reports.
+These are produced when message control packets have to be re-transmitted,
+usually because of circuit errors, or busy \s-1CPU\s0s.
+This flag also turns on statistics (overrides \fB\-s\fP) and circuit throughput reports.
+.TP
+.BI \-z
+Other end is old (MHSnet 1.0) daemon
+\(em don't send new echo-detection packets.
+.if \n(S3 \{\
+(Not \*(S7.)\}
+.TP
+.BI \-A \fR[\fPseconds\*(sT\fR]\fP
+Alters `write-ahead' seconds [default: 4].
+The transmitter will write data for a new message
+for this number of seconds
+before pausing to wait for an acknowledgment that it can continue.
+Only useful together with the \fB\-X\fP flag below.
+.TP
+.BI \-B \fR[\fPtimeout\*(sT\fR]\fP
+Turn on
+.IR batch-mode .
+This flag is for use on links that are of an intermittent nature.
+The optional
+.I timeout
+(in seconds) can be specified to delay termination of the daemon
+after all channels become idle [minimum/default: 1].
+.TP
+.BI \-C \ type
+Use
+.I type
+to select a virtual circuit `cooking' protocol.
+The possibilities are:
+.TP
+.BI \-C " " 0 " or " A
+Allow only 7-bit \s-1ASCII\s0 printing characters,
+and break lines at 80 columns.
+(Also chosen by \fB\-c\fP above.)
+.if \n(S3 \{\
+(Not \*(S7.)\}
+.TP
+.BI \-C " " 1 " or " X
+Use all 8-bit characters except \s-1XON\s0,
+\s-1XOFF\s0,
+\s-1ETX\s0,
+\s-1FS\s0,
+all in either parity,
+and two escape chars,
+which will be escaped.
+(\fBNote\fP: this may not work on some non-\s-1SYSTEM V\s0 kernels,
+which tend to stuff the parity bit when not in pure `\s-1RAW\s0' mode.)
+.if \n(S3 \{\
+(Not \*(S7.)\}
+.TP
+.BI \-C " " X ,nnn[,nnn...]
+As an alternative to the defaults for \fB\-CX\fP above,
+you may set up the characters to be escaped explicitly
+by providing a list of their ASCII character numbers.
+These may be in either
+.I octal
+(leading \fB0\fP),
+.I hexadecimal
+(leading \fB0x\fP)
+or
+.I decimal
+notation.
+You may not escape any of the characters in the range
+044 (`$') to 0147 (`g').
+Eg, to duplicate the default settings for \fB\-CX\fP, you would specify:
+.br
+.if t \f(CW-CX,3,17,19,28,131,145,147,156\fP
+.if n `-CX,3,17,19,28,131,145,147,156'
+.if \n(S3 \{\
+.br
+(Not \*(S7.)\}
+.TP
+.BI \-D \ size
+Control the number of bytes of data in the protocol's data packets
+[defaults: \fIHTdaemon\fP 8192; \fIVCdaemon\fP 1024].
+Must be in the range 8 to \fIN\fP (and must be a power of 2)
+where \fIN\fP is 1024 for \fIVCdaemon\fP and 131072 for \fIHTdaemon\fP.
+Fixes the packet size if the \fB\-n\fP parameter is specified,
+otherwise the packet size is adjusted to match line conditions
+but is never greater than \fIsize\fP.
+.TP
+.BI \-E \ errorfile
+Put error output in
+.I errorfile
+[default
+.if t \f(CWlog\fP].
+.if n `log'].
+.I Errorfile
+will be appended if it exists.
+.TP
+.BI \-F \ tracefile
+Put trace output in
+.I tracefile
+[default
+.if t \f(CWlog\fP].
+.if n `log'].
+.I Tracefile
+will be appended if it exists.
+.if \n(S3 \{\
+.TP
+.BI \-G "\ packet buffers"
+Since the \*(S7 daemons use a windowed packet protocol,
+this parameter is needed if you wish to change the window
+size to something other than the default [3].\}
+.TP
+.BI \-H "\ home address"
+Mandatory parameter,
+gives typed network address of home.
+.if \n(S3 \{\
+.TP
+.BI \-I "\ packet delay"
+This parameter is used in timeout calculations for the \*(S7 protocols.
+It specifies
+.I intra-\c
+packet delays introduced by sub-carrier packet networks.
+.TP
+.BI \-J "\ first channel"
+Specifies first active \*(S7 channel in use in the range 0-2 [default 0].\}
+.TP
+.BI \-K "\ acct string"
+Optional string that will be appended to the 
+.I connect
+log on termination.
+.TP
+.BI \-L "\ link address"
+Mandatory parameter,
+gives typed network address of link.
+.TP
+.BI \-M n
+This flag turns on \fIreader\fP tracing at level
+.I n
+(see flag \fBT\fP).
+.TP
+.BI \-N "\ link name"
+Mandatory parameter,
+gives spool directory pathname for link,
+where the daemon will operate.
+.if \n(S3 \{\
+.TP
+.BI \-O "\ output size"
+Control the size of virtual circuit data transmitted via
+.IR write (2)
+system calls.\}
+.TP
+.BI \-P n
+Causes packet protocol tracing to be turned on at level
+.IR n .
+Level 1 produces a trace for each packet,
+level 2 also prints the bytes on the virtual circuit.
+No effect if tracing has not been compiled in.
+.TP
+.BI \-Q \ priority
+Set the lowest priority message to be transmitted.
+Lower priority messages will be kept in the queue.
+[Default: '9'.]
+.TP
+.BI \-R "\ max run time"
+Set the maximum time in seconds that an intermittent connection can stay up.
+[Default: infinite.]
+.TP
+.BI \-S \ minspeed
+This flag attempts to give a
+.I "quality assurance"
+limit for intermittent links.
+If the effective data transfer rate falls below
+.I minspeed
+[default 0],
+then the daemon will terminate.
+.TP
+.BI \-T n
+This flag turns on tracing at level
+.I n
+(if included at compile time)
+and a log of all output transactions is placed in the
+.I log
+file,
+while input transaction go into a file named
+.IR readerlog .
+Note that a reader-specific or writer-specific level can be set via the \fBM\fP or \fBV\fP flags.
+.SM NB:
+this can generate a huge amount of output.
+.TP
+.BI \-U \ seconds
+Change the interval between status file updates to
+.IR seconds .
+[Default: 40 seconds, or whenever a message starts/completes a transfer.]
+.if \n(S3 \{\
+.TP
+.BI \-V n
+This flag turns on \fIwriter\fP tracing at level
+.I n
+(see flag \fBT\fP).
+.TP
+.BI \-W "\ ACK window"
+Control the number of packets acknowledged by each ACK packet.
+Changing this parameter from the default of 1
+causes the \*(S7 protocol to wait to receive
+the specified number of packets before sending an ACK.
+Only advisable on reliable circuits,
+and may not be set larger than {\fBwindow size \- 1\fP}
+(cf: \fB\-G\fP).\}
+.TP
+.BI \-X \ rate
+.I Rate
+should be the effective speed of the link in `raw' bytes-per-second [default 240],
+and is used in time-out calculations and packet size adjustments.
+.TP
+.BI \-Y \ timeout\*(sT
+Change the timeout used for dead circuit detection from the default [40 seconds].
+An \s-1IDLE\s0 packet is generated every
+.I timeout
+seconds.
+The circuit will be marked dead if no \s-1IDLE\s0 packet
+is seen from the remote end after 3
+.I timeout
+periods.
+If
+.I timeout
+is 0, then dead circuit detection is disabled.
+A zero timeout may not be used together with \fB\-B\fP or \fB\-t\fP.
+NB: \s-1IDLE\s0 packets are also used to adjust transmission parameters
+to take account of actual circuit throughput,
+so should only be disabled on circuits whose characteristics are predictable
+as set via the \fB\-X\fP parameter.
+.TP
+.BI \-Z \ sleep
+When the daemon has nothing to do,
+it will sleep for
+.I sleep
+seconds between scanning the output queues.
+It will also scan the queues whenever it is sent a wakeup signal by the routing daemon.
+However,
+on network systems where the router process is running on a different processor,
+this flag allows more frequent queue scans.
+.I Sleep
+is 60 seconds by default
+[10 seconds in batch mode,
+or if \fB\-t\fP is used.]
+.TP
+.BI \-?
+Explain argument options and exit.
+.SS Operation
+There is one daemon for each active network link.
+Each daemon has a separate command directory
+in the network spool area,
+as specified by the \fB\-N\fP parameter.
+Within this directory there are three other directories:
+.if n `cmds', `in' and `out'.
+.if t \f(CWcmds\fP, \f(CWin\fP and \f(CWout\fP.
+.PP
+The file
+.if n `cmds/lock'
+.if t \f(CWcmds/lock\fP
+is used to prevent two daemons from becoming
+active simultaneously.
+It contains the process
+.SM ID
+of the daemon,
+and the name of the node it is running on.
+After the daemon has created the lock file,
+it forks and becomes two processes,
+one for transmitting messages,
+and the other for receiving.
+The message transmitter scans the command directory
+.if n `cmds'
+.if t \f(CWcmds\fP
+for command files.
+Records in each command file
+specify files to be transmitted,
+and actions to be performed.
+On successful completion of message transmission,
+the spooled message is removed.
+.PP
+The receiver process awaits incoming messages,
+and creates a temporary file for each one in the directory
+.if n `in'.
+.if t \f(CWin\fP.
+On successful completion of message reception,
+a command file is generated for the spooled message and passed to
+the routing program
+for further processing.
+.PP
+\*(S2
+catches the system termination signal and writes accumulated statistics
+on the log file in the command directory.
+.PP
+If a file named
+`endprog'
+exists in the link's operating directory,
+or if not there, then in the "_call" directory,
+it will be executed in the link's operating directory by
+.IR sh (1)
+just before the message transport daemon terminates.
+It will be passed three arguments:
+the name of the link,
+the termination reason (see below),
+and the name of \*(S3.
+It will have standard input and output set to the virtual circuit.
+Note that if
+`endprog'
+has an owner other than
+.SM NETUSERNAME
+or a group other than
+.SM NETGROUPNAME,
+or is publicly writeable,
+then it will be ignored.
+.SS "Message channels and priorities"
+The daemon uses a full-duplex multiplexed channel protocol
+to exchange messages reliably with another daemon running on the remote host.
+Four channels are provided in each direction.
+Message priorities are allocated to channels as follows:
+.PP
+.RS 2
+.nf
+.ta +\w'\fBPriorities\fPXX'u
+\fBPriorities	Channel\fP
+.sp .5
+0	0
+1, 2, 3	1
+4, 5, 6	2
+7, 8, 9	3
+.DT
+.fi
+.RE
+.PP
+Each channel transmits the highest priority message available with priority <= to its allocated range
+.B unless
+the message has the
+.I ordered
+transmission flag,
+in which case it is only transmitted on the channel allocated to its priority.
+The routing program assigns network
+.I state
+messages to priority 0,
+small messages to priority 3,
+large messages to priority 6,
+and low-priority messages to priority 9
+(unless overriden by the message insertion programs).
+Thus small messages (such as mail items) may overtake larger ones.
+Messages are only progressed on higher numbered channels when
+lower numbered ones are idle or delayed (due to message turn-around).
+.SS Statistics
+The state of the link may be determined by running the command
+.IR netlink (1)
+which shows the channel states and link throughputs.
+The raw statistics and state of the link may be printed using
+.IR netlinkdata (8)
+The command
+.IR netq (1)
+may be used to find out what messages are awaiting transmission.
+.P
+If a file named
+\f(CW_stats/connect\fP
+exists and is writeable,
+\*(S3 on terminating will write one line for each direction.
+Each line has 8 or 9 fields as follows:
+start-date, start-time, weekday, direction, typed-link-name, elapsed-time, messages and data-bytes.
+If the \fB\-K\fP flag was used, then its value will become the ninth field.
+\fIUni-process\fP daemons write a single line with the direction marked as \f(CWi&o\fP.
+.br
+.ne 4
+.SH PROTOCOL
+The daemon is split into two processes,
+one reader,
+one writer,
+in order to decouple the synchronous I/O interface provided by the virtual circuit.
+The transport protocol is designed for minimum sub-carrier overheads,
+with byte addressed packets using a window size of 4 Gbytes,
+and employing no positive acknowledgements.
+Data packets with detected errors are ignored,
+but any `gaps' detected in the data are negatively acknowledged, asynchronously.
+The writer process assumes that, under normal circumstances,
+the remote reader is always ready to receive another message.
+This allows minimal inter-message `turn-around' delays,
+and maximal use of the virtual circuit bandwidth.
+.PP
+The protocol will operate effectively over most virtual circuits,
+however a few parameters will modify its efficiency under some conditions
+(but note the
+.I caveat
+below).
+The options are
+the data size of each packet (\fB\-D\fP),
+the effective throughput of the virtual circuit (\fB\-X\fP),
+the amount of buffering \fIinside\fP the virtual circuit (\fB\-A\fP),
+and whether to allow bi-directional data flow or not (\fB\-t\fP).
+If the circuit suffers high error rates, then the packet size should be reduced.
+A rule of thumb is to choose a packet data size
+such that each packet takes around a second to transmit.
+The smaller the data size, the greater the overheads,
+since the packet header is 8 bytes.
+[10 including the data \s-1CRC\s0.]
+On the other hand, the smaller the packet,
+the smaller the chance that it will be corrupted.
+The effective throughput of the circuit is not very important,
+unless it is less than 100 bytes/sec,
+in which case the timeouts will be increased,
+or if the throughput is greater than 1000,
+in which case the `write-ahead' will be increased.
+But note that the effective throughput
+should be as close as possible to what is realistically achievable,
+as otherwise unnecessary packet size adjustments will occur.
+Alternatively, if you are reasonably certain what packet size you need,
+you can disable packet size changes altogether by specifying \fB\-n\fP.
+If the circuit has internal buffering
+(such as via a `terminal server')
+it may need the `write-ahead' increased.
+The `write-ahead' should be the same as the buffering + 4,
+eg: for a 9600 baud circuit via a terminal server with 8 kbyte buffers,
+the buffers will hold ~8.5 seconds worth of data,
+so the `write-ahead' should be 12 seconds.
+The `write-ahead' only affects the beginning of messages
+while the transmitter is waiting for the receiver to acknowledge a new message.
+Setting `write-ahead' too high on poor cicruits will increase
+the likelihood of all the `written-ahead' packets being
+discarded if the new message is rejected
+(or the start-of-message packet is lost).
+The
+.I half-duplex
+mode (\-i/\-o, \-t) will need to be invoked over virtual circuits 
+that don't have real full duplex behaviour,
+such as those provided by certain high-speed modems that operate
+first in one direction, then in the other.
+.SS "Protocol Problems"
+If there are protocol problems,
+they may be examined more closely by enabling packet tracing.
+However, most protocol problems are caused by circuit conditions
+which prevent bytes from being delivered properly.
+The data at the end of the log file printed when the daemon terminates
+is intended to aid circuit error monitoring.
+.P
+Too many errors may just mean a very bad circuit,
+for which the only solution is to reduce the packet size
+to minimise the chances of an error destroying a packet.
+.P
+If the circuit has 
+.I in-band
+flow control, then the protocol needs to be
+.I cooked
+so that the bytes generated by the protocol don't conflict with the bytes used for flow-control.
+.I Cooking
+is also needed if the circuit doesn't allow all 8-bit bytes to be passed.
+If the set of bytes that must be avoided is small,
+then the \fB\-CX,...\fP option may be used to specify the actual bytes to be escaped by
+.IR cooking ,
+otherwise the \fB\-c\fP option may be used to escape all non-printing ASCII bytes.
+.P
+If these considerations don't explain the problem,
+then packet tracing must be enabled to print the packets
+and the circuit bytes they contain into the log file.
+Tracing can be enabled via the invokation flag \fB\-P2\fP,
+or
+.I write-only
+tracing can be enabled by creating an empty file named
+.SM TRACE
+a couple of times (once for each level)
+in the 
+.if t \fIlinkname\f(CW/cmds\fR
+.if n `linkname/cmds'
+directory.
+(Tracing is disabled by creating the file
+.SM NOTRACE\c
+\&.)
+.P
+Look for incompatible protocols (perhaps one end is using 
+.I cooked
+protocol, while the other end isn't).
+Or look for bytes with all one parity, in which case the \fB\-CA\fP protocol is needed.
+Or look for missing bytes, which mean that those bytes are being swallowed by the circuit,
+and must be escaped using \fB\-CX,...\fP.
+.SH "DAEMONS"
+There are two daemons, with slightly different protocols:
+.SS VCdaemon
+This has 8 byte headers,
+a maximum packet size of 1024 bytes,
+and uses a 16 bit CRC for the data.
+.SS HTdaemon
+This has 9 byte headers,
+a maximum packet size of 131072 bytes,
+and uses a 32 bit CRC for data packets larger than 1024.
+It is faster than
+.I VCdaemon
+on high speed circuits, where the larger packet size reduces overheads.
+(Use \fB\-D8192\fP over Ethernets.)
+.if \n(S3 \{\
+.SH "SUN III DAEMONS"
+The \*(S7 compatible daemons use a full-duplex windowed packet protocol
+with three multiplexed channels in each direction.
+Only one process is used,
+so the protocols are limited by the need to avoid output blocking.
+It is quite feasible to use these daemons on \*(S4 links
+\(em they are useful if the circuit error rates are very high,
+or there is a need for fewer running processes.
+.PP
+There are several protocols available which
+vary according to the characteristics assumed for the underlying virtual
+circuits.
+.PP
+Each protocol can be tailored for specific parameters which determine
+the amount of data that will be \fIin flight\fP during transmission.
+The reason for this is that some circuits incorporate long delays internally,
+such as links via satellites, and therefore require much larger \fIwindows\fP
+than circuits which consist of a twisted pair linking two nodes directly.
+Another problem is introduced by virtual circuits which themselves use
+protocols such as X.25, as these sub-protocols can cause blocking of higher
+level protocols when their own flow-control requirements are exceeded.
+Such circuits can also cause fragmentation of higher level packets,
+with the consequent introduction of \fIintra-packet\fP delays.
+There is a conflict of requirements here,
+on the one hand to ensure enough data is \fIin flight\fP
+to keep a circuit with long internal delays busy,
+and on the other to ensure 
+that too much data won't be written to both ends of the circuit simultaneously.
+In these conditions, it is important to tailor the parameters appropriately
+to obtain the optimum performance, both in speed and cost.
+For these purposes,
+it is possible to alter both the size of packets being transmitted (\fB\-D\fP),
+the number of packets in flight (the `window size', \fB\-G\fP),
+the frequency of acknowledgements (the `\s-1ACK\s0 window', \fB\-W\fP),
+the number of channels in use (\fB\-J\fP),
+and whether to allow bi-directional data flow or not (\fB\-i/\-o\fP with \fB\-t\fP).
+Four versions are available,
+each suitable for different link conditions:
+.SS NNdaemon
+Protocol suitable for error prone virtual circuits
+such as telephone connections where bits can change at random.
+.SS CNdaemon
+Similar to 
+.IR NNdaemon ,
+but the protocol is also more resilient if bytes get dropped or inserted.
+Packets are one byte larger.
+.ne 4
+.SS ENdaemon
+Uses a protocol tailored for use
+over virtual circuits provided by unreliable datagrams,
+such as \s-1UDP/IP\s0 over Ethernet,
+where the contents of a datagram,
+if delivered, are guaranteed.
+[So don't use ENdaemon over links
+where datagram packets are not error checked,
+such as \s-1UDP/IP\s0 over a \s-1SLIP\s0 link.]
+Packets can hold up to 1024 bytes of data.
+.SS PNdaemon
+Uses a protocol suitable for use over Public Packet Switched Networks
+such as X.25 networks.
+It attempts to reduce the number of partially filled packets
+by reducing the frequency of acknowledgements.
+Packets can hold up to 1024 bytes of data.
+In addition,
+the `window' size can be up to 8 packets,
+with an acknowledgement only being sent every 7 packets.
+It should almost always be used in `half-duplex' mode to avoid blocking.
+It is also advisable to use just one channel, to further cut down on overheads.
+Eg: for an X.25 connection with average throughput of 100 bytes/second,
+use the following parameters:\-
+.RS
+.ft CW
+-nti -D1024 -G8 -J2 -X100 -W7
+.ft
+.RE
+.SS Note
+All these daemons must be used together with the message conversion filter
+.if t \f(CWfilter43\fP
+.if n `filter43'
+if they are communicating with a site running \*(S7 \(em use the
+.I filter
+command to
+.IR netstate (8)
+to specify
+.if t \f(CW_lib/filter43\fP
+.if n `_lib/filter43'
+for each such link.
+.PP
+If they are \fBnot\fP
+being used to communicate with a site running \*(S7,
+then the \fB\-u\fP flag must be used to prevent
+the \fIlink up\fP message from attempting to specify
+.if t \f(CWfilter43\fP
+.if n `filter43'
+\&.\}
+.SH EXAMPLES
+For a modem connection with nominal throughput of 240 bytes/second,
+and a minimum throughput requirement of 100 bytes/second,
+use the following parameters:
+.RS
+.ft CW
+-D 256 -S 100 -X 240
+.ft
+.RE
+.PP
+For a modem connection with nominal throughput of 960 bytes/second
+with a fairly high error rate,
+and required to stay up for 5 minutes after the last message,
+use the following parameters:
+.RS
+.ft CW
+-B300 -nD256 -X960
+.ft
+.RE
+.PP
+For an X.25 connection with average throughput of 200 bytes/second,
+use:
+.RS
+.ft CW
+-r -X 200 -Y 0
+.ft
+.RE
+.PP
+For an X.29 (\s-1PAD\s0) connection with average throughput of 100 bytes/second,
+use:
+.RS
+.ft CW
+-c -X 100
+.ft
+.RE
+.PP
+For a circuit established using a half-duplex 
+`trellis encoding' modem at 18000 baud
+(such as the Trailblazer)
+attached via 19200 RS-232 with \s-1RTS/CTS\s0 flow-control,
+use these parameters for one end:
+.RS
+.ft CW
+-nitD1024 -A8 -S200 -X1380
+.ft
+.RE
+and these for the other:
+.RS
+.ft CW
+-notD1024 -A8 -S200 -X1380
+.ft
+.RE
+.PP
+If the flow-control is via \s-1XON/XOFF\s0, use:
+.RS
+.ft CW
+-CX -nitD1024 -A8 -S200 -X1380
+.ft
+.RE
+and:
+.RS
+.ft CW
+-CX -notD1024 -A8 -S200 -X1380
+.ft
+.RE
+.PP
+For a \s-1TCP/IP\s0 connection over an ethernet with average throughput of 200 Kbytes/second,
+use:
+.RS
+.ft CW
+-r -X 200000
+.ft
+.RE
+.PP
+Some \s-1TCP/IP\s0 circuits are unreliable
+and may `hang' if large packets are written to them,
+so if you experience any problems,
+don't turn off \s-1CRC\s0 checks
+and use 512 byte packets instead of the default (1024):
+.RS
+.ft CW
+-D 512 -X 20000
+.ft
+.RE
+.SS Caveat
+Don't use \s-1UDP/IP\s0 unless the machines at both ends
+are fast enough to process data at maximum circuit speed,
+and the kernel blocks \s-1UDP\s0 datagram writers
+from overflowing the internal buffers.
+Otherwise the receiving daemons at each end
+will be unable to write the incoming data to the file-system 
+fast enough to avoid lost data,
+and the result will be many retransmissions.
+This is because \s-1UDP\s0 has no flow control built in,
+as \s-1TCP\s0 has.
+However, \s-1UDP\s0 is the most efficient \s-1IP\s0 circuit
+to use in cases where the underlying medium
+is slow compared with the processors and disks.
+.SH TERMINATION
+The daemon can terminate for various reasons
+\(em and a message will be written to the
+.I log
+file.
+The process exit status for each termination condition
+is shown in square brackets:
+.if n .ds tw 4
+.if t .ds tw \w'\s-1UNEXPECTED\ SIGNAL\s0XX'u
+.TP "\*(tw"
+.SM "\-VE TIME CHANGE"
+The kernel clock moved backwards more than some small amount.
+.SM [EX_TEMPFAIL]
+.TP
+Circuit timed out
+The reader process has received no data from the remote site for more than 130 seconds.
+.TP
+.SM FINISHED
+Normal termination.
+.SM [EX_OK]
+.TP
+.SM HANGUP
+The receiver process got a
+.SM SIGHUP
+signal.
+The virtual circuit terminated prematurely.
+.SM [EX_HANGUP]
+.TP
+.SM "LINK/HOME ADDRESS MISMATCH"
+The remote daemon is using packet addresses
+that don't agree with the \fB\-H\fP or \fB\-L\fP parameters.
+.SM [EX_MISMATCH]
+.TP
+.SM "MAX RUNTIME EXCEEDED"
+The runtime parameter (\fB\-R\fP) was exceeded.
+.SM [EX_MAXRT]
+.TP
+.SM "READ TIMEOUT"
+The receiver failed to detect any recognizable packets from the remote end
+within some reasonable time period.
+.SM [EX_RDTIMO]
+.TP
+.SM "READER ERROR"
+The receiver process died with an I/O error,
+or the router process detected an anomaly in a message from the receiver and signalled it.
+.SM [EX_IOERR]
+.TP
+.SM "REMOTE SLOW"
+Throughput on the virtual circuit fell below the value specified in the
+`quality of service' parameter (\fB\-S\fP).
+.SM [EX_REMSLOW]
+.TP
+.SM "REMOTE SYNC SLOW"
+A
+.I batch-mode
+daemon failed to synchronise the circuit at the start of transmission.
+.SM [EX_REMSLOW]
+.TP
+.SM "REMOTE TERMINATE"
+The reader process received a terminate message from the remote daemon.
+.SM [EX_REMTERM]
+.TP
+.SM SIGPIPE
+A daemon process received a pipe error signal.
+.SM [EX_SIGPIPE]
+.TP
+.SM "UNEXPECTED SIGNAL"
+An unrecognized signal was received by a daemon process.
+.SM [EX_UNXSIG]
+.TP
+.SM "UNEXPECTED SYNC"
+An unexpected SYNC packet was received by the reader process,
+usually because the remote daemon was restarted unexpectedly.
+.SM [EX_IOERR]
+.TP
+.SM "VC READ ERROR"
+The reader process received a system error indication from the virtual circuit.
+.SM [EX_IOERR]
+.TP
+.SM "VC WRITE ERROR"
+The writer process received a system error indication from the virtual circuit.
+.SM [EX_IOERR]
+.TP
+.SM "VIRTUAL CIRCUIT ECHO"
+Packets are being echoed on the virtual circuit.
+.SM [EX_VCECHO]
+.TP
+.SM "WRITER BLOCKED"
+The transmitter process timed out while writing to the virtual circuit.
+.TP
+.SM "WRITER ERROR"
+The transmitter process died with an I/O error,
+or the router process detected an anomaly in a message from the receiver and signalled it.
+.SM [EX_IOERR]
+.SH "RESOURCE CONTROL"
+Network programs,
+including the daemon,
+are resilient to resource exhaustion (eg:
+.IR processes ", " files ", " "disk blocks" ),
+and will wait for resources to be freed, and then continue.
+The network parameter
+.SM MINSPOOLFSFREE
+specifies how much space must be left free on the \s-1SPOOLDIR\s0 file system,
+and when free space falls below this number,
+the daemon will refuse to accept any more \fIin-bound\fP messages
+until the free space recovers.
+.SH "PS LISTING"
+\*(S2
+alters its argument list to indicate current status.
+The result has four fields:
+program name, link address, number of messages transferred,
+and current throughput rate in bytes/second.
+On BSD systems, the
+.IR ps (1)
+output shows the altered argument list.
+.SH ERRORS
+Errors will cause premature termination of the daemon,
+with one of the error indications above having been written to the log.
+.PP
+Examination of the end of the log file
+(use
+.IR netlinklog (8))
+should help in discovering the reason for the error.
+.SH "TERMINATION CONDITIONS"
+The values of the process exit status termination conditions
+that were shown in square brackets are:
+.PP
+.RS 2
+.ta \w'NNNXX'u +\w'\s-1EX_UNAVAILABLE\s0XX'u
+.nf
+  0	\s-1EX_OK\s0	successful termination
+  0	\s-1EX_REMTERM\s0	remote terminate
+ 	
+ 64	\s-1EX_USAGE\s0	command line usage error
+ 65	\s-1EX_DATAERR\s0	data format error
+ 66	\s-1EX_NOINPUT\s0	cannot open input
+ 67	\s-1EX_NOUSER\s0	addressee unknown
+ 68	\s-1EX_NOHOST\s0	host name unknown
+ 69	\s-1EX_UNAVAILABLE\s0	service unavailable
+ 70	\s-1EX_SOFTWARE\s0	internal software error
+ 71	\s-1EX_OSERR\s0	system error (e.g., can't fork)
+ 72	\s-1EX_OSFILE\s0	critical operating system file missing
+ 73	\s-1EX_CANTCREAT\s0	can't create (user) output file
+ 74	\s-1EX_IOERR\s0	input/output error
+ 75	\s-1EX_TEMPFAIL\s0	temp failure; user is invited to retry
+ 76	\s-1EX_PROTOCOL\s0	remote error in protocol
+ 77	\s-1EX_NOPERM\s0	permission denied
+ 	
+109	\s-1EX_HANGUP\s0	virtual circuit died
+110	\s-1EX_MAXRT\s0	max runtime exceeded
+111	\s-1EX_MISMATCH\s0	link name mismatch
+112	\s-1EX_RDTIMO\s0	reader timed out
+113	\s-1EX_REMSLOW\s0	virtual circuit slow
+115	\s-1EX_SIGPIPE\s0	pipe error
+116	\s-1EX_UNXSIG\s0	unexpected signal
+117	\s-1EX_VCECHO\s0	virtual circuit echoing
+.fi
+.RE
+.SH PARAMETERS
+On starting,
+\*(S3 reads the parameter files
+.if n `_params/daemon'
+.if t \f(CW_params/daemon\fP
+and
+.if n `_params/<link address>'
+.if t \f(CW_params/\fP\fIlink address\fP
+(if they exist),
+where
+.I "link address"
+is the type-stripped address of the link from the \fB\-L\fP argument above.
+The following optional parameters may be set from these files:
+.TP 4
+.SM MINSPOOLFSFREE
+The minumim amount of free space on the network spool file-system (in kilobytes).
+When the free space falls below this,
+the receiver process will cease accepting new messages until space is freed.
+.TP
+.SM NICEDAEMON
+The
+.IR nice (2)
+value for the transport daemon.
+.TP
+.SM TRACEFLAG
+Sets tracing level, equivalent to \fB\-T\fP flag.
+.SH FILES
+.PD 0
+.if n .ds tw 4
+.if t .ds tw \w'\fIlinkname\fP/cmds/NOTRACEX'u
+.TP "\*(tw"
+.IR linkname 
+Daemon operating directory.
+.TP
+.IR linkname /cmds/[0-9]*
+Commands describing messages queued for transmission.
+.TP
+.IR linkname /cmds/lock
+Lockfile used to control active transport daemons.
+.TP
+.IR linkname /cmds/\s-1NOTRACE\s0
+If an empty file is created with this name,
+then it will be unlinked and all tracing will be disabled.
+.TP
+.IR linkname /cmds/\s-1STOP\s0
+If an empty file is created with this name,
+then it will be unlinked and the daemon will terminate as soon as is appropriate for the protocol.
+.TP
+.IR linkname /cmds/\s-1TRACE\s0
+If an empty file is created with this name,
+then it will be unlinked and the trace level (cf: \fB\-T\fP)
+and protocol trace level (cf \fB\-P\fP) will be increased by 1.
+.TP
+\fIlinkdir\fP/endprog
+Optional shell program run on termination.
+.TP
+.IR linkname /log
+Link statistics.
+.TP
+.IR linkname /in
+A directory used by the receiving process to spool messages from the link.
+.TP
+.IR linkname /out
+A directory used by the routing program to spool messages for the link.
+.TP
+.IR linkname /params
+This file can contain additional arguments for \*(S3
+which will be read on startup by either
+.IR netcall (8)
+or
+.IR netshell (8).
+.TP
+.IR linkname /readerlog
+Input transaction log if tracing selected.
+.TP
+.IR linkname /readerstatus
+Receiving process status file.
+.if \n(S3 \{\
+.TP
+.IR linkname /status
+\*(S7 daemon status file.\}
+.TP
+.IR linkname /writerstatus
+Transmitting process status file.
+.TP
+_bad
+Directory where rejected command files are placed for processing by
+.IR badhandler .
+.TP
+_call/endprog
+Optional default shell program run on termination.
+.TP
+_lib/badhandler
+Handler for bad command files.
+.TP
+_params/daemon
+Alternate parameters for the daemon.
+.TP
+_route
+Directory where the receiving process queues commands files describing messages received from the link.
+.TP
+_stats/connect
+On termination,
+\*(S3 writes one line of transmission statistics for each direction in this file.
+.PD
+.PP
+The status files can be examined with either 
+.IR netlink (1)
+to show operational parameters and statistics,
+or with
+.IR netlinkdata (8)
+to print out the actual status structures.
+.SH "SEE ALSO"
+.IR netq (1),
+.IR netlink (1),
+.IR netparams (5),
+.IR \*(S5 (7),
+.IR netcac (8),
+.IR netcall (8),
+.IR netinit (8),
+.IR netlinkdata (8),
+.IR netlinklog (8),
+.IR netshell (8).

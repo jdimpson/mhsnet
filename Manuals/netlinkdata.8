@@ -1,0 +1,85 @@
+.ds S1 NETLINKDATA
+.ds S2 \fINetlinkdata\fP
+.ds S3 \fInetlinkdata\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 netlinkdata
+.TH \*(S1 8 "\*(S4 1.2" \^
+.nh
+.SH NAME
+netlinkdata \- show network link data
+.SH SYNOPSIS
+.BI \*(S6
+.RI [\- flags ]
+.RI [ linkname | \|region | \|address
+\&...]
+.SH DESCRIPTION
+\*(S2
+prints out transmission data for links to other nodes
+directly connected to this one
+based on the contents of the links' status files.
+By default,
+\*(S3
+will search the spool area for links
+and print out details for each one found,
+but if particular links are named in the arguments,
+then the search will be restricted to just those mentioned.
+If a region or its alias or a complex address is named, then
+\*(S3
+will show details of each link on the shortest path(s),
+unless the regions are directly connected to this one,
+in which case \*(S3 will always show the direct link.
+.PP
+The optional flags are:
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-wX'u
+.TP "\*(tw"
+.BI \-a
+Show data for inactive channels.
+.TP
+.BI \-f
+Don't format the data.
+.TP
+.BI \-w
+Complain about non-existent links.
+.TP
+.BI \-T \fR[\fPlevel\fR]\fP
+Turns on tracing at
+.I level
+[default 1].
+If tracing is not compiled in,
+this flag will have no effect.
+.TP
+.BI \-?
+Explain argument options and exit.
+.PP
+The data for each link are printed in two sections,
+the first for the receiver, the second for the transmitter.
+Each section starts with circuit statistics,
+followed by the statistics kept for each channel.
+There are four channels for each direction.
+.SH EXAMPLES
+Print the unformatted data for every link to an organisation:
+.PP
+.RS 2
+.ft CW
+\*(S3 -af *.mhs
+.RE
+.SH FILES
+.PD 0
+.TP "\w'\fIlinkname\fP/writerstatusXX'u"
+_state/routefile
+Routing tables for finding links.
+.TP
+\fIlinkname\fP/readerstatus
+Status information from daemon reader process for link to
+.IR linkname .
+.TP
+\fIlinkname\fP/writerstatus
+Status information from daemon writer process for link to
+.IR linkname .
+.PD
+.SH "SEE ALSO"
+.IR netlink (1),
+.IR netcall (8),
+.IR netdaemon (8).

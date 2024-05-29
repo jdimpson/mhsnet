@@ -1,0 +1,69 @@
+.ds S1 NETDATENUM
+.ds S2 \fINetdatenum\fP
+.ds S3 \fInetdatenum\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 netdatenum
+.TH \*(S1 1 "1.1" \^
+.nh
+.SH NAME
+netdatenum \- print modify time of file as number
+.SH SYNOPSIS
+.BI \*(S6
+.RB [\-[ c ][ d\c
+.RB ][ t ]]
+.RI [ file | number ]
+.SH DESCRIPTION
+\*(S2
+prints out the modify time of a file as a decimal number.
+If no filename is given, the current system time is printed.
+If a number is given instead of a file,
+then it is converted to a standard time string.
+.P
+The optional parameters have meanings as follows:
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-xXX'u
+.TP "\*(tw"
+.BI \-c
+The output is in standard time format (as returned by
+.IR date (1)).
+.TP
+.BI \-d
+The output is in the form YYMMDDHHMMSS.
+.TP
+.BI \-t
+The output is in the format required by
+.IR touch (1).
+.SH EXAMPLES
+Copy modify time of one file to another file:
+.PP
+.RS 2
+.ft CW
+.nf
+touch `netdatenum -t file1` file2
+.fi
+.ft
+.RE
+.PP
+The following:
+.PP
+.RS 2
+.ft CW
+.nf
+netdatenum -c file
+.fi
+.ft
+.RE
+.PP
+is equivalent to:
+.PP
+.RS 2
+.ft CW
+.nf
+netdatenum `netdatenum file`
+.fi
+.ft
+.RE
+.SH "SEE ALSO"
+.IR date (1),
+.IR touch (1).

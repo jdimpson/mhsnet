@@ -1,0 +1,115 @@
+sed 1d $0 | /bin/sh ; exit 0
+(
+
+umask 027
+echo=/bin/echo
+
+NETGROUPNAME=daemon
+NETUSERNAME=daemon
+SHELL=/bin/sh
+SPOOLDIR=/usr/spool/MHSnet
+
+eval `egrep 'SPOOLDIR|NETGROUPNAME|NETUSERNAME' /usr/lib/MHSnetparams 2>/dev/null`
+
+PATH=.:/bin:/usr/bin:/usr/ucb:/etc:$SPOOLDIR/_bin
+
+export NETGROUPNAME NETUSERNAME PATH SHELL SPOOLDIR
+
+##########################################################
+#	CONFIGURATION OPTIONS
+# Note that _bin/netconfig needs modification
+# if this file changed *after* installation.
+# (SYSTEM is interesting if exos/sco_xenix/sco_unix/HP/AIX)
+
+defdev=/dev/modem
+defmodem=hayes
+defspeed=9600
+
+COUNTRY=au
+PRMD=com
+
+mach=`uname -mrs 2>/dev/null`
+case "$mach" in
+AIX*)			SYSTEM=AIX	;;
+BSD/OS' '[23].?' 'i386)	SYSTEM=BSD386	;;
+BSD/386*1.[01]*)	SYSTEM=BSD386	;;
+Darwin*)		SYSTEM=Darwin	;;
+NetBSD*)		SYSTEM=NetBSD	;;
+QNX*)			SYSTEM=QNX
+			HOME=$SPOOLDIR
+			export HOME	;;
+IRIX*)			SYSTEM=IRIX	;;
+Linux*)			SYSTEM=Linux	;;
+'OSF1 1.'?' alpha')	SYSTEM=DEC	;;
+'OSF1 V'[23].?' alpha')	SYSTEM=DEC	;;
+'OSF1 V'[45].?' alpha')	SYSTEM=DEC	;;
+'ULTRIX 4.'?' RISC')	SYSTEM=DEC	;;
+*[45]_*mips)		SYSTEM=MIPS	;;
+'SunOS 4'*sun4*)	SYSTEM=SunOS4	;;
+'SunOS 5'*sun4*)	SYSTEM=SunOS5	;;
+XENIX*)			SYSTEM=sco_xenix;;
+*SCO*)			SYSTEM=sco_unix	;;
+*HP*)			SYSTEM=HP	;;
+UNIX*V' 4.'*' R4000')	SYSTEM=NEC.V.4	;;
+UNIX_SV' '4*)		SYSTEM=UnixWare	;;
+*)	cat <<!
+
+Please edit the file _config/configmhs
+and add something appropriate to the "case" statement
+near the top to set the SYSTEM variable.
+!
+	exit 1
+	;;
+esac
+
+export defdev defmodem defspeed COUNTRY PRMD SYSTEM
+
+##########################################################
+
+case "$EDITOR" in
+'')	EDITOR=vi;
+	export EDITOR
+	;;
+esac
+
+[ -d $SPOOLDIR ] || { echo \"$SPOOLDIR\" does not exist!; exit 1; }
+
+case `$echo '\c'` in
+\\c)	n="-n"
+	c=""
+	SYS=BSD
+	;;
+*)	n=""
+	c="\c"
+	SYS=V
+	;;
+esac
+export c n SYS
+
+case $SYS in
+V)	case "$mach" in
+	'OSF1 V'[4]'.'?' alpha')
+		;;
+	*)	ulimit 1000000
+		;;
+	esac
+	;;
+esac
+
+cd $SPOOLDIR/_config
+
+case "$SYSTEM" in
+sco_xenix)
+	if [ -f configs ] 
+	then
+		. configs
+	else
+		echo "Warning! MHSnet may not be installed correctly."
+		sleep 2
+	fi
+	;;
+esac
+
+exec menu config.menu
+
+) </dev/tty

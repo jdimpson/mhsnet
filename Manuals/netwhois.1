@@ -1,0 +1,84 @@
+.ds S1 NETWHOIS
+.ds S2 \fINetwhois\fP
+.ds S3 \fInetwhois\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 netwhois
+.TH \*(S1 1 "\*(S4 1.8" \^
+.nh
+.nh
+.SH NAME
+netwhois \- request information about people at other sites
+.SH SYNOPSIS
+.BI \*(S6
+.IB pattern @ address
+.br
+.BI \*(S6
+.I address
+.I pattern
+.SH DESCRIPTION
+\*(S2
+will obtain information about people from publicly available data-bases
+on consenting hosts.
+.PP
+The pattern supplied should be a regular expression suitable for use by
+.IR egrep (1).
+It will be used to match lines in the people data-base
+at the remote sites addressed by
+.IR address .
+The resulting output will be returned to you by mail.
+.PP
+There is a (small) upper limit on the amount
+of information that may be returned by this command.
+The limit can be expected to be around 2K bytes.
+.PP
+\*(S2's
+action may be modified by the following flags:
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-S\fP\fI\ sender\fP]X'u
+.TP "\*(tw"
+.BI \-q
+Report the request ID on
+.I stdout
+and include it in any response that is returned.
+This allows the matching of requests with responses.
+.TP
+.BI \-S " sender"
+Change the name of the originator to
+.IR sender .
+(This option is restricted to network
+.IR super-users .)
+.TP
+.BI \-T n
+Activate tracing at level
+.IR n .
+If tracing is not compiled in,
+this flag will have no effect.
+.TP
+.BI \-?
+Explain argument options and exit.
+.SH EXAMPLES
+.TP
+\f(CW\*(S6\ \ mhs.oz.au\ \ 'lauder|kummerfeld'\fP
+Return information about the authors at
+.SM MHS.
+.SH "FILES"
+.PD 0
+.if n .ds tw 4
+.if t .ds tw \w'\f(CW/usr/pub/whois\fPXX'u
+.TP "\*(tw"
+\f(CW/usr/pub/whois\fP
+This is the default data-base for information about people.
+It should consist of one line per person
+(lower case only, unless your version of 
+.IR egrep (1)
+has an `ignore case' flag),
+with information such as
+mailing address (account name),
+full name,
+telephone number,
+etc.
+.SH "SEE ALSO"
+egrep(1),
+mail(1),
+netfetch(1).

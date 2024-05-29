@@ -1,0 +1,111 @@
+.ds S1 NETDIS
+.ds S2 \fINetdis\fP
+.ds S3 \fInetdis\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 netdis
+.TH \*(S1 1 "\*(S4 1.9" \^
+.nh
+.SH NAME
+netdis \- display input as a refreshed page in a window
+.SH SYNOPSIS
+.BI \*(S6
+.RB [\-[ b ][ u ]]
+.RB [\- c\c
+.IR refresh ]
+.RB [\- t\c
+.IR timeout ]
+.SH DESCRIPTION
+\*(S2
+looks up the terminal capability database for the characteristics
+of the device represented by the environment variable \s-1TERM\s0.
+Assuming that the standard input consists of repeated pages,
+\*(S3
+then uses cursor addressing to write the changes between pages on its standard output.
+Pages are delimited by a
+.I form-feed
+or by a timeout, if requested.
+The optional parameters have meanings as follows:
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-c\fP[\fIcount\fP]X'u
+.TP "\*(tw"
+.BI \-b
+Turns off output buffering.
+.TP
+.BI \-c \fR[\fPcount\fR]\fP
+This causes the page to be completely redrawn every
+.I count
+pages [default 10].
+.TP
+.BI \-t \fR[\fPsecs\fR]\fP
+Specifies a timeout for input pagination.
+A
+.I form-feed
+is inserted into the input every
+.I secs
+seconds [default: 1].
+.TP
+.BI \-u
+Turns off input buffering.
+.PP
+The following environment variables override the `termcap' settings:
+.if n .ds tw 4
+.if t .ds tw \w'\s-1COLUMNS\s0X'u
+.TP "\*(tw"
+.SM COLUMNS
+Number of columns that can be displayed.
+.TP
+.SM WIDTH
+Alternate name for
+.SM COLUMNS.
+.TP
+.SM LINES
+Number of lines that can be displayed.
+.SH EXAMPLE
+Put the output from
+.IR date (1)
+on the screen, updating every 10 seconds:
+.PP
+.RS 2
+.ft CW
+.ps -2
+.nf
+while true; do date; echo '\ef\ec'; sleep 10; done|\*(S6
+.fi
+.ps
+.ft
+.RE
+.PP
+Display status of all network links, updating every second:
+.PP
+.RS 2
+.ft CW
+.nf
+netlink -c1 | \*(S6
+.fi
+.ft
+.RE
+.PP
+Display status of routing queues, updating every second:
+.PP
+.RS 2
+.ft CW
+.nf
+netq -aqC1 | \*(S6
+.fi
+.ft
+.RE
+.SH FILES
+.PD 0
+.TP "\w'/etc/termcapXX'u"
+/etc/termcap
+Database for terminal capabilities.
+.PD
+.SH SEE ALSO
+.IR date (1),
+.IR echo (1),
+.IR netlink (1),
+.IR netq (1),
+.IR termlib (3).
+.SH DIAGNOSTICS
+If your terminal or window doesn't have cursor addressing.

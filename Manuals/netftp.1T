@@ -1,0 +1,132 @@
+
+
+
+User Commands                                           NETFTP(1)
+
+
+
+NNNNAAAAMMMMEEEE
+     netftp - request that files be fetched via internet FTP
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     nnnneeeettttffffttttpppp [-_f_l_a_g_s] [-_D _f_r_o_m_h_o_s_t] _i_n_t_e_r_n_e_t__a_d_d_r_e_s_s _f_i_l_e_n_a_m_e ...
+
+     nnnneeeettttffffttttpppp [-_o_p_t_s] _i_n_t_e_r_n_e_t__a_d_d_r_e_s_s::::_f_i_l_e_n_a_m_e
+
+     nnnneeeettttffffttttpppp [-_o_p_t_s] ffffttttpppp::::////////_i_n_t_e_r_n_e_t__a_d_d_r_e_s_s////_f_i_l_e_n_a_m_e
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_f_t_p will obtain files from  publicly  available  internet
+     FTP  directories by using the internet _f_t_p(1) program on the
+     indicated _f_r_o_m_h_o_s_t.  [Default: the local host.]
+
+     Filenames will be interpreted relative to  some  appropriate
+     directory at _i_n_t_e_r_n_e_t__a_d_d_r_e_s_s.
+
+     Files are returned by the _f_r_o_m_h_o_s_t executing _n_e_t_f_i_l_e(1) with
+     appropriate  arguments.  If  one  or  more  files  cannot be
+     retrieved,  an  error  report   will   be   returned   using
+     _n_e_t_m_a_i_l(1).
+
+     Please note that wildcard symbols in the filename part  will
+     not be expanded.
+
+     The second and third forms are to  enable  _c_u_t-_a_n_d-_p_a_s_t_e  of
+     some alternative formats for presenting ftp addresses.
+
+     _N_e_t_f_t_p's action may be modified by the following flags:
+
+     ----aaaa  Perform transfer in _f_t_p's ASCII mode,  rather  than  the
+         default  (BINARY).   This  might  be  useful  where  the
+         foreign FTP host isn't UNIX, and the file is known to be
+         text.   (Some  non-UNIX  systems  add extra bits to text
+         bytes in binary mode.)
+
+     ----llll  Request  that  each  filename  be   interpreted   as   a
+         directory,  and  a  listing  of the contents of each, as
+         produced by _l_s(1) be returned via _n_e_t_m_a_i_l(1).
+
+     ----rrrr  With ----llll causes the contents listings to recurse  through
+         any  directories  encountered,  producing  output  in  a
+         format identical to that displayed by the ----RRRR  option  of
+         _l_s(1).
+
+     ----vvvv  With ----llll causes long directory listings to  be  produced,
+         in a format identical to that of the ----llll option of _l_s(1).
+
+     ----PPPP _p_a_s_s_w_d
+         The format of _p_a_s_s_w_d  must  be:  _u_s_e_r_n_a_m_e@@@@_p_a_s_s_w_o_r_d.   By
+         convention,  the remote _f_t_p is performed with a _u_s_e_r_n_a_m_e
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+
+
+
+
+User Commands                                           NETFTP(1)
+
+
+
+         of `anonymous', and a _p_a_s_s_w_o_r_d repesenting the invoker's
+         network  address.   This  flag  enables  an  alternative
+         username and password to be used, but be warned: tttthhhhiiiissss iiiissss
+         iiiinnnnsssseeeeccccuuuurrrreeee!!!!
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEESSSS
+     Obtain a long directory listing of all  available  files  in
+     the public root directory of a well-known ftp site using the
+     ftp server at AARnet's archie server.
+
+       netftp -lv -D plaza.aarnet.oz.au ftp.uu.net /
+
+     Obtain the file _l_s-_l_t_R._Z from the  public  directory  at  an
+     internet site.
+
+       netftp 129.78.8.1 ls-ltR.Z
+
+AAAADDDDMMMMIIIINNNN
+     Your site will need to have a _h_a_n_d_l_e_r_s entry validating this
+     message type, see _n_e_t_h_a_n_d_l_e_r_s(5) for details.
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _f_t_p(1),   _l_s(1),   _n_e_t_f_e_t_c_h(1),   _n_e_t_f_i_l_e(1),    _n_e_t_m_a_i_l(1),
+     _n_e_t_h_a_n_d_l_e_r_s(5), _n_e_t_m_s_g(8).
+
+DDDDIIIIAAAAGGGGNNNNOOOOSSSSTTTTIIIICCCCSSSS
+     Consult  _n_e_t_m_s_g(8)  for  possible  diagnostic  messages,  as
+     _n_e_t_f_t_p  invokes  that  program  to  send  the requests.  See
+     _f_t_p(1) for error message  details  returned  via  electronic
+     mail when a file transfer or remote directory listing fails.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    2
+
+
+

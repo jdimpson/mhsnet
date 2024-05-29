@@ -1,0 +1,78 @@
+#!/bin/sh
+
+chown=$CHOWN
+chmod=$CHMOD
+chgrp=$CHGRP
+MANGROUPNAME=$NETGROUPNAME
+MANUSERNAME=$NETUSERNAME
+case "$ISPOOLDIR" in
+'')	ISPOOLDIR=/usr/spool/MHSnet	;;
+esac
+
+rm -rf $ISPOOLDIR/_man
+mkdir $ISPOOLDIR/_man $ISPOOLDIR/_man/cat.MHS || exit 1
+ls -ld $ISPOOLDIR/_man $ISPOOLDIR/_man/cat.MHS
+
+cp *.1T $ISPOOLDIR/_man/cat.MHS || exit 1
+cp *.5T $ISPOOLDIR/_man/cat.MHS || exit 1
+cp *.7T $ISPOOLDIR/_man/cat.MHS || exit 1
+cp *.8T $ISPOOLDIR/_man/cat.MHS || exit 1
+
+cd $ISPOOLDIR/_man/cat.MHS
+
+$chmod u=rwx,go=rx . ..
+$chmod u=rw,go=r *
+$chown $MANUSERNAME . .. * 
+$chgrp $MANGROUPNAME . .. *
+
+for i in *T
+do
+	x=`expr $i : '\(.*\)T'`
+	y=`expr $x : '\([^.]*\)'`
+	f=0
+	case $y in
+	netcallers)	y=netcallr	;;
+	netchange)	y=netchnge	;;
+	netcheckdb)	y=netchkdb	;;
+	netcheckq)	y=netchkq	;;
+	netconfig)	y=netconf	;;
+	netcontrol)	y=netcntrl	;;
+	netdaemon)	y=netdmn	;;
+	netfetch)	y=netftch; f=1	;;
+	netfilter)	y=netfltr	;;
+	netfinger)	y=netfingr	;;
+	netforward)	y=netfwrd	;;
+	nethandler)	y=nethndl	;;
+	nethandlers)	y=nethndl; f=1	;;
+	netincorp)	y=netincrp	;;
+	netlinkdata)	y=netlnkda	;;
+	netlinklog)	y=netlnklg	;;
+	netlisten)	y=netlstn	;;
+	netparams)	y=netprms; f=1	;;
+	netpasswd)	y=netpswd; f=1	;;
+	netpeeper)	y=netpeepr	;;
+	netprivs)	y=netprvs; f=1	;;
+	netrequest)	y=netrqst	;;
+	netreroute)	y=netrerte	;;
+	netrouter)	y=netroutr	;;
+	netspooler)	y=netsplr	;;
+	netstatspr)	y=netstspr	;;
+	netstatus)	y=netsttus	;;
+	nettimeout)	y=nettmout	;;
+	netwindup)	y=netwindp	;;
+	esac
+	case $f in
+	1)
+		z=`expr $x : '.*\.\(.\)'`
+		mv $i $y$z.MHS
+		ls -l $y$z.MHS
+		;;
+	*)
+		mv $i $y.MHS
+		ls -l $y.MHS
+		;;
+	esac
+done
+
+pack -f *
+exit 0

@@ -1,0 +1,121 @@
+.ds S1 NETCHANGE
+.ds S2 \fINetchange\fP
+.ds S3 \fInetchange\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 _bin/netchange
+.TH \*(S1 8 "\*(S4 1.11" \^
+.nh
+.SH NAME
+netchange \- scan for dead network links, or change specific link
+.SH SYNOPSIS
+.BI \*(S6
+.RI [\- flags ]
+.RI [ address | linkname "] ..."
+.SH DESCRIPTION
+\*(S2
+invoked without any link arguments will find and mark links that have become inactive.
+The routing changes so produced are then broadcast to appropriate parts of the network.
+Any messages that were queued for inactive links are then re-routed.
+.PP
+\*(S2
+is also invoked directly by the routing process to add unidirectional inbound links
+created by new connections into the routing tables,
+and to alter links whose state-change has been signalled by transport daemons.
+If a link changes from
+.I down
+to
+.IR up ,
+the
+.I re-routing
+directory is searched for messages that may use the new link.
+.PP
+The optional flags are:
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-P\fP\ \fIlinkaddress\fPX'u
+.TP "\*(tw"
+.BI \-b
+Break the named link(s).
+.TP
+.BI \-d
+Mark named links as
+.IR down .
+.TP
+.BI \-i
+Changes refer to
+.I in-bound
+direction only.
+.TP
+.BI \-o
+Changes refer to
+.I out-bound
+direction only.
+.TP
+.BI \-z
+Mark named links as
+.IR dead .
+.TP
+.BI \-F flag[,flag]
+Set the flag(s) for the named link(s).
+(See
+.IR netstate (8).)
+.TP
+.BI \-L \ linkaddress
+Add new link,
+or change specific link.
+.TP
+.BI \-R filterprog
+Set the
+.I "link filter"
+for the link to
+.IR filterprog .
+(To remove a filter, specify 
+.I filterprog
+as `\fB#\fP'.)
+.TP
+.BI \-T \fR[\fPlevel\fR]\fP
+Turns on tracing at
+.I level
+(default: 1).
+If tracing is not compiled in,
+this flag will have no effect.
+.TP
+.BI \-?
+Explain argument options and exit.
+.PP
+If the \s-1NETADMIN\s0 option is in effect,
+then \*(S3 will send mail to the site administrator
+whenever a new link is added,
+or an old link dies.
+.SH EXAMPLE
+Turn off the `dead,nochange' flags for a
+.I promiscuously
+connected link called `altair':
+.PP
+.RS 2
+.ft CW
+\*(S6 -F-dead,-nochange altair
+.ft
+.RE
+.PP
+Note that there can be no space between the flag
+and its argument if the argument starts with `\-'.
+.SH FILES
+.PD 0
+.TP "\w'_state/routefileXX'u"
+_reroute/*
+Delayed messages.
+.TP
+_state/routefile
+Routing tables for resolving link name arguments.
+.TP
+*/reroute.lock
+Lockfile created by active re-routing programs.
+.PD
+.SH "SEE ALSO"
+.IR netmap (1),
+.IR netq (1),
+.IR netstop (1),
+.IR \*(S5 (7),
+.IR netreroute (8),
+.IR netstate (8).

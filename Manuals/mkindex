@@ -1,0 +1,6 @@
+> index
+for i in *.[1578]
+do
+	sed -n	-e "/^.SH/N" \
+		-e "s/.SH NAME.\([^ ,]*\).*/\1 \1 MHS/p" $i >>index
+done

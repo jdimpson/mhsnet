@@ -1,0 +1,132 @@
+
+
+
+User Commands                                           NETDIS(1)
+
+
+
+NNNNAAAAMMMMEEEE
+     netdis - display input as a refreshed page in a window
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     nnnneeeettttddddiiiissss [-[bbbb][uuuu]] [-cccc_r_e_f_r_e_s_h] [-tttt_t_i_m_e_o_u_t]
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_d_i_s looks up the terminal  capability  database  for  the
+     characteristics of the device represented by the environment
+     variable TERM.  Assuming that the standard input consists of
+     repeated  pages, _n_e_t_d_i_s then uses cursor addressing to write
+     the changes between pages on its standard output.  Pages are
+     delimited by a _f_o_r_m-_f_e_e_d or by a timeout, if requested.  The
+     optional parameters have meanings as follows:
+
+     ----bbbb  Turns off output buffering.
+
+     ----cccc[_c_o_u_n_t]
+         This causes the page  to  be  completely  redrawn  every
+         _c_o_u_n_t pages [default 10].
+
+     ----tttt[_s_e_c_s]
+         Specifies a timeout for input pagination.   A  _f_o_r_m-_f_e_e_d
+         is  inserted into the input every _s_e_c_s seconds [default:
+         1].
+
+     ----uuuu  Turns off input buffering.
+
+     The following environment variables override  the  `termcap'
+     settings:
+
+     COLUMNS
+         Number of columns that can be displayed.
+
+     WIDTH
+         Alternate name for COLUMNS.
+
+     LINES
+         Number of lines that can be displayed.
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEE
+     Put the output from _d_a_t_e(1) on the screen, updating every 10
+     seconds:
+
+       while true; do date; echo '\f\c'; sleep 10; done|netdis
+
+     Display status of all network links, updating every second:
+
+       netlink -c1 | netdis
+
+     Display status of routing queues, updating every second:
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+
+
+
+
+User Commands                                           NETDIS(1)
+
+
+
+       netq -aqC1 | netdis
+
+FFFFIIIILLLLEEEESSSS
+     /etc/termcap  Database for terminal capabilities.
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _d_a_t_e(1), _e_c_h_o(1), _n_e_t_l_i_n_k(1), _n_e_t_q(1), _t_e_r_m_l_i_b(3).
+
+DDDDIIIIAAAAGGGGNNNNOOOOSSSSTTTTIIIICCCCSSSS
+     If your terminal or window doesn't have cursor addressing.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    2
+
+
+

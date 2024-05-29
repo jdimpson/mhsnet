@@ -1,0 +1,66 @@
+
+
+
+Maintenance Procedures                                 NETCMDS(8)
+
+
+
+NNNNAAAAMMMMEEEE
+     netcmds - print out  contents  of  network  message  command
+     files
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     ____bbbbiiiinnnn////nnnneeeettttccccmmmmddddssss _c_o_m_m_a_n_d_s-_f_i_l_e ...
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_c_m_d_s reads each argument in turn, interpeting it  as  the
+     name   of   a   file   containing  network  message  command
+     descriptors, and prints the commands on _s_t_d_o_u_t.  If  any  of
+     the  commands  describes a message header, it will print out
+     the header information.  The beginning of the data from  the
+     first data file mentioned will also be shown.
+
+     The optional flags modify this behaviour:
+
+     ----aaaa  Print header fields as shell variable assignments.
+
+     ----dddd  Write data part of message to `stdout'.  Don't print any
+         commands or headers.
+
+     ----eeee  Ignore header errors, and print header `as is'.
+
+     ----mmmm  Write whole message to `stdout', including  headers  (at
+         end).   Don't print any commands or headers.  Result may
+         be examined or re-spooled with _n_e_t_h_d_r(8).
+
+     ----TTTT[_l_e_v_e_l]
+         Turns on tracing at _l_e_v_e_l (default: 1).  If  tracing  is
+         not compiled in, this flag will have no effect.
+
+     ----????  Explain argument options and exit.
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEESSSS
+     Show contents of commands-files describing spooled  messages
+     awaiting collection:
+
+       cd SPOOLDIR
+       _bin/netcmds _files/*
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _n_e_t_w_o_r_k(7), _n_e_t_b_a_d(8), _n_e_t_h_d_r(8).
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+

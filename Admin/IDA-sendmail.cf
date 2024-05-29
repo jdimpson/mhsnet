@@ -1,0 +1,978 @@
+#############################################################
+#
+#  IDA Sendmail.cf for MHSnet and UUCP.
+#
+#	You MUST edit this for local addresses, etc.
+#
+#############################################################
+
+
+###########################################
+#   Important Program Control Functions   #
+###########################################
+
+# log level - turn it on early for syslogging during reading of config file
+#OL
+OL9
+
+# queue directory - specify directory containing log file
+#OQ
+OQ/usr/spool/mqueue
+
+###########################################
+#
+# Host name definition (YOU MUST DEFINE THESE)
+#
+# Define macro for your hostname for all return addresses.
+# Define class to recognize all aliases of your host name.
+# The hostname should not include your local domain (defined
+# below). For example, if your fully qualified hostname
+# is 'ptcburp.ptcbu.oz.au' this line would be set to 'Dptcburp'.
+#
+#DwYourHostName
+Dwptcburp
+
+#CwYourHostName YourHostAliases
+Cwptcburp local
+
+###########################################
+#
+# Local domain name. (DEFINE THIS IF DOMAINS ARE USED)
+# **WARNING**
+# When domain names are used, SMTP transactions utilize the
+# full domain (official) name of the host. All host names with
+# no domains (abbreviated) are expanded with the local domain
+# by the mail service. This is consistent with Internet text standards.
+# All hosts sending or RECEIVING mail must recognize their official
+# host names. When using domains enter the official host name in
+# /etc/hosts and be certain that all network nameservers recognize
+# official host names.
+#
+# Define the D macro to be the whole domain for the local host.
+# This configuration file supports four part domains. It can be expanded
+# to support n part domains. For example, if your fully qualified
+# hostname is 'ptcburp.ptcbu.oz.au', this line would be set to 'DDptcbu.oz.au'.
+#
+DDptcbu.oz.au
+
+#############################################
+#
+# Domain parts. These MUST be defined if DD (above) is defined.
+# Input names for all parts of the domain (up to 4 parts).
+# ALWAYS START WITH E. E will be the lowest level of the domain name (i.
+# e. 'grandchild' in the four part example). For example, the domain
+# 'ptcbu.oz.au' would be entered as follows:
+#   1) DDptcbu.oz.zu
+#   2) DEptcbu
+#   3) DFoz
+#   4) DGau
+# DH would not be used when entering a three part domain.
+#
+DEptcbu
+DFoz
+DGau
+#DHnextLevel
+
+#
+# Define classes that equal the macros (MUST be the same as macros).
+#
+CEptcbu
+CFoz
+CGau
+#CHnextLevel
+
+#
+# Define a class for machines we are directly connected to via MHSnet.
+# It comes in handy in ruleset 0 if we get an address x!y!z to check
+# if x is an MHSnet host.
+#
+CMpta lance
+
+#
+# Define a class for machines we are directly connected to via UUCP.
+# Again, this is used in ruleset 0 if we get an address x!y!z to check
+# if x is a UUCP connected host.
+CUpyramid
+
+# my official hostname
+Dj$w$?D.$D$.
+
+#
+# Primary MHSnet domains known here
+#
+CPau oz
+
+#
+# Top level MHSnet domains ($=T)
+# MUST NOT contain the primary domains reachable via MHSnet ($=P).
+#
+CTar aristote arpa at aus australia be bitnet ca cdn cern ch
+CTchunet cl com cs csnet de dec desy dfn dk dunet edu es fi fr funet
+CTgov ie il iris irl is isanet israel it jp jpn junet hasler korea
+CTkr mailnet mil mq my net netnorth nl no nz osiride org pt rangkom
+CTse sg span sunet surfnet th uk uninett us usa uucp
+
+#
+# Host to relay messages to domains other than the primary domains
+#
+DRbunyip.cc.uq.oz.au
+
+#
+# Pyramid internal domains and machines, to be sent to via private relay.
+#
+CApyramid.com pyramid.com.au yarra.oz yarra.oz.au
+CAptabris.oz ptabris.oz.au pyrmania.oz pyrmania.oz.au
+CApyramidoz.oz pyramidoz.oz.au
+
+#
+# Host to relay messages to Pyramid machines
+#
+DPpta.oz
+
+#
+# Our alias
+#
+DBptcburp.pyramid.com.au
+
+#####################################################
+#   Version Number   (YOU MAY CHANGE THIS AS NEEDED)#
+#####################################################
+
+#DZ
+DZ1.2
+
+
+######################
+#   Special macros   #
+######################
+
+# my name
+DnMAILER-DAEMON
+# UNIX header format
+DlFrom $g $d
+# delimiter (operator) characters
+Do.:%@!^=/[]
+# format of a total name
+Dq$g$?x ($x)$.
+# SMTP login message
+De$j Sendmail $v/$Z ready at $a
+
+
+###############
+#   Options   #
+###############
+
+# location of alias file
+#OA
+OA/usr/lib/aliases
+
+# substitution for space (blank) characters
+#OB
+OB.
+
+# (don't) connect to "expensive" mailers
+#Oc
+
+# default delivery mode
+Odb
+
+# default GID
+Og12
+
+# location of help file
+OH/usr/local/lib/mail/sendmail.hf
+
+# default messages to old style
+#Oo
+Oo
+
+# Slope of q function
+#Oq
+
+# read timeout -- violates protocols
+#Or
+Or2h
+
+# status file
+#OS
+OS/usr/local/lib/mail/sendmail.st
+
+# queue up everything before starting transmission
+#Os
+Os
+
+# default timeout interval
+#OT
+OT1h
+
+# default time zone
+#Ot
+#OtEST,EDT
+
+# default UID
+#Ou
+Ou1
+
+# load average at which we just queue messages
+Ox20
+
+# load average at which we refuse connections
+OX50
+
+# work recipient factor
+#Oy
+
+# work msg class factor
+#Oz
+
+# work time factor
+#OZ
+
+
+###########################
+#   Message precedences   #
+###########################
+
+Pfirst-class=0
+Pspecial-delivery=100
+Pbulk=-60
+Pjunk=-100
+
+
+#####################
+#   Trusted users   #
+#####################
+
+Troot
+Tdaemon
+Tuucp
+
+
+#########################
+#   Format of headers   #
+#########################
+
+H?P?Return-Path: <$g>
+HReceived: $?sfrom $s $.by $j ($v/$Z)
+          id $i; $b
+H?D?Resent-Date: $a
+H?D?Date: $a
+H?F?Resent-From: $q
+H?F?From: $q
+H?x?Full-Name: $x
+HSubject:
+HPosted-Date: $a
+H?l?Received-Date: $b
+H?M?Resent-Message-Id: <$t.$i@$j>
+H?M?Message-Id: <$t.$i@$j>
+
+
+################################################################################
+#                                                                              #
+#                           REWRITING RULES                                    #
+#                                                                              #
+################################################################################
+
+
+################################################################################
+#                                                                              #
+#  The Complete Specification of Canonical Syntax is:                          #
+#                                                                              #
+#   <ahost>       ::= /* ARPA type host name */                                #
+#   <uhost>       ::= /* UUCP type host name */                                #
+#   <user>        ::= /* target user name */                                   #
+#                                                                              #
+#   <route_node>  ::= @<ahost>: | <uhost>!                                     #
+#   <route_path>  ::= <NULL> | <route_node> | <route_path><route_node>         #
+#   <target>      ::= <user> | <user>@<ahost>                                  #
+#                                                                              #
+#   <address>     ::= <route_path><target>                                     #
+#                                                                              #
+#  This is what we handle, but actually we only look at the minimum required   #
+#  to pass the mail on.  Intermediaries with other syntax/semantics may be     #
+#  used, provided the addressing is compatible with them when the mail arrives #
+#  there.                                                                      #
+#                                                                              #
+################################################################################
+
+
+################################################################################
+#                                                                              #
+#                     THE DYNAMIC MACROS $f AND $g                             #
+#                                                                              #
+#  Macro $f is defined by the sender address as known the current host, via    #
+#  the ruleset sequence:  3, 1, 4.                                             #
+#                                                                              #
+#  Macro $g is defined at delivery time for each separate mailer via the       #
+#  ruleset sequence:  3, 1, mailer-S, 4.                                       #
+#                                                                              #
+#  The SMTP "MAIL FROM" address will be $g.                                    #
+#                                                                              #
+#  $g is included in many headers and will be expanded if the header is        #
+#  newly created by sendmail.                                                  #
+#                                                                              #
+################################################################################
+
+
+################################################################################
+#                                                                              #
+#                           THE SMTP INTERFACE                                 #
+#                                                                              #
+#  The SMTP "MAIL FROM" address will be $g.                                    #
+#                                                                              #
+#  The SMTP "RCPT TO" addresses will be computed from the recipient addresses  #
+#  in sendmail by applying the same ruleset sequence as for "to" headers:      #
+#  namely, rulesets 3, 2, mailer-R, 4.                                         #
+#                                                                              #
+################################################################################
+
+
+################################################################################
+#                                                                              #
+#  S1:  Sender Field Pre-rewriting                                             #
+#                                                                              #
+#  This ruleset is used when defining the $f macro.  In this case it is        #
+#  applied after S3 and before S4.                                             #
+#                                                                              #
+#  This ruleset is applied to all sender type headers after S3 and before      #
+#  the mailer specific sender (S) rewrite rules.                               #
+#  This ruleset is also applied to $f to create $g.                            #
+#                                                                              #
+################################################################################
+S1
+
+
+################################################################################
+#                                                                              #
+#  S2:  Recipient Field Pre-rewriting                                          #
+#                                                                              #
+#  This ruleset is applied to the user part of the 3-tuple output from S0.     #
+#  It is followed by application of the mailer specific recipient (R) rewrite  #
+#  rules.                                                                      #
+#                                                                              #
+#  This ruleset is applied to all recipient type headers after S3 and          #
+#  before the mailer specific recipient (R) rewrite rules.                     #
+#  This ruleset is likewise used to reform the "to" address for SMTP.          #
+#                                                                              #
+################################################################################
+S2
+
+
+################################################################################
+#                                                                              #
+#  S4:  Final Output Post-rewriting   (Return to standard form)                #
+#                                                                              #
+#  This ruleset is applied to the user part of the 3-tuple produced from       #
+#  ruleset 0.  It is applied after the mailer specific recipient (R) rules.    #
+#                                                                              #
+#  This ruleset is applied after S1 when defining the $f macro.                #
+#  This ruleset is applied last when creating the $g macro from $f.            #
+#                                                                              #
+#  This ruleset is applied to all headers after the mailer specific            #
+#  rewrite rules (whether recipient or sender) have been applied.              #
+#  This ruleset is applied last when computing the RCPT TO address for SMTP.   #
+#                                                                              #
+################################################################################
+S4
+
+#
+# Aliases for munnari, because of SUN III brain damage
+#
+#R$*munnari.oz.au$*	$1$R$2
+#R$*munnari.oz$*		$1$R$2
+#R$*munnari.au$*		$1$R$2
+
+#
+# Change LOCAL or LOCAL.D to the real name.
+#
+R$*<@LOCAL>$*		$:$1<@$w>$2
+R$*<@LOCAL.D>$*		$:$1<@$w$?D.$D$.>$2
+R$*<@$-.LOCAL>$*	$:$1<@$2$?D.$D$.>$3
+
+R$*<LOCAL>$*		$:$1<$w>$2
+R$*<LOCAL.D>$*		$:$1<$w$?D.$D$.>$2
+R$*<$-.LOCAL>$*		$:$1<$2$?D.$D$.>$3
+
+#
+# Remove focus brackets.
+#
+R$*<$+>$*		$1$2$3
+
+
+
+################################################################################
+#                                                                              #
+#  S3:  Address Canonicalization  (Internal rewriting form)                    #
+#                                                                              #
+#  This ruleset turns an address in external format into a format which        #
+#  simplifies internal rewriting.  The inverse ruleset is S4.                  #
+#  This ruleset is applied first to any external address before other re-      #
+#  writing is done.                                                            #
+#                                                                              #
+#  This concept of canonicalization is to be distinguished from usage of the   #
+#  nameserver in the $[/$] construct inside the RHS of rewrite rules.  This is #
+#  also sometimes called "canonicalization", but has to do not with the syntax #
+#  of the address but with obtaining the correct domain name for the address.  #
+#                                                                              #
+#  No stripping of local domains is done for route addresses:  Rulesets which  #
+#  require this must do it themselves by iteratively stripping LOCAL or        #
+#  LOCAL.D and recalling this ruleset to canonicalize the next host.item.      #
+#                                                                              #
+#  The term "localization" refers to determining whether the next host item    #
+#  is really a reference to the current host.  Localization assumes that local #
+#  UUCP host names are in class w.  This is not strictly a necessary restric-  #
+#  tion, but it simplifies the network concept and also makes for simpler      #
+#  rewrite rules.  This ruleset replaces explicit instances of local host      #
+#  with the internally recognized tag "LOCAL" or "LOCAL.D".                    #
+#                                                                              #
+#  Addresses which do not specify a host name for routing or domain will NOT   #
+#  have any reference to the local host appended in any way.                   #
+#                                                                              #
+################################################################################
+S3
+
+#
+# Handle "from:<>" special case
+#
+R<>		$@@		Turn into magic token
+
+#
+# Basic textual canonicalization -- note RFC733 heuristic here.
+# This strips off everything but the innermost list between <>'s.
+# Some addresses are of the format: Full Name <address>
+#
+R$*<$*<$*<$+>$*>$*>$*	$4				3-level <> nesting
+R$*<$*<$+>$*>$*		$3				2-level <> nesting
+R$*<$+>$*		$2				basic RFC821/822 parsing
+
+#
+# Turn an "at" token into "@".
+#
+R$+ at $I$+		$:$1@$2				"at" -> "@" for RFC 822
+
+#
+# Change a%b to a@b. This implies that we support a%b%c... as a route
+# based address from right to left.
+# This form of addressing should go away as full domains are supported.
+#
+R$+%$-			$1@$2
+
+#
+# Change a!b@c to @c:a!b
+#
+R$-!$+@$+		@$3:$1!$2
+
+#
+# Change commas to colons for route addresses.
+#
+R$+,$+			$1:$2
+
+#
+# Change ^ to !
+#
+R$+^$+			$1!$2
+
+#
+# Pick out route addresses.  Focus and call localizer.
+#
+R@$+:$+			$@$>9<@$1>:$2			handle <route-addr>
+R$-!$+			$@$>8<$1>!$2			UUCP route
+
+# Detect domain!user. Internally convert to user@domain (RFC976).
+# Rule set 8 will detect local addresses and strip any trailing
+# periods.
+R$-.$*!$+		$@$>8<$1.$2>!$3
+
+#
+# Detect local domain for nonroute addresses.  Focus and localize.
+#
+R$+@$+			$:$1<@$2>
+R$+<@$=w$?E.$=E$.$?F.$=F$.$?G.$=G$.$?H.$=H$.>	$@$1<@LOCAL.D>
+R$+<@$=w>		$@$1<@LOCAL>
+R$+<@$=w.UUCP>		$@$1<@LOCAL>
+
+#
+# Anything else is left as-is!  This includes simple names.
+# They will NOT have an appended domain.
+# This is so the $f macro definition will be the sender address
+# as known locally.
+#
+
+
+################################################################################
+#
+#  S9:  Localize ARPA type route path.  Depend on classes/macros E,F,G,H being
+#  defined in order as used.  They need not all be used.
+#
+#  This is used only by S3.
+#
+################################################################################
+S9
+
+R<@$=w.$=E.$=F.$=G.$=H>:$*	$@<@LOCAL.D>:$6
+R<@$=w.$=E.$=F.$=G>:$*		$@<@LOCAL.D>:$5
+R<@$=w.$=E.$=F>:$*		$@<@LOCAL.D>:$4
+R<@$=w.$=E>:$*			$@<@LOCAL.D>:$3
+R<@$=w>:$*			$@<@LOCAL.D>:$2
+R<@$=w.UUCP>:$*			$@<@LOCAL>:$2
+
+
+################################################################################
+#
+# S8:  Localize UUCP route path.  This is used only by S3.
+#
+################################################################################
+S8
+
+R<$=w.$=E.$=F.$=G.$=H>!$+	$@<LOCAL.D>!$6
+R<$=w.$=E.$=F.$=G>!$+		$@<LOCAL.D>!$5
+R<$=w.$=E.$=F>!$+		$@<LOCAL.D>!$4
+R<$=w.$=E>!$+			$@<LOCAL.D>!$3
+R<$=w>!$+			$@<LOCAL>!$2
+R<$+.>!$+			<$1>!$2
+
+#
+# We have a non-local domain. Change to user@domain.
+#
+R<$-.$+>!$+			$@<@$1.$2>:$3
+R<$+.>!$+			$@<@$1>:$2
+R<$+.>!$+			<$1>!$2
+
+################################################################################
+#                                                                              #
+#                                MAILERS                                       #
+#                                                                              #
+################################################################################
+
+
+################################################################################
+#                                                                              #
+#               Local and Program Mailer specification                         #
+#                                                                              #
+################################################################################
+
+Mlocal, P=/bin/mail, F=CDFMhlmnsu, S=10, R=20, A=mail -d $u
+Mprog,  P=/bin/sh,   F=DFmhlsu,   S=10, R=20, A=sh -c $u
+
+
+################################################################################
+#                                                                              
+#  S10:  Local/Prog Mailers Sender rules
+#                                                                              
+################################################################################
+S10
+
+################################################################################
+#                                                                              
+#  S20:  Local/Prog Mailers Recipient rules
+#                                                                              
+################################################################################
+S20
+
+################################################################################
+#                                                                              #
+#                   UUCP Mailer Specification                                  #
+#                                                                              #
+################################################################################
+
+Muucp, P=/usr/bin/uux, F=sDFMhuU, S=13, R=23, M=100000,
+       A=uux - -r -n -a$f -gC $h!rmail ($u)
+
+################################################################################
+#
+#  S13:  UUCP Mailer Sender Rules
+#
+#  This ruleset is applied in the following circumstances:
+#
+#  1)  To process sender type headers.  These have header names:
+#
+#	"resent-sender"
+#	"resent-from"
+#	"resent-reply-to"
+#	"sender"
+#	"from"
+#	"reply-to"
+#	"return-receipt-to"
+#	"errors-to"
+#
+#  2)  To define the $g macro from the $f macro.  The definition of $g must
+#      contain a bang character if UGLY UUCP From lines are to be gen'd.
+#
+#  In either case, it is applied after ruleset 1, and is followed by ruleset 4.
+#
+#  Watch out if one of those headers is newly created and includes the expanded
+#  $g macro!  This ruleset will have been used to create $g, and will then be
+#  applied to the result of the expansion of $g.  This ruleset must handle
+#  this!
+#
+#  The $g macro is used in many places.
+#
+################################################################################
+S13
+
+#
+# We have just canonicalized a From: address or the $f macro.  Remove any
+# instances of local host from route addresses.  This also works to take
+# care of the instance of a newly expanded $g in a new From: line.
+#
+R<$*LOCAL$*>$-$+	$>3$4
+
+#
+# Remove any local domain.
+#
+R$+<@LOCAL$*>		$1
+
+#
+# Fully qualify any domain which remains.
+#
+R$+<@$->		$1<@$2.LOCAL>
+
+#
+# Prefix sender address with UUCP target host name.  This creates or adds
+# to the route.  Note that definition of $g will cause prefix of $w.  Then
+# processing a new From: line containing expanded $g will add another $w prefix
+# unless it is stripped above.
+#
+R$+			$:$w!$1			add it back
+
+
+################################################################################
+#
+#  S23:  UUCP Mailer Recipient rules
+#
+#  This ruleset is applied in the following cases:
+#
+#  1)  To process recipient type headers being sent out through this mailer.  
+#      These headers are the ones with header names:
+#
+#	"to"
+#	"resent-to"
+#	"cc"
+#	"resent-cc"
+#	"bcc"
+#	"resent-bcc"
+#
+#  2)  To process the user part of the 3-tuple from S0 which resolves 
+#      to this mailer.  What is processed will be the path remaining after
+#      the next host is stripped.  This is enclosed in focus braces to
+#      distinguish it from a recipient header line address.
+#
+#  In either case, this ruleset is applied after ruleset 2, and is followed by 
+#  ruleset 4.
+#
+#  Remember that this ruleset applies to all "to" type headers in the mail 
+#  transmitted via this mailer.  This does not inclue "Apparently-to:" headers.
+#  Not all "To:" headers point to the current mail target!  For instance, if 
+#  the mail originated on this host and some targets were local, there may be 
+#  local "To:" headers that must be processed by this ruleset!
+#  The idea here is to make sure that the headers will be properly understood
+#  in the context of the next host to which the mail will go.
+#
+#  A subtlety to be kept in mind is that when this is applied to the user part
+#  of the 3-tuple output from S0, that that user part is not preprocessed
+#  by S3 before treatment by this ruleset.  However, when a header is being
+#  processed, S3 will have been used.  The difference arises from the fact
+#  that S3 generates the LOCAL tag, whereas the user part of a UUCP address 
+#  may contain the current host name as the first target.  This would be typical
+#  of a test scenario to UUCP to a remote, and have that remote UUCP back
+#  to us.
+#
+################################################################################
+S23
+
+#
+# Items that come in from S0 get left alone.
+#
+R<$+>			$@$1
+
+#
+# Leave route based addresses alone.  They are already completely intelligible
+# in any context.
+#
+R<$+>$+			$@<$1>$2
+
+#
+# Fully qualify our hostname with full domain.
+#
+R$+<@LOCAL>		$@$1<@LOCAL.D>
+
+#
+# Add full domain to other host names in local domain.
+#
+R$+<@$->		$@$1<@$2.LOCAL>
+
+#
+# Leave all other typical domain addresses alone.
+#
+R$+<$+>			$@$1<$2>
+
+#
+# Append full local domain where none exists at all.  This handles the case
+# of local targets whose (missing) host would cause misunderstanding in the
+# next host.
+#
+R$+			$@$1<@LOCAL.D>
+
+
+################################################################################
+#                                                                              #
+#                   TCP Mailer Specification                                   #
+#                                                                              #
+################################################################################
+
+Mtcp,    P=[IPC], F=mDFMueXL,  S=14, R=24, A=IPC $h, E=\r\n
+
+
+################################################################################
+#
+#  S14:  TCP Mailer Sender Rules
+#
+#  This ruleset is applied in the following circumstances:
+#
+#  1)  To process sender type headers.  These have header names:
+#
+#	"resent-sender"
+#	"resent-from"
+#	"resent-reply-to"
+#	"sender"
+#	"from"
+#	"reply-to"
+#	"return-receipt-to"
+#	"errors-to"
+#
+#  2)  To define the $g macro from the $f macro.
+#
+#  In either case, it is applied after ruleset 1, and is followed by ruleset 4.
+
+#  Watch out if one of those headers is newly created and includes the expanded
+#  $g macro!  This ruleset will have been used to create $g, and will then be
+#  applied to the result of the expansion of $g.  This ruleset must handle
+#  this!
+#
+#  The $g macro is used in many places.
+#
+################################################################################
+S14
+
+#
+#  We have just canonicalized a From: address or the $f macro.  Remove any
+#  instances of local host from route addresses.  This also works to take
+#  care of the instance of a newly expanded $g in a new From: line.
+#
+R<$*LOCAL$*>$-$+	$>3$4
+
+#
+# Prepend our domain to route based paths that come through.
+#
+R<$+>$+			$@<@LOCAL.D>:$1$2
+
+#
+# Fully qualify our domain.
+#
+R$+<@LOCAL>		$@$1<@LOCAL.D>
+
+#
+# Fully qualify other hosts in our local domain.
+#
+R$+<@$->		$@$1<@$2.LOCAL>
+
+#
+# Leave all other typical domain addresses alone.
+#
+R$+<$+>			$@$1<$2>
+
+#
+# Append full local domain where none exists at all.
+#
+R$+			$@$1<@LOCAL.D>
+
+
+################################################################################
+#
+#  S24:  TCP Mailer Recipient rules
+#
+#  This ruleset is applied in the following cases:
+#
+#  1)  To process recipient type headers being sent out through this mailer.  
+#      These headers are the ones with header names:
+#
+#	"to"
+#	"resent-to"
+#	"cc"
+#	"resent-cc"
+#	"bcc"
+#	"resent-bcc"
+#
+#      but NOT:
+#
+#	"Apparently-to"
+#
+#  2)  To process the user part of the 3-tuple from S0 which resolves 
+#      to this mailer.  This is the complete "to" address for ordinary
+#      tcp usage, or is the original UUCP path if we are relaying using DU.
+#
+#  3)  To process the "to" address to form the SMTP RCPT TO address.
+#
+#  In all cases, this ruleset is applied after ruleset 2, and is followed by 
+#  ruleset 4.
+#
+#  Remember that this ruleset applies to all "to" type headers in the mail 
+#  transmitted via this mailer.  This does not inclue "Apparently-to:" headers.
+#  Not all "To:" headers point to the current mail target!  For instance, if 
+#  the mail originated on this host and some targets were local, there may be 
+#  local "To:" headers that must be processed by this ruleset!
+#  The idea here is to make sure that the headers will be properly understood
+#  in the context of the next host to which the mail will go.
+#
+################################################################################
+S24
+
+#
+# Leave route based addresses alone.  They are already completely intelligible
+# in any context.
+#
+R<$+>$+			$@<$1>$2
+
+#
+# Fully qualify our hostname with full domain.
+#
+R$+<@LOCAL>		$@$1<@LOCAL.D>
+
+#
+# Fully qualify nonlocal host names in our local domain.
+#
+R$+<@$->		$@$1<@$2.LOCAL>
+
+#
+# Leave all other typical domain addresses alone.
+#
+R$+<$+>			$@$1<$2>
+
+#
+#  Append full local domain where none exists at all.  This handles the case
+#  of local targets whose (missing) host would cause misunderstanding in the
+#  next host.
+#
+R$+			$@$1<@LOCAL.D>
+
+
+################################################################################
+#                                                                              #
+#                   MHSnet Mailer Specification                                #
+#                                                                              #
+################################################################################
+
+Mmhs, P=SPOOLDIR/_bin/netfile, F=PDEFShMmux, S=15, R=25, A=netfile -Amailer -uoP1 -S$f -U$u -D$h
+
+################################################################################
+#
+#  S15:  MHSnet Mailer Sender Rules
+#
+################################################################################
+S15
+
+#
+# Add the machine name and domain hierarchy to get a proper "From " line.
+#
+R$-		$1@<LOCAL.D>
+
+################################################################################
+#
+#  S25:  MHSnet Mailer Recipient rules
+#
+################################################################################
+S25
+#
+# Addresses of the form a!b!c@m.dom come out of ruleset 0 as @m.com:a!b!c.
+# Change address to a!b!c@m.dom.
+#
+R@$+.$=P:$+		$3@$1.$2
+
+################################################################################
+#                                                                              #
+#     Rule Zero                                                                #
+#                                                                              #
+#  Resolve sender or recipient address to mailer/host/user 3-tuple.            #
+#  This may require iteration in use of S3 to strip leading route items        #
+#  which pertain to the current host.                                          #
+#                                                                              #
+#  Sendmail will pass the user portion of the 3-tuple through ruleset 2 +      #
+#  the mailer specific recipient ruleset + ruleset 4.                          #
+#                                                                              #
+################################################################################
+S0
+
+#
+# Handle route addresses that begin with LOCAL or LOCAL.D
+#
+R<$*LOCAL$*>$-$+	$>3$4
+
+#
+# Change a%b<$*> to <$*>:a@b.
+# This form of addressing should go away as full domains are supported.
+#
+R$+%$-<$*>		<$3>:$1@$2
+
+#
+# Handle explicit local delivery.
+# The entire prefix is treated as local user.
+#
+R$+<@LOCAL$*>		$#local$:$1
+
+#
+# Canonicalize anything else which has an @focus.  This excludes simple names,
+# which are local.
+#
+R$*<@$+>$*		$:$1<@$[$2$]>$3
+
+#
+# Check if we have a uucp address for a uucp host.
+#
+R$+<@$=U.UUCP>		$#uucp$@$2$:<$1>$.
+R$+<@$+@$=U.UUCP>	$#uucp$@$3$:<$1@$3>$.
+R<@$=U.UUCP>:$+		$#uucp$@$2$:<$1>$.
+R<@$+@$=U.UUCP>:$+	$#uucp$@$2$:<$3@$1>$.
+R<$=U>!$+		$#uucp$@$1$:<$2>$.
+
+#
+# Resolve everything that has a top level domain known to MHSnet to the
+# MHSnet mailer (addresses to the local host are already resolved to LOCAL
+# by rule set 3). Pyramid internal mail is immediately resolved to
+# be forwarded through private relay. Mail to ptcburp.pyramid.com.au is
+# rewritten to ptcburp.ptcbu.oz.au and given to MHSnet.
+#
+R<@$B>:$+		$#mhs$@$j$:$1	# Recognize alias...
+R$+<@$B>		$#mhs$@$j$:$1	# Ditto...
+#
+# Send via pta if Pyramid internal.
+#
+R<@$=A>:$+		$#mhs$@$P$:$2@$1
+R<@$+.$=A>:$+		$#mhs$@$P$:$3@$1.$2
+R$+<@$=A>		$#mhs$@$P$:$1@$2
+R$+<@$+.$=A>		$#mhs$@$P$:$1@$2.$3
+
+R<@$+.$=T>:$+		<@$1.$2@$R>:$3	# Forward non-primary domains to relay
+R$+<@$+.$=T>		$1<@$2.$3@$R>
+R<@$+@$+>:$+		<@$2>:$3@$1	# Move multiple @'s
+R$+<@$+@$+>		$1@$2<@$3>
+R<@$+.$=P>:$+		$#mhs$@$1.$2$:$3	# Resolve to mailer
+R$+<@$+.$=P>		$#mhs$@$2.$3$:$1
+
+#
+# Check if we have a uucp route address for an MHSnet host. If so, feed
+# it into MHSnet (this only works if all the hosts we connect to are visible
+# in the oz.au domain).
+#
+R<$=M>!$+		$#mhs$@$1.oz.au$:$2
+
+#
+# Send domain address to tcp. This includes domain literals [IP quads].
+# User is full focused path.
+#
+#R$*<@$+>$*		$#tcp$@$2$:$1<@$2>$3
+
+#
+# Remaining names must be local.
+# User is whatever is left.
+#
+R$+			$#local$:$1

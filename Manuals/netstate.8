@@ -1,0 +1,1108 @@
+.nr S3 1 \" 1 for ACSnet
+.ds S1 NETSTATE
+.ds S2 \fINetstate\fP
+.ds S3 \fInetstate\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 _bin/netstate
+.TH \*(S1 8 "\*(S4 1.29" \^
+.nh
+.SH NAME
+netstate \- manage network state and routing tables
+.SH SYNOPSIS
+.BI \*(S6
+.RI [\- flags ]
+.SH DESCRIPTION
+.I \*(S2
+manages the network state information and routing tables.
+The network topology and state information is held in a file called
+.if n `statefile'.
+.if t \f(CWstatefile\fP.
+Commands for controlling or modifying this information are normally found in
+.if n `commandsfile',
+.if t \f(CWcommandsfile\fP,
+although they can also be read from
+.IR stdin .
+The topology information is compiled into another file called
+.if n `routefile'
+.if t \f(CWroutefile\fP
+that contains the routing tables used by all other network programs.
+All three files are kept in the network spooling area in a directory called
+.if n `_state'.
+.if t \f(CW_state\fP.
+.PP
+Optional flags are:
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-C\fP[\fIcommandsfile\fP]X'u
+.if \n(.lu<6i .ds tw 4
+.TP "\*(tw"
+.BI \-c
+Read commands from
+.IR stdin .
+.TP
+.BI \-e
+Ignore \s-1CRC\s+1 errors in state files.
+.TP
+.BI \-i
+Read an imported state file from
+.IR stdin .
+.TP
+.BI \-o
+Write state file onto
+.IR stdout .
+.TP
+.BI \-n
+Don't generate an automatic state broadcast.
+.TP
+.BI \-q
+Write the source address and comment onto
+.IR stdout .
+.TP
+.BI \-r
+Update the routing tables.
+.TP
+.BI \-s
+Update the state file.
+.TP
+.BI \-w
+Complain about irregularities in state files and commands.
+.TP
+.BI \-x
+Force a rewrite of the files
+`_state/exportfile' and `_state/sitefile'.
+Normally,
+these state files are only updated when significant local details are altered via new commands.
+.TP
+.BI \-C \fR[\fPcommandsfile\fR]\fP
+Read commands from
+.I commandsfile
+(default `_state/commandsfile').
+.TP
+.BI \-D \ sourcedate
+Give the origin date of the imported state file in seconds.
+.TP
+.BI \-F \ sourceaddr
+Give the origin source address of the imported state file.
+.TP
+.BI \-R \ routefile
+The route file name becomes
+.I routefile
+instead of `_state/routefile'.
+.TP
+.BI \-S \fR[\fPstatefile\fR]\fP
+The local state file name becomes
+.I statefile
+instead of `_state/statefile'.
+If the
+.I statefile
+parameter is missing,
+then this flag prevents \*(S3 from reading the default state file.
+.TP
+.BI \-T \fR[\fPlevel\fR]\fP
+Turns on tracing at
+.I level
+[default 1].
+If tracing is not compiled in,
+this flag will have no effect.
+.TP
+.BI \-U \fR[\fPlevel\fR]\fP
+Turns on tracing for commands at
+.I level
+[default 1].
+If tracing is not compiled in,
+this flag will have no effect.
+.TP
+.BI \-Z " time-to-die"
+Any routing message generated will be discarded on any route which takes more than
+.I time-to-die
+seconds before delivery.
+The default for all broadcast messages is one week,
+but this option may be used to shorten the message life further.
+.TP
+.BI \-?
+Explain argument options and exit.
+.SH EXAMPLES
+Remake the routing tables after changing the contents of
+.IR commandsfile :
+.PP
+.RS 4
+.ft CW
+\*(S6 -rsxC
+.RE
+.PP
+Recover a corrupted \fIstatefile\fP:
+.PP
+.RS 4
+.ft CW
+\*(S6 -esC
+.RE
+.PP
+Output a state file from some new commands:
+.PP
+.RS 4
+.ft CW
+\*(S6 -oncS <test.cmds >test.state
+.RE
+.br
+.ne 6
+.SH COMMANDS
+Modifications to the state file are made with commands
+which take the format:
+.PP
+.RS 4
+command\fI<sep>\fP[region[,\|region]]\fI<sep>\fP[parameter[,\|...]]
+.RE
+.PP
+Tab or space characters separate fields of the command.
+The `\fB#\fP' character may be used to cause the input to be ignored up to the next unescaped newline.
+Newline, tab, space, `\fB#\fP', and escape characters may be escaped by preceding them with `\fB\e\fP'.
+Commands may be extended over many lines by starting continuation lines with leading tabs or spaces.
+The maximum length of a command is 1022 characters.
+.PP
+\fBOnce a command has taken effect,
+it is \fIremembered\fP in
+.if t \f(CWstatefile\fP,
+.if n `statefile',
+so it must be undone explicitly to remove its effect.
+Ie: just removing a command from
+.if t \f(CWcommandsfile\fP
+.if n `commandsfile'
+will not reverse its effect.\fP
+.PP
+Note that the way to reverse the effect of any command
+that takes an optional parameter is to leave out the optional parameter,
+so the way to undo an earlier command is to remove the parameter.
+The only exceptions are:
+.TP "\w'licence_numberXX'u"
+.IR licence_number
+which isn't remembered in the state file, and must always be present.
+.TP
+.IR noroute
+which isn't remembered in the state file;
+.TP
+.IR xalias
+which is a single-parameter command
+that needs an additional parameter to reverse its effect;
+.PP
+If a parameter is the name of a program,
+then a full path name is required,
+or a path name relative to the network spooling directory
+[\f(CWSPOOLDIR\fP \(em see
+.IR netparams (5)].
+.PP
+Region names are limited to characters from the set
+.RS 4
+.B
+[<space>\|\-\|.\|0-9\|=\|A-Z\|_\|a-z]
+.RE
+(case is not significant, and <space> must be escaped)
+and take the format
+.RS 4
+.IB domain[ .\| domain\ ...]
+.RE
+where each
+.I domain
+takes the form
+.RS 4
+.IB type = name
+.RE
+.I Type
+can be any of the default types
+(see
+.I ordertypes
+below),
+or any that previously have been
+.IR mapped .
+.I Type
+may be ommitted if a previously mapped typed-domain name is used.
+The routing software translates all types into their internal form that
+consists of a digit in the range `0' to `9'.
+Domains may occur in any order.
+.PP
+Any link between two regions is unidirectional,
+and so two links are needed for a bi-directional
+connection between two regions.
+.br
+.ne 6
+.PP
+The commands are as follows:
+.if n .ds tw 4
+.if t .ds tw \w'\fBlinkname\fP\ \fIregion\fP\ [\fIpathname\fP]X'u
+.if \n(.lu<6i .ds tw 4
+.TP "\*(tw"
+.BI add " region"
+Add a new region.
+.TP
+.BI address " region"
+Give the region name for `home'.
+If this command causes an address change,
+then the old address will become an exported
+.I alias
+for the new one,
+and the old region,
+together with any associated aliases will be removed.
+This command, if used, must precede any other commands except
+.BR ordertypes ,
+.BI map \ domain,
+and
+.BI map \ type.
+.TP
+.BI break " R1,\^R2"
+Break both the links between
+.IR R1 " and " R2 .
+.TP
+.BI breakall " region"
+Break all the links
+to or from
+this region.
+.TP
+.BI breakpseudo " \fR[\fPregion\fR]\fP"
+Break all the `pseudo' links
+from
+this region.
+If
+.I region
+is missing, them remove all pseudo links.
+.RI ( Pseudo
+links between sites are created
+when a state message from some site
+indicates that it knows of a route to another site,
+but no other information about the second site is available.)
+.TP
+.BI caller " region \fR[\fPprogram\fR]\fP"
+Set the name of a program to be invoked to establish a virtual circuit for the link to
+.IR region .
+.TP
+.BI cheaproute " R1 \fR[\fPR2\fR]\fP"
+Force all
+.I cheap
+routes to
+.I R1
+(and its sub-regions)
+to go via
+.IR R2 ,
+which must be linked to `home'.
+.TP
+.BI clear " region"
+Zero the `state date' for
+.IR region .
+This date is the one recorded as the time a state message was last received from
+.IR region .
+.TP
+.BI comment " \fR[\fPremarks\fR]\fP"
+Set the `remarks' field in the site description for `home'.
+The total length of all site description fields must not exceed 1022 characters.
+.TP
+.BI cost " R1,\^R2 cost"
+Set a nominal
+.I cost
+(decimal number in the range 0\(em1,000,000) for the link from
+.I R1
+to
+.IR R2.
+You should only set costs on links from `home',
+so you will get a warning message if
+.I R1
+is not `home'.
+.TP
+.BI delay " R1,\^R2 delay"
+Set the queueing delay in seconds (maximum 1 week = 604,800) for the link from
+.I R1
+to
+.IR R2.
+You should only set delays on links to `home',
+so you will get a warning message if
+.I R2
+is not `home'.
+.TP
+.BI "email_address" " \fR[\fPaddress\fR]\fP"
+Set the `e-mail address' for the site administrator in the site description for `home'.
+This field is mandatory at initial setup.
+.TP
+.BI fastroute " R1 \fR[\fPR2\fR]\fP"
+Force all
+.I fast
+routes to
+.I R1
+(and its sub-regions)
+to go via
+.IR R2 ,
+which must be linked to `home'.
+.TP
+.BI filter " region \fR[\fPprogram\fR]\fP"
+Set the name of a program to be used to
+.I filter
+messages arriving or departing on the link to
+.IR region .
+.TP
+.BI flag " R1,\^R2 \fR[\fP+|\(mi\fR]\fPflag\fR[\fP,\|...\fR]\fP"
+Set (+) [default], or unset (\(mi),
+routing flags on the link from
+.I R1
+to
+.IR R2 .
+The flags are enumerated below.
+.TP
+.BI forward " address \fR[\fPregion\fR]\fP"
+Arrange for addresses matching
+.I address
+to be forwarded to
+.IR region .
+.I Address
+may be a region name,
+or a locally unresolvable address that can be resolved in
+.IR region .
+.TP
+.BI "forward *." "region1 \fR[\fPregion2\fR]\fP"
+Arrange for any address ending in
+.I region1
+to be forwarded to
+.I region2
+\(em provided that
+the address
+doesn't appear in the routing tables.
+.I region1
+may be any locally unresolvable typed address that can be resolved in
+.IR region2 .
+If
+.I region2
+is equal to the local address,
+then all matched addresses will become equivalent to the local address.
+If
+.I region1
+is blank (meaning the world-level region, \f(CW*WORLD*\fP),
+then all addresses are matched.
+.TP
+.BI halfbreak " R1,\^R2"
+Remove the link from
+.I R1
+to
+.IR R2 .
+.TP
+.BI halflink " R1,\^R2 \fR[\fP+|\(mi\fR]\fPflag\fR[\fP,\|...\fR]\fP"
+Make a uni-directional link from
+.I R1
+to
+.IR R2 .
+The optional
+.I flags
+are as for the
+.B flag
+command.
+.TP
+.BI ialias " alias \fR[\fPregion\fR]\fP"
+Attribute an
+.I alias
+for
+.IR region .
+.I Alias
+must be a region name and will be
+.I owned
+by
+.I region
+\(em which may therefore reset it.
+.TP
+.BI "licence_number" " \fR[\fPnumber\fR]\fP"
+Set the `licence number' field for the site description for `home'.
+This command is mandatory.
+In fact, after initial setup, it is the only command that must always be present.
+.TP
+.BI link " R1,\^R2 \fR[\fP+|\(mi\fR]\fPflag\fR[\fP,\|...\fR]\fP"
+Make both links between
+.I R1
+and
+.IR R2 .
+The optional
+.I flags
+are as for the
+.B flag
+command,
+except that they will be applied to both links.
+.TP
+.BI linkname " region \fR[\fPpathname\fR]\fP"
+Set a local path name for
+.IR region ,
+which must be
+.I linked
+to `home'.
+Path names are appended to the network spool directory name.
+The default path name is the reversed typed region name,
+with each domain separator replaced by `/'.
+.TP
+.BI location " \fR[\fPlocation\fR]\fP"
+Set the `location' field in the site description for `home'.
+.TP
+.BI map " address \fR[\fPregion\fR]\fP"
+Map an arbitrary address to a
+.IR region .
+.I Region
+will replace
+.I address
+when the address is resolved locally.
+.TP
+.BI map " domain \fR[\fPtyped-domain\fR]\fP"
+Map an arbitrary domain name to a typed domain name.
+.I Typed-domain
+will replace
+.I domain
+when the address is resolved locally.
+.TP
+.BI map " type1 \fR[\fPtype2\fR]\fP"
+.I Type1
+is made a synonym for
+.IR type2 .
+.I Type2
+must be an internal type
+(digit in the range `0' to `9'),
+a default type
+(see
+.B ordertypes
+below), or one introduced by
+.BR ordertypes .
+.I Type1
+may not be an internal type.
+.TP
+.BI noroute " region"
+Mark
+.I region
+as having no known route.
+This will prevent it or any of its aliases from appearing in the routing tables.
+However, all its details will be remembered in the state file.
+.TP
+.BI ordertypes " type;type;type;type\|...;type"
+Give ordering for preferred typenames.
+The default types are:
+.br
+.B
+.SM
+C;A;P;O;OU1;OU2;OU3;OU4;OU5;N
+.br
+A minimum of 5 types must be specified,
+up to a maximum of 10.
+The first
+.B n\(mi1
+types will become synonyms for
+the first
+.B n\(mi1
+default types,
+and the
+.BR n th
+type will match
+.BR N .
+The first type is for a country identifier,
+the last is for a network node.
+None of the types may be an
+.I internal
+type (digit in range '0' to '9').
+These typenames will be used when expanding addresses,
+instead of the defaults.
+This command, if used,
+.BR "must come first" .
+Alternatives for these typenames may be specified with the
+.B map
+command.
+.TP
+.BI organisation " \fR[\fPorganisation\fR]\fP"
+Set the `organisation' field in the site description for `home'.
+This field is mandatory at initial setup.
+.TP
+.BI organization " \fR[\fPorganization\fR]\fP"
+An alternative for `organisation'.
+.TP
+.BI person " \fR[\fPcontact person\fR]\fP"
+Set the `contact person' field in the site description for `home'.
+This field is mandatory at initial setup.
+.TP
+.BI "postal_address" " \fR[\fPaddress\fR]\fP"
+Set the `postal address' field in the site description for `home'.
+This field is mandatory at initial setup.
+.TP
+.BI remarks " \fR[\fPremarks\fR]\fP"
+An alternative for
+.BR comment .
+.TP
+.BI remove " region"
+Remove
+.I region
+and all regions contained in it,
+and any
+.I aliases
+associated with them.
+Note that you can't remove a region that is part of your address,
+or that is directly linked to your site (use `breakall' first).
+.TP
+.BI removemaps " \fR[\fPname\fR]\fP"
+Remove
+.I name
+and any
+.I aliases
+associated with it from the mapping tables.
+If
+.I name
+is missing, then remove all maps.
+.TP
+.BI restrict " R1,R2 \fR[\fPR3\fR]\fP"
+Restrict the level of traffic allowed to pass over the link from
+.I R1
+to
+.IR R2 .
+Messages with destination addresses outside
+.I R3
+will not be routed over this link.
+For example, if there are more than one link from
+.IR R2 ,
+and
+.I R3
+is the same as
+.IR R2 ,
+then the link will be prevented from carrying any
+.I through
+traffic.
+You should only set restrictions on links to `home',
+so you will get a warning message if
+.I R2
+is not `home'.
+.TP
+.BI route " R1 \fR[\fPR2\fR]\fP"
+Force both
+.I fast
+and
+.I cheap
+routes to
+.I R1
+(and its sub-regions)
+to go via
+.IR R2 ,
+which must be linked to `home'.
+.TP
+.BI spooler " region \fR[\fPprogram\fR]\fP"
+Set the name of a program to be invoked to
+.I spool
+messages for the link to
+.IR region .
+The link is probably a gateway to a foreign network.
+.TP
+.BI system " \fR[\fPsystem type\fR]\fP"
+Set the `system type' field in the site description for `home'.
+.TP
+.BI telno " \fR[\fP'phone no.\fR]\fP"
+Set the `phone number' for the site administrator in the site description for `home'.
+This field is mandatory at initial setup.
+.TP
+.BI unlink " R1,R2"
+A synonym for
+.BR break .
+.TP
+.BI unlinkall " region"
+A synonym for
+.BR breakall .
+.TP
+.BI visible " R1 \fR[\fPR2\fR]\fP"
+Set the
+`visible region'
+for
+.I R1
+to be
+.IR R2 .
+.I R1
+(normally `home')
+will not propagate its site details outside
+.IR R2 ,
+and will indicate to other sites that it is unable to route addresses not contained in
+.IR R2 ,
+unless they are
+.I out-bound
+messages
+(those travelling from lower regions to higher ones).
+If
+.I R2
+is blank,
+the visible region will become the world-level region, \f(CW*WORLD*\fP.
+.TP
+.BI xalias " region \fR[\fPremove\fR]\fP"
+Enter
+.I region
+as an exported
+.I alias
+for `home'.
+If the optional second parameter is present,
+then the alias will be removed.
+.I Region
+must not exist (or be otherwise used as an alias).
+.SS Flags
+Where the parameters are required to be
+.I link
+flags,
+the possible flags and their meanings are:
+.TP \w'\fBforeign\fPXX'u
+.BI call
+The link is
+.IR call-on-demand .
+The routing program will automatically invoke a
+virtual circuit establishment program
+whenever a message is spooled for the link
+and there is no active transport daemon,
+provided that a file named
+.I call
+exists in the link's queue directory,
+or an alternate call program has been specified via the command
+.IR caller .
+Otherwise the routing program will invoke the program
+.IR netcontrol (8)
+with the arguments:
+.if t \f(CWstart \fP\fIlink\fP
+.if n `start <link>'
+where
+.I link
+is the type-less name of the link.
+.TP
+.BI dead
+The link is marked as
+.I dead
+(inactive for more than a week).
+This also means that
+.I broadcast
+network state information will not be passed to it.
+.TP
+.BI down
+The link is marked as
+.I down
+(inactive for more than a day).
+.TP
+.BI foreign
+The link is to a foreign network.
+This means that network state information will not be passed to it.
+.TP
+.BI nochange
+This flag prevents changes to parameters for this link from generating state messages.
+It also prevents network programs from making dynamic changes to the link parameters.
+.br
+.ne 12
+.SH "COMMAND EXAMPLES"
+The following commands could become permanent by installing them in
+.IR _state/commandsfile .
+.PP
+.ft CW
+.if \n(.lu<6i .ps -2
+.nf
+.ie \n(S3 \{\
+.ta +\w'postal_addressX'u +\w'postal_addressX'u
+\*(S6 -rsxc <<!
+# Preferred types:
+ordertypes	COUNTRY;ADMD;PRMD;ORG;DEPT;NODE
+# Map an extra shorthand type.
+map	C	COUNTRY
+map	D	DEPT
+map	N	NODE
+map	O	ORG
+map	P	PRMD
+# Map domain names:
+map	au	C=au
+map	cs	D=cs
+map	oz	P=oz
+map	su	O=su
+map	castor	N=castor
+# `home' address:
+address	castor.cs.su.oz.au
+# Export an alias, and map a `typo':
+xalias	N=pollux.cs.su.oz.au
+map	catsor
+	castor.cs.su.oz.au
+# Restrict knowledge of `home' to the department:
+visible	castor.cs.su.oz.au
+	cs.su.oz.au
+# Site details:
+organization	Sydney University Computer Science
+postal_address	Department of Computer Science\e
+	Madsen Building, F09\e
+	Sydney University\e
+	N.S.W. 2006\e
+	Australia
+location	33 53 25.0 S / 151 11 18.7 E
+remarks	SUN IV R&D
+system	MIPS 3230, Risc/OS 4.51
+person	Piers Lauder
+email_address	piers@cs.su.oz.au
+telno	+61-2-692-3423
+# Add a link (domains can be in any order):
+add	N=cluster.cs.su.oz.au
+link	au.oz.su.cs.castor,
+	cs.au.su.N=cluster.oz
+# with a simple directory name:
+linkname	N=cluster.cs.su.oz.au
+	cluster
+# castor calls cluster every 8 hours:
+delay	N=cluster.cs.su.oz.au,
+	castor.cs.su.oz.au
+	28800
+# a uni-directional link to us:
+add	N=ipso.D=rss.O=ips.oz.au
+halflink	N=ipso.D=rss.O=ips.oz.au,
+	castor.cs.su.oz.au
+# Forward incomplete region addresses
+# to sites with regional people data-bases:
+forward	cs.su.oz.au
+	N=basser.cs.su.oz.au
+forward	su.oz.au
+	N=metro.D=ucc.su.oz.au
+forward	oz.au
+	N=munnari.D=cs.O=mu.oz.au
+# Forward unresolvable addresses
+# to sites with suitable gateways:
+forward	*.
+	N=munnari.D=cs.O=mu.oz.au
+!\}
+.el \{\
+.ta +\w'postal_addressXX'u +\w'AustraliaXX'u
+\*(S6 -rsxc <<!
+# Preferred types:
+ordertypes	COUNTRY;ADMD;PRMD;ORG;DEPT;NODE
+# Map some shorthand types:
+map	C	COUNTRY
+map	P	PRMD
+map	O	ORG
+map	D	DEPT
+map	N	NODE
+# Map domain names:
+map	au	C=au
+map	mhs	P=mhs
+map	xyz	O=xyz
+map	mkt	D=mkt
+map	altair	N=altair
+# `home' address:
+address	altair.mkt.xyz.mhs.au
+# Export an alias, and map a `typo':
+xalias	N=sun.mkt.xyz.mhs.au
+map	altir
+	altair.mkt.xyz.mhs.au
+# `altair' only visible inside marketing
+visible	altair.mkt.xyz.mhs.au
+	mkt.xyz.mhs.au
+# Site details:
+organization	XYZ Pty Ltd
+postal_address	Marketing Department\e
+	XYZ Pty Ltd\e
+	201 Pitt St\e
+	Sydney\e
+	N.S.W. 2000\e
+	Australia
+location	33 53 25.0 S / 151 11 18.7 E
+remarks	Client database
+system	HotBox 10/200, SYSTEM V.4.3
+person	Kim Smith
+email_address	kim@mkt.xyz.mhs.au
+telno	+61-2-123-4567
+# Add a link (domains can be in any order):
+add	N=cluster.mkt.xyz.mhs.au
+link	au.mhs.xyz.altair
+	mkt.au.xyz.N=cluster.mhs
+# with a simple directory name:
+linkname	N=cluster.mkt.xyz.mhs.au
+	cluster
+# altair calls cluster every 8 hours:
+delay	N=cluster.mkt.xyz.mhs.au,
+	N=altair.mkt.xyz.mhs.au
+	28800
+# a uni-directional link
+add	N=gris.O=softek.mhs.au
+halflink	N=gris.O=softek.mhs.au
+	altair.mkt.xyz.mhs.au
+# Forward incomplete region addresses
+# to sites with regional people data-bases:
+forward	xyz.mhs.au
+	N=sirius.xyz.mhs.au
+forward	mhs.au
+	N=net.O=mhs.mhs.au
+# Forward unresolvable addresses
+# to sites with suitable gateways:
+forward	*.
+	N=munnari.D=cs.O=mu.P=oz.au
+!\}
+.DT
+.fi
+.if \n(.lu<6i .ps
+.ft
+.SH PROPAGATION
+If the site details for `home' are altered in any significant way,
+then \*(S3 will invoke
+.IR netrequest (8)
+to propagate the changes.
+.I Significance
+is defined by any change in the following attributes for `home':
+.RS 2
+address or visible region;
+.br
+links (dead, down, cost, delay, restriction, new, or removed).
+.RE
+Conflicts in commands affecting these parameters will cause an error exit from \*(S3.
+.PP
+Changes are broadcast to all regions in `home's visible region,
+and each region linked to `home'.
+.PP
+Note that if changes are made to the comment fields,
+or to the `exported aliases',
+and you wish to propagate them,
+then \*(S3 must be invoked with the flag `\fB\-x\fP' to update
+.I sitefile
+and
+.IR exportfile .
+Then use
+.IR netrequest (8)
+to propagate the new information.
+.SH ROUTING
+The routing algorithm finds the \fIcheapest\fP and
+\fIfastest\fP paths between regions.
+The \fIcheapest\fP routes differ from the \fIfastest\fP routes
+in that the
+.I queueing
+delay for the link is multiplied by the
+.I cost
+parameter for the link.
+The \fIcheapest\fP routes are selected
+for messages with a routing priority larger than `4'.
+A normal link is assumed to have
+a zero queueing delay,
+zero operating costs,
+and an initial \fIweight\fP of 1.
+The routing calculation may be biased by several parameters:
+.PP
+.RS 2
+A link marked \fIdead\fP has its queueing delay increased by 100 days.
+.PP
+A link marked \fIdown\fP has its queueing delay increased by 1 day.
+.PP
+A link bearing a region restriction
+will only be used on routes to regions within the restriction.
+.PP
+A node with a
+.I "visible region"
+will only be used on routes to regions within it.
+(Unless it's visible region is the same or `higher'
+than all the previous nodes in the route.)
+.PP
+Any queuing delay is added to the \fIweight\fP
+of the link for both \fIfastest\fP and \fIcheapest\fP routes.
+.PP
+Any cost is used to multiply the \fIweight\fP to find the \fIcheapest\fP routes.
+.RE
+.PP
+Use the \fB\-Y\fP flag to
+.IR netmap (1)
+to find out the effect of your changes, if unsure.
+.PP
+The routing tables are coalesced out of the shortest path network,
+such that if the shortest path to a region is the same as those to
+all the regions within it, then it alone will appear in the table.
+The global region appears as \f(CW*WORLD*\fP if reachable.
+.SH "ADDRESS RESOLUTION"
+When a message is being routed,
+its addresses are resolved by looking them up in the routing tables,
+where any mappings are performed before the route is selected.
+Addresses may be partially typed,
+in which case an attempt is made to type the domains before routing.
+.PP
+There are several tables to aid this process:
+.TP 4
+.I "Region Table"
+This is a table containing fully typed region names
+together with the link on which each should be forwarded.
+This table contains all the regions which are known locally.
+.TP
+.I "Name Table"
+This table contains untyped names, one for each Region Table entry,
+together with an index to the appropriate Region Table entry.
+.TP
+.I "Forwarding Table"
+This is a table of addresses,
+each with a name of a region to which it should be forwarded.
+This table is built up from the `forward' commands.
+.TP
+.I "Mapping Table"
+A table of addresses,
+each with a name of a region to which the address should be mapped.
+This table is built up from the `map' commands.
+.TP
+.I "Type Vector"
+A vector of the local hierarchy,
+with each level containing all domains known at that level.
+This vector is built up by splitting domains found in the Region Table.
+.PP
+The address resolution process follows these steps:
+.TP 4
+(1)
+Untyped addresses are looked up in the Name Table
+and replaced by any match (a fully typed region).
+.TP
+(2)
+Untyped addresses are looked up in the Mapping Table
+and replaced by a match provided it is a region address ending in a country code.
+.TP
+(3)
+Domains are now looked up in the Mapping Table for domain matches,
+and replaced if matched (by a typed domain).
+Domains are then sorted and matched against the Type Vector top down,
+and if matched,
+missing domains are filled in and the domains are re-sorted.
+The address is now split into a typed and an untyped form.
+.TP
+(4)
+If not so far mapped, the untyped address is looked up in the Mapping Table.
+If matched, it is replaced by the match, and the resolution restarted at step (3).
+.TP
+(5)
+If not so far mapped,
+and the only typed part of the address matches the local `visible region'
+(from the \fIvisible\fP command),
+and if the prefix matches an entry in the Mapping Table,
+and the match ends in the local `visible region',
+then the address is replaced by the match.
+.TP
+(6)
+The typed address is now looked up in the Forwarding Table,
+and if matched, then the address is converted to an `explicit routing'
+address with the forwarded region prepended.
+.TP
+(7)
+If step (6) failed, then the lookup is retried with the untyped address.
+.PP
+Finally, the resolved address is looked up in the Region Table.
+If there is no match, the first domain is ignored, and a match attempted on the remainder,
+and so on until a match is made.
+If there is no match after all domains are exhausted, the address resolution fails.
+If there is a match,
+then it yields either the name of a link on which the address should be forwarded,
+or it has matched the local address.
+.if \n(S3 \{\
+.SH "SUN III STATE"
+\*(S2 will process \s-1SUN III\s0 state messages,
+however, because of deficiencies in \s-1SUN III\s0 state message contents,
+certain assumptions are made about names.
+In particular, it is assumed that all nodes without explicit
+.I hierarchies
+belong to the region
+.if t \f(CWPRMD=oz.COUNTRY=au\fP.
+.if n `PRMD=oz.COUNTRY=au'.
+Similarly, all nodes without explicit
+.I "primary domains"
+are assumed to be visible throughout the region
+.if t \f(CWPRMD=oz.COUNTRY=au\fP.
+.if n `PRMD=oz.COUNTRY=au'.
+All nodes whose top-level
+.I domain
+is `oz' are assumed to belong to the region
+.if t \f(CWPRMD=oz.COUNTRY=au\fP.
+.if n `PRMD=oz.COUNTRY=au'.
+Consult the \s-1SUN III\s0 state program manual for explanations of the italicized terms above.
+.SS "Link Restrictions"
+\s-1SUN III\s0 can not handle address restrictions on links,
+and so marks such links with maximum cost and minimum speed in
+order to avoid choosing them if any alternate path exists.
+.SS "Link Delays"
+\*(S2 assumes that any link in a \s-1SUN III\s0 state message marked
+.I intermittent
+has a fixed delay of 86400 (24 hours).
+Conversely, \s-1SUN III\s0 interprets
+any link delay greater than 3599 (>= 1 hour) as meaning an
+.I intermittent
+link.
+.PP
+.B NB:
+sites participating in networks containing sites running \s-1SUN III\s0
+should be aware that in order to avoid routing loops caused by the different link
+characteristics, they must only set link delays of exactly 86400,
+or less than 3600.\}
+.SH FILES
+.PD 0
+.TP "\w'_state/commandsfileXX'u"
+_state/commandsfile
+Default commands to configure local details and control incoming state data.
+.TP
+_state/exportfile
+State file for use in replying to requests for state information from other sites.
+.TP
+_state/log
+Log for routing broadcasts generated by \*(S3
+provided the parameter
+.SM NETADMIN
+has a value of 1 or greater.
+.TP
+_state/routefile
+Routing tables.
+.TP
+_state/sitefile
+State file for use in broadcasting local link changes to other sites.
+.TP
+_state/statefile
+Local state information.
+.PD
+.SH "SEE ALSO"
+.IR netmap (1),
+.IR \*(S5 (7),
+.IR netrequest (8).
+.br
+.ne 11
+.SH DIAGNOSTICS
+\*(S2 will complain if the routing tables reduce in size
+by more than 25%,
+and send mail to the person nominated in the parameter
+.SM NCC_ADMIN.
+(Note: this will happen the first time you convert from \*(S4 Vn. 1.1 to 1.2)
+.PP
+Netstate errors usually indicate command syntax errors,
+but it can also issue warnings to do with routing problems:
+'\".ifn .ds tw 4
+'\".ift \{\
+'\".ie \n(.lu<6i .ds tw 4
+'\".el .ds tw \w'\f(CWRegion\ `xxx'\ unreachable\fPX'u\}
+.ds tw 4
+.TP "\*(tw"
+\f(CWDuplicate shortest paths:\fP
+This means that there is more than one `best' path between your site and the named region.
+If it matters to you which one is chosen,
+you should arrange to alter the link parameters on one of the routes to bias the choice.
+Use
+.IR netmap (1)
+to find the complete route:
+.br
+.ti +4
+\f(CWnetmap -lYA \fP\fIregion\fP
+.TP
+\f(CWIdentical names in ...\fP
+Almost always caused by routing information incorporated
+from non-\*(S4 sites with type-less domains.
+The problem is usually two regions sharing the same name
+except that one pair of domains have different types.
+You can ignore the warning, or `remove' one of the regions,
+preferably the one with the lowest domain.
+Find out the real names with:
+.br
+.ti +4
+\f(CWnetmap -rvm|grep \fP\fIname\fP
+.TP
+\fInumber\fP\f(CW nodes unreachable\fP
+A warning message if any nodes become unreachable.
+See below for possible explanations.
+.TP
+\f(CWRegion `xxx' unreachable\fP
+These normally can be ignored safely.
+They are usually caused by regions claiming low
+.I visibility
+whose outer regions are themselves not directly addressable,
+or by links to these regions having lower restrictions on them.
+However,
+sometimes they are caused by a site
+whose link/visibility restrictions
+prevent routes being found to other sites it claims knowledge of.
+If these sites are important to you,
+you should attempt to have the restrictions lifted.
+.TP
+\f(CWSource region `xxx' unreachable\fP
+These errors are caused when incorrectly configured state information
+from the site `xxx' is received,
+and the subsequent
+.I reachability
+test fails.
+They are often caused by the fact that the site has misnamed its link(s) to
+the outside world, or for the reasons mentioned above.
+`xxx' is probably a `foreign' (non-\*(S4) site,
+since \*(S4 link names are checked at connection time.

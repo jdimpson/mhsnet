@@ -1,0 +1,214 @@
+.ds S1 NETSPOOLER
+.ds S2 \fINetspooler\fP
+.ds S3 \fInetspooler\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 _lib/spooler
+.TH \*(S1 8 "\*(S4 1.12" \^
+.nh
+.SH NAME
+netspooler \- spooler for messages for foreign networks
+.SH SYNOPSIS
+.BI \*(S6
+.RI [\- flags \|]
+.SH DESCRIPTION
+\*(S2
+is an optional
+.I spooler
+program for network messages being passed to a foreign network gateway.
+It will be invoked by the network routing program to spool messages for
+a particular link if it is specified as the optional spooler for the link via the
+.B spooler
+command to the network routing management program.
+See
+.IR netrouter (8),
+and
+.IR netstate (8).
+\*(S2 will parse each message's addresses,
+and invoke a message receiving program
+once to handle each address part,
+with the data from the message piped into its standard input.
+.PP
+The default message receiving program is a shell script called
+.if n `SPOOLDIR/_lib/spooler.sh'
+.if t \f(CWSPOOLDIR/_lib/\fP\fIspooler\fP\f(CW.sh\fP
+(where
+.I spooler
+is the name that \*(S3 is invoked under).
+The message receiving program will be invoked with several optional flags,
+and seven or ten arguments,
+depending on whether the message contains an
+.SM FTP
+header.
+As well as the full domain versions,
+source and destination addresses are also presented
+as node names,
+or perhaps
+.I explicit
+in
+.SM UUCP
+style.
+.PP
+The optional message receiving program flags are:
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-T\fP\fI\ truncaddr\fPX'u
+.TP "\*(tw"
+.BI \-D dupaddr
+The address of a site where the message may have been duplicated.
+.TP
+.BI \-E error
+The message encountered a delivery error,
+and is being returned for this reason.
+.TP
+.BI \-F flags
+Any message header flags for the handler specified at the source.
+.TP
+.BI \-I ID
+This message is the result of an earlier message,
+whose unique identifier was
+.SM ID.
+.TP
+.BI \-L name
+If the local routing tables specify an alternate name
+for the link for which \*(S3 is being invoked,
+then it is passed via this flag.
+.TP
+.BI \-O origin
+The first address in the header route if it is not the same as the source address.
+.TP
+.BI \-T truncaddr
+The address of a site where the message was truncated.
+.PP
+The message receiving program arguments are (in order):
+.if n .ds tw 4
+.if t .ds tw \w'00:\ \fIsource.domains\fPX'u
+.TP "\*(tw"
+.RI \01: \ handler
+The name of the message handler.
+.TP
+.RI \02: \ ID
+The message
+.SM ID
+from the header.
+.TP
+.RI \03: \ size
+The size of the data in the message.
+.TP
+.RI \04: \ source
+The source node name.
+.TP
+.RI \05: \ source.domains
+The full source address.
+.TP
+.RI \06: \ destination
+The destination address.
+.TP
+.RI \07: \ dest.domains
+The full destination address.
+.PP
+If the message is using
+.SM FTP
+then there will be three further arguments:
+.if n .ds tw 4
+.if t .ds tw \w'00:\ \fIsource.domains\fPX'u
+.TP "\*(tw"
+.RI \08: \ sender
+The name of the sender.
+.TP
+.RI \09: \ receiver
+The name of the intended recipient.
+.TP
+.RI 10: \ name
+The name of the data.
+.SH PARAMETERS
+On starting,
+\*(S3 reads a file in the `_params' directory with the same name as it was invoked under.
+This file can contain the following optional parameters:
+.TP 4
+.SM FOREIGNUSERNAME
+The name of the user to run the message receiving program under
+[default: `daemon'].
+.TP
+.SM RECEIVER
+The name of the message receiving program
+[default: 
+.if n `SPOOLDIR/_lib/spooler.sh'].
+.if t \f(CWSPOOLDIR/_lib/\fP\fIspooler\fP\f(CW.sh\fP].
+If the name does not start with a leading `/', then
+.if n `SPOOLDIR/'
+.if t \f(CWSPOOLDIR/\fP
+will be prepended.
+.TP
+.SM TRACEFLAG
+Turn on tracing to aid debugging.
+A value of 1 should be sufficient.
+.TP
+.SM TRACELOG
+The full pathname of a file where the
+.I trace
+output will be appended.
+.SH EXAMPLES
+Look at the
+.SM UUCP
+message receiving program
+for an example on how to parse these arguments for a
+.SM UUCP
+gateway.
+.PP
+To activate a new message spooler,
+say `testspooler.sh' \(em which you have created in
+.if n `SPOOLDIR/_lib/testspooler.sh',
+.if t \fI\s-1SPOOLDIR\s0\fP\f(CW/_lib/testspooler.sh\fP,
+link the spooler control program to the new name:
+.RS 2
+.ft CW
+.pt -2
+.nf
+cd \fI\s-1SPOOLDIR\s0\fP
+ln _lib/spooler _lib/testspooler
+.fi
+.pt
+.ft
+.RE
+.PP
+Then update the routing tables to know about the spooler for your chosen link:
+.RS 2
+.ft CW
+.pt -2
+.nf
+_bin/netstate -rsc <<!
+spooler \fIlinkname\fP _lib/testspooler
+!
+.fi
+.pt
+.ft
+.RE
+.SH FILES
+.PD 0
+.TP "\w'\f(CW_params/\fP\fIspooler\fPX'u"
+\f(CW_lib/UUCP.sh\fP
+This is the default message receiving program for
+.SM UUCP
+gateways.
+It is a shell script that parses the arguments into a format suitable for invoking 
+.I uux
+to deliver the message via a
+.SM UUCP
+connection.
+.TP
+\f(CW_lib/SMTP.sh\fP
+This is another message receiving program.
+It parses the arguments into a format suitable for invoking
+.I /usr/lib/sendmail
+to process a mail message via an SMTP gateway.
+.TP
+\f(CW_params/\fP\fIspooler\fP
+Optional parameters for \*(S3 where
+.I spooler
+is the same name as \*(S3 was invoked under.
+.PD
+.SH "SEE ALSO"
+.IR netparams (5),
+.IR \*(S5 (7),
+.IR netrouter (8),
+.IR netstate (8).

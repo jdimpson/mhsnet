@@ -1,0 +1,12 @@
+# MHSnet configuration for xinetd.
+# Installed into /etc/xinetd.d/mhsnet
+
+service mhsnet
+{
+	disable		    = no
+        socket_type         = stream
+        protocol            = tcp
+        wait                = no
+        user                = root
+        server              = /var/spool/MHSnet/_lib/tcpshell
+}

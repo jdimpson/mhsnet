@@ -1,0 +1,67 @@
+.ds S1 NETHANDLERS
+.ds S2 \fINethandlers\fP
+.ds S3 \fInethandlers\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 _bin/nethandlers
+.TH \*(S1 8 "\*(S4 1.4" \^
+.nh
+.SH NAME
+nethandlers \- show network handlers
+.SH SYNOPSIS
+.BI \*(S6
+.RI [\- flags ]
+.RI [ handler ]
+.SH DESCRIPTION
+\*(S2
+prints details of the network handlers that have been described locally.
+If the optional
+.I handler
+argument(s) are present,
+\*(S3
+displays details for each of the named handlers.
+Otherwise details for all known handlers are displayed.
+The details are in the same order as described in
+.IR nethandlers (5).
+.PP
+The optional flags are:
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-A\fP\ \fIhandler\fPX'u
+.TP "\*(tw"
+.BI \-A \ handler
+Display details for
+.IR handler .
+You may use the common
+.I description
+for the handler as reported by
+.IR netq (1)
+(eg: `files'),
+instead of its name.
+.TP 
+.BI \-T \fR[\fPlevel\fR]\fP
+Turns on tracing at
+.I level
+[default: 1].
+If tracing is not compiled in,
+this flag will have no effect.
+.TP
+.BI \-?
+Explain argument options and exit.
+.SH EXAMPLES
+Show details of handler `filer':
+.PP
+.RS 2
+.ft CW
+\*(S6 filer
+.ft
+.RE
+.SH FILES
+.PD 0
+.TP "\w'\f(CW\s-1SPOOLDIR\s0/_lib/handlers\fPXX'u"
+\f(CW\s-1SPOOLDIR\s0/_lib/handlers\fP
+Specifies options for particular handlers.
+.PD
+.SH "SEE ALSO"
+.IR netq (1),
+.IR nethandlers (5),
+.IR \*(S5 (7).

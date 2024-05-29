@@ -1,0 +1,4 @@
+
+	-f		Don't fork off parent on invokation.
+
+	init-file	Alternate file describing programs to run.

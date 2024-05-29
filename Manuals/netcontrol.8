@@ -1,0 +1,238 @@
+.ds S1 NETCONTROL
+.ds S2 \fINetcontrol\fP
+.ds S3 \fInetcontrol\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 _bin/netcontrol
+.ds S8 \fInetinit\fP
+.TH \*(S1 8 "\*(S4 1.15" \^
+.nh
+.SH NAME
+netcontrol \- communicate with network control program
+.SH SYNOPSIS
+.BI \*(S6
+.RI [\- flags ]
+.RI [ command ]
+.RI [ regex ]
+.SH DESCRIPTION
+\*(S2 is used to send commands to
+\*(S8(8).
+Commands are transmitted via a file, normally
+\f(CW_lib/netinit.args\fP.
+.PP
+\*(S2 will pause while \*(S8 processes the command, after which
+\*(S8 will print any reply or diagnostic directly to the file specified by \*(S3,
+and then send a signal to \*(S3 to terminate.
+.PP
+The optional flags are:
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-L\fP\fI\ directory\fPX'u
+.TP "\*(tw"
+.BI \-f
+Force communication with \*(S8,
+even if another instance of \*(S3 is active.
+If the
+.I command
+is "shutdown", then any errors will cause \*(S8 to be sent the
+.SM SIGTERM
+signal,
+otherwise this will merely cause \*(S3 to try to establish the lock three times.
+.TP
+.BI \-s
+Silent \(em don't report result of command.
+.TP
+.BI \-v
+Validate lock file time.
+.TP
+.BI \-L \ directory
+This flag cause \*(S3 to check the lockfile named by concatenating
+.SM SPOOLDIR
+with
+.I directory
+and `lock',
+and returning the status of the daemon in the exit code
+(non-zero if the daemon is inactive).
+If \fB\-s\fP is not specified,
+the process \s-1ID\s0 of any active daemon will be printed,
+together with the nodename in parentheses
+if running on a different node to the invoker.
+If \fB\-v\fP is specified,
+the exit code will be non-zero
+if the lockfile modify time appears to pre-date system boot
+(based on return value of the
+.IR times (2)
+system call),
+and if \fB\-s\fP is not specified,
+a warning message will be printed.
+.TP
+.BI \-F \ file
+.I File
+becomes the output file for communicating with the invoker.
+By default this is `/dev/tty',
+unless it isn't publicly writable,
+in which case the default becomes
+.if n `_lib/netinit.reply'
+.if t \f(CW_lib/netinit.reply\fP
+which is then copied to the invoker's terminal by \*(S3.
+.TP
+.BI \-T \fR[\fPlevel\fR]\fP
+Turns on tracing at
+.I level
+(default: 1).
+If tracing is not compiled in,
+this flag will have no effect.
+.PP
+The command can be:
+.if n .ds tw 4
+.if t .ds tw \w'\fBvstatus\fP\ \fR[\fPregex\fR]\fPX'u
+.TP "\*(tw"
+.BI curtail " regex"
+Network processes specified by
+.I regex
+will be marked as not to be restarted.
+.TP
+.BI kill " regex"
+Network processes specified by
+.I regex
+will be sent a \s-1SIGKILL\s0 and marked as not to be restarted.
+.TP
+.BI newlog
+\*(S8 will close the current logfile,
+and create a new one.
+.TP
+.BI scan
+\*(S8 will re-read the
+.IR initfile .
+Active processes that are not in the new file will be
+.IR stop ped
+and new processes will be noted but not enabled.
+Processes for which the information (command arguments etc.) has changed
+will have the new information included,
+but it won't take effect until the process is next restarted.
+.TP
+.BI shutdown
+All network processes will be sent a \s-1SIGTERMINATE\s0
+and \*(S8 will also terminate.
+This command is assumed if \*(S3 is invoked under the name
+.I shutdown
+with no
+.I command
+argument.
+.TP
+.BI start " regex"
+Network processes matching 
+.I regex
+will be enabled.
+.TP
+.BI status " \fR[\fPregex\fR]\fP"
+Report on the status of network processes matching
+.IR regex .
+Status of all network processes controlled by \*(S8 will be reported if the
+regular expression is omitted.
+.TP
+.BI stop " regex"
+Network processes matching
+.I regex
+will be sent a \s-1SIGTERMINATE\s0 and marked as not to be restarted.
+.TP
+.BI traceoff
+Turn off tracing.
+.TP
+.BI traceon " \fR[\fPlevel\fR]\fP"
+Turn on tracing at
+.I level.
+If
+.I level
+is ommitted, it is incremented by one.
+.TP
+.BI vstatus " \fR[\fPregex\fR]\fP"
+Verbose report on the status of network processes matching
+.IR regex .
+Status of all network processes controlled by \*(S8 will be reported if the
+regular expression is omitted.
+.PP
+.I regex
+is a limited regular expression in the style of
+.IR ed (1)
+and will be matched against the
+.I process-id
+of each process mentioned in
+.if t \f(CW_lib/initfile\fP
+.if n `_lib/initfile'
+(see
+.IR netinit(8)).
+.PP
+Note that network processes such as
+.IR netcall (8)
+which run under different \s-1UID\s0s to \*(S3 can not be
+.IR kill ed
+or
+.IR stop ped.
+.SH EXAMPLES
+Stop all outbound calls:
+.PP
+.RS 2
+.ft CW
+\*(S6 stop '^call'
+.ft
+.RE
+.PP
+Start the routing process:
+.PP
+.RS 2
+.ft CW
+\*(S6 start router
+.ft
+.RE
+.PP
+Test the network is active:
+.PP
+.RS 2
+.nf
+.ft CW
+if \*(S6 -s status
+then
+	echo active
+fi
+.ft
+.fi
+.RE
+.PP
+Test the router process is active:
+.PP
+.RS 2
+.nf
+.ft CW
+if \*(S6 -sL _route
+then
+	echo active
+fi
+.ft
+.fi
+.RE
+.SH FILES
+.PD 0
+.TP "\w'_lib/netinit.replyXX'u"
+\fIlink\fP/cmds/lock
+Lockfiles checked by
+.I shutdown
+command.
+.TP
+_lib/lock
+Lockfile maintained by \*(S8.
+.TP
+_lib/control.lock
+Lockfile to prevent conflicts.
+.TP
+_lib/netinit.args
+Arguments being sent to \*(S8.
+.TP
+_lib/netinit.reply
+Result being returned to \*(S3
+(if terminal is unwriteable, or \fB\-F\fP specified).
+.PD
+.SH "SEE ALSO"
+.IR \*(S5 (7),
+\*(S8(8),
+.IR netstart (8),
+.IR netwindup (8).

@@ -1,0 +1,163 @@
+#!/bin/sh
+#
+#	DECstation ULTRIX 4.1
+#
+#	Note that all `"' must be escaped in *ARGS lists
+#
+#	Notes:	- ULTRIX's /bin/sh doesn't let one turn off a flag,
+#		  ie: "set +e" doesn't work! So ensure all makefile
+#		  shellscripts are invoked with @- prepended.
+#		- Also, DEC version of regexp has alignment problems,
+#		  so "ar rv Bin/Lib.a Libc/reg*.o; ar ts Bin/Lib.a".
+
+MAKE='make'
+
+case $# in
+	0)	set certain ;;
+esac
+
+case "$MANTYPE" in
+'')	MANTYPE=src
+	echo MANTYPE="\"$MANTYPE\" ? "
+	read ans
+	;;
+esac
+
+case "$ISPOOLDIR" in
+'')	ISPOOLDIR='/usr/spool/MHSnet'
+	echo ISPOOLDIR="\"$ISPOOLDIR\" ? "
+	read ans
+	;;
+esac
+
+case "$VERSION" in
+'')     VERSION=`egrep 'define.VERSION' Lib/Version.c|sed -e 's/[^"]*"//' -e 's/"//'`
+        echo VERSION="$VERSION ? "
+        read ans
+        ;;
+esac
+
+(
+date >>made 2>&1
+/bin/time \
+$MAKE \
+	AR='ar ru' \
+	AUSAS='0' \
+	AUTO_LOCKING='0' \
+	BINMAIL='/usr/lib/sendmail' \
+	BINMAILARGS='\"-f&F@&O\"' \
+	BSD4='3' \
+	BSD4V='0' \
+	CARR_ON_BUG='0' \
+	CFLAGS='-g' \
+	CHECK_LICENCE='1' \
+	CHGRP='chgrp' \
+	CHMOD='chmod' \
+	CHMODMODE='u=rwx' \
+	CHMODSUMODE='u=rwxs' \
+	CHOWN='/usr/etc/chown' \
+	CONFIG='-DFSYNC_2 -DINT_SWITCH -DNO_LH_FILENO -DNO_VOID_STAR -DSIGBLOCK -DSLOW_MALLOC -DTERMCAP -DUDIAL -Drand=random -Dsrand=srandom' \
+	CP='cp' \
+	DEBUG='-DEBUG=2' \
+	ECHO='/bin/echo' \
+	FCNTL='1' \
+	FETCHFILE='netfetch' \
+	FILEBUFFERSIZE='8192' \
+	FILESERVERLOG='$(STATSDIR)/servedfiles' \
+	FILESEXPIREDAYS='28' \
+	FLOCK='1' \
+	FORWARD='netforward' \
+	GETFILE='netget' \
+	IGNMAILERSTATUS='2' \
+	INSBIN='$(ISPOOLDIR)/_ubin' \
+	ISPOOLDIR="$ISPOOLDIR" \
+	KILL_0='1' \
+	LDFLAGS='-g' \
+	LINKSTATS='netlink' \
+	LN='ln' \
+	LOCALSEND='1' \
+	LOCAL_NODES='$(LIBDIR)/localnodes' \
+	LOCKF='0' \
+	LORDER='lorder' \
+	MAILER='/usr/lib/sendmail' \
+	MAILERARGS='\"-oem\",\"-oit\",\"-f&F@&O\"' \
+	MAIL_FROM='0' \
+	MAIL_RFC822_HDR='1' \
+	MAIL_TO='1' \
+	MAKE="$MAKE" \
+	MANTYPE="$MANTYPE" \
+	MAPP='netmap' \
+	MAXRETSIZE='10000' \
+	MINSLEEP='1' \
+	MKDIR='/bin/mkdir' \
+	MKLOCK='touch -f' \
+	MKLOCKTYPE= \
+	MV='mv' \
+	NCC_ADMIN='root' \
+	NCC_MANAGER='root' \
+	NDIRLIB='0' \
+	NETADMIN='1' \
+	NETGROUPNAME='daemon' \
+	NETPARAMS='/usr/local/lib/MHSnetparams' \
+	NETUSERNAME='daemon' \
+	NEWSARGS= \
+	NEWSCMDS= \
+	NEWSEDITOR='/usr/bin/rnews' \
+	NICEDAEMON='-1' \
+	NICEHANDLERS='5' \
+	NODENAMEFILE= \
+	PGRP='1' \
+	POSTMASTER='root' \
+	PRFORMATTER='/bin/pr -l66 -w132 -f -n4' \
+	PRINTER='/usr/ucb/lpr' \
+	PRINTERARGS='\"-C\",\"&F:&O\",\"-J\",\"&D\"' \
+	PRINTORIGINS='$(LIBDIR)/printorigins' \
+	PRIVSFILE='$(LIBDIR)/privsfile' \
+	PROTO_STATS='1' \
+	PRSPOOLER='/usr/ucb/lpr' \
+	PUBLICFILES='$(LIBDIR)/publicfiles' \
+	QUEUE='netq' \
+	RANLIB='ar ts' \
+	RENAME_2='1' \
+	RM='rm -f' \
+	RMPROG='/bin/rm' \
+	SENDFILE='netfile' \
+	SENDMAIL='netmail' \
+	SERVERGROUP='uucp' \
+	SERVERUSER='uucp' \
+	SHELL='/usr/bin/sh5' \
+	SITE_DEPEND="$0 Makefile" \
+	SPOOLDIR='/usr/spool/MHSnet' \
+	STATEP='netstate' \
+	STATERNOTLIST='$(STATEDIR)/ignorefile' \
+	STOP='netstop' \
+	STRIP='strip' \
+	STTY='/bin/stty' \
+	SUN3='1' \
+	SYSTEM='0' \
+	SYSVREL='0' \
+	SYS_LOCKING='0' \
+	TCP_IP='1' \
+	TMPDIR='/tmp' \
+	TOUCH='touch' \
+	TSORT='tsort' \
+	UDP_IP='1' \
+	UUCPLOCKS='1' \
+	UUCPLCKDIR='/usr/spool/locks' \
+	UUCPSTRPID='1' \
+	V8='0' \
+	VALIDATEMAIL='0' \
+	VCDAEMON_STATS='1' \
+	VERSION="$VERSION" \
+	VPRINTF='1' \
+	WAIT_RESTART='1' \
+	WHOIS='netwhois' \
+	WHOISARGS='\"-e\"' \
+	WHOISFILE='/usr/pub/whois' \
+	WHOISPROG='/usr/bin/egrep' \
+	WORKFLAG='_' \
+	X25='0' \
+"$@" >>made 2>&1
+
+echo `date` " Make ${1-certain} done." >/dev/tty
+)&

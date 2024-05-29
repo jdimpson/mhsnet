@@ -1,0 +1,21 @@
+#!/bin/sh
+case "$ISPOOLDIR" in
+'')	INSDIR=/usr/local/man	;;
+*)	INSDIR=$ISPOOLDIR/_man	;;
+esac
+case "$CHGRP" in
+'')	CHGRP=chgrp	;;
+esac
+case "$CHOWN" in
+'')	CHOWN=chown	;;
+esac
+case "$CHMOD" in
+'')	CHMOD=chmod	;;
+esac
+make MANGROUPNAME=$NETGROUPNAME MANUSERNAME=$NETUSERNAME \
+	INSDIR=$INSDIR \
+	COPY='sed $(TRANSFORMS)' \
+	CHGRP=$CHGRP \
+	CHMOD=$CHMOD \
+	CHOWN=$CHOWN \
+	directories install

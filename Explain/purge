@@ -1,0 +1,10 @@
+
+	-a	Remove all unreferenced files (even very new ones).
+	-d	Remove empty directories from multi-part tree.
+	-f	Remove time-out messages from received files directory.
+	-l	Remove lock files.
+	-m	Don't send mail about inconsistencies.
+	-r	Try routing old messages in _pending again.
+	-s	Silently.
+	-t	Remove timed-out messages from _trace directory.
+	-w	Warn about inconsistencies.

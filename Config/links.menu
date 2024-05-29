@@ -1,0 +1,18 @@
+
+
+	To create a link to another site you can either:
+		call the site using a dialup modem, leased line or LAN
+			or
+		accept calls from the site
+
+&
+Create a new link or modify an existing link
+exec menu newlink.menu
+List existing links
+listlinks.sh; exec menu links.menu
+Display link information
+showlink.sh; exec menu links.menu
+Remove a link
+rmlnk.sh; exec menu links.menu
+Return to main menu
+exec menu config.menu

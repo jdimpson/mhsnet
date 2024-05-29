@@ -1,0 +1,246 @@
+:
+: '	Copyright 2012 Piers Lauder'
+:
+: '	This file is part of MHSnet.'
+:
+: '	MHSnet is free software: you can redistribute it and/or modify'
+: '	it under the terms of the GNU General Public License as published by'
+: '	the Free Software Foundation, either version 3 of the License, or'
+: '	(at your option) any later version.'
+:
+: '	MHSnet is distributed in the hope that it will be useful,'
+: '	but WITHOUT ANY WARRANTY; without even the implied warranty of'
+: '	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the'
+: '	GNU General Public License for more details.'
+:
+: '	You should have received a copy of the GNU General Public License'
+: '	along with MHSnet.  If not, see <http://www.gnu.org/licenses/>.'
+:
+:
+: '	SCCSID	@(#)Site	1.26 06/01/20'
+:
+: '	This is a shell script to make the site-dependent include files.'
+:
+
+(
+${BIN}/bit-test
+${BIN}/pipe-test
+${BIN}/sprf-test
+cat <<EOF
+#define	AUSAS		${AUSAS}
+#define	AUTO_LOCKING	${AUTO_LOCKING}
+#define	BADDIR		"${BADDIR}/"
+#define	BINMAIL		"${BINMAIL}"
+#define	BSD4		${BSD4}
+#define	BSD4V		'${BSD4V}'
+#define	CALLDIR		"${CALLDIR}/"
+#define	CARR_ON_BUG	${CARR_ON_BUG}
+#define	CHECK_LICENCE	${CHECK_LICENCE}
+#define	EXPLAINDIR	"${EXPLAINDIR}/"
+#define	FCNTL		${FCNTL}
+#define	FILEBUFFERSIZE	${FILEBUFFERSIZE}
+#define	FILESDIR	"${FILESDIR}/"
+#define	FILESEXPIREDAYS	${FILESEXPIREDAYS}
+#define	FLOCK		${FLOCK}
+#define	FORWARDINGDIR	"${FORWARDINGDIR}/"
+#define	GETFILE		"${GETFILE}"
+#define	HANDLERSDIR	"${HANDLERSDIR}/"
+#define	IGNMAILERSTATUS	${IGNMAILERSTATUS}
+#define	KEEPSTATE	${KEEPSTATE}
+#define	KILL_0		${KILL_0}
+#define	LIBDIR		"${LIBDIR}/"
+#define	LOCALSEND	${LOCALSEND}
+#define	LOCKF		${LOCKF}
+#define	MAIL_FROM	${MAIL_FROM}
+#define	MAIL_RFC822_HDR	${MAIL_RFC822_HDR}
+#define	MAIL_TO		${MAIL_TO}
+#define	MAILER		"${MAILER}"
+#define	MAXRETSIZE	${MAXRETSIZE}
+#define	MAX_MESG_DATA	${MAX_MESG_DATA}
+#define	MKDIR		"${MKDIR}"
+#define	MINSLEEP	${MINSLEEP}
+#define	MINSPOOLFSFREE	${MINSPOOLFSFREE}
+#define	MPMSGSDIR	"${MPMSGSDIR}/"
+#define	NCC_ADMIN	"${NCC_ADMIN}"
+#define	NCC_MANAGER	"${NCC_MANAGER}"
+#define	NDIRLIB		${NDIRLIB}
+#define	NETADMIN	${NETADMIN}
+#define	NETGROUPNAME	"${NETGROUPNAME}"
+#define	NETPARAMS	"${NETPARAMS}"
+#define	NETUSERNAME	"${NETUSERNAME}"
+#define	NEWSIGNERR	${NEWSIGNERR}
+#define	NICEDAEMON	${NICEDAEMON}
+#define	NICEHANDLERS	${NICEHANDLERS}
+#define	NOADDRCOMPL	${NOADDRCOMPL}
+#define	NVETIMECHANGE	${NVETIMECHANGE}
+#define	NVETIMEDELAY	${NVETIMEDELAY}
+#define	PARAMSDIR	"${PARAMSDIR}/"
+#define	PASSWDSORT	${PASSWDSORT}
+#define	PENDINGDIR	"${PENDINGDIR}/"
+#define	PGRP		${PGRP}
+#define	POSTMASTER	"${POSTMASTER}"
+#define	POSTMASTERNAME	"${POSTMASTERNAME}"
+#define	PROTO_STATS	${PROTO_STATS}
+#define	RENAME_2	${RENAME_2}
+#define	REROUTEDIR	"${REROUTEDIR}/"
+#define	RMDIR		"${RMDIR}"
+#define	ROUTINGDIR	"${ROUTINGDIR}/"
+#define	SHELL		"${SHELL}"
+#define	SHOW_ROUTE	${SHOW_ROUTE}
+#define	SPOOLDIR	"${SPOOLDIR}/"
+#define	STATE		"${LIBDIR}/${STATEP}"
+#define	STATEDIR	"${STATEDIR}/"
+#define	STATSDIR	"${STATSDIR}/"
+#define	STOP		"${STOP}"
+#define	STTY		"${STTY}"
+#define	SUN3		${SUN3}
+#define	SYSTEM		${SYSTEM}
+#define	SYSVREL		${SYSVREL}
+#define	SYS_LOCKING	${SYS_LOCKING}
+#define	TCP_IP		${TCP_IP}
+#define	TMPDIR		"${TMPDIR}/"
+#define	TRACEDIR	"${TRACEDIR}/"
+#define	UDP_IP		${UDP_IP}
+#define	UUCPLCKDIR	"${UUCPLCKDIR}/"
+#define	UUCPLCKPRE	"${UUCPLCKPRE}"
+#define	UUCPLOCKS	${UUCPLOCKS}
+#define	UUCPLOWERDEV	${UUCPLOWERDEV}
+#define	UUCPMLOCKDEV	${UUCPMLOCKDEV}
+#define	UUCPSTRPID	${UUCPSTRPID}
+#define	V8		${V8}
+#define	VALIDATEMAIL	${VALIDATEMAIL}
+#define	VCDAEMON_STATS	${VCDAEMON_STATS}
+#define	VPRINTF		${VPRINTF}
+#define	WAIT_RESTART	${WAIT_RESTART}
+#define	WORKDIR		"${WORKDIR}/"
+#define	WORKFLAG	"${WORKFLAG}"
+#define	X25		${X25}
+EOF
+case "$BINMAILARGS"x in
+	x) echo "#define	BINMAILARGS	NULLSTR" ;;
+	*) echo "#define	BINMAILARGS	${BINMAILARGS}" ;;
+esac
+case "$FILESERVERLOG"x in
+	x) echo "#define	FILESERVERLOG	NULLSTR" ;;
+	*) echo "#define	FILESERVERLOG	\"${FILESERVERLOG}\"" ;;
+esac
+case "$LOCAL_NODES"x in
+	x) echo "#define	LOCAL_NODES	NULLSTR" ;;
+	*) echo "#define	LOCAL_NODES	\"${LOCAL_NODES}\"" ;;
+esac
+case "$MAILERARGS"x in
+	x) echo "#define	MAILERARGS	NULLSTR" ;;
+	*) echo "#define	MAILERARGS	${MAILERARGS}" ;;
+esac
+case "$NEWSARGS"x in
+	x) echo "#define	NEWSARGS	NULLSTR" ;;
+	*) echo "#define	NEWSARGS	${NEWSARGS}" ;;
+esac
+case "$NEWSCMDS"x in
+	x) echo "#define	NEWSCMDS	NULLSTR" ;;
+	*) echo "#define	NEWSCMDS	\"${NEWSCMDS}\"" ;;
+esac
+case "$NEWSEDITOR"x in
+	x) echo "#define	NEWSEDITOR	NULLSTR" ;;
+	*) echo "#define	NEWSEDITOR	\"${NEWSEDITOR}\"" ;;
+esac
+case "$NODENAMEFILE"x in
+	x) echo "#define	NODENAMEFILE	NULLSTR" ;;
+	*) echo "#define	NODENAMEFILE	\"${NODENAMEFILE}\"" ;;
+esac
+case "$PRINTER"x in
+	x) echo "#define	PRINTER		NULLSTR" ;;
+	*) echo "#define	PRINTER		\"${PRINTER}\"" ;;
+esac
+case "$PRINTERARGS"x in
+	x) echo "#define	PRINTERARGS	NULLSTR" ;;
+	*) echo "#define	PRINTERARGS	${PRINTERARGS}" ;;
+esac
+case "$PRINTORIGINS"x in
+	x) echo "#define	PRINTORIGINS	NULLSTR" ;;
+	*) echo "#define	PRINTORIGINS	\"${PRINTORIGINS}\"" ;;
+esac
+case "$PRIVSFILE"x in
+	x) echo "#define	PRIVSFILE	NULLSTR" ;;
+	*) echo "#define	PRIVSFILE	\"${PRIVSFILE}\"" ;;
+esac
+case "$PUBLICFILES"x in
+	x) echo "#define	PUBLICFILES	NULLSTR" ;;
+	*) echo "#define	PUBLICFILES	\"${PUBLICFILES}\"" ;;
+esac
+case "$SERVERGROUP"x in
+	x) echo "#define	SERVERGROUP	NULLSTR" ;;
+	*) echo "#define	SERVERGROUP	\"${SERVERGROUP}\"" ;;
+esac
+case "$SERVERUSER"x in
+	x) echo "#define	SERVERUSER	NULLSTR" ;;
+	*) echo "#define	SERVERUSER	\"${SERVERUSER}\"" ;;
+esac
+case "$STATERNOTLIST"x in
+	x) echo "#define	STATERNOTLIST	NULLSTR" ;;
+	*) echo "#define	STATERNOTLIST	\"${STATERNOTLIST}\"" ;;
+esac
+case "$SUN3SPOOLDIR"x in x) ;; *)
+	echo "#define	SUN3LIBDIR	\"${SUN3LIBDIR}/\""
+	echo "#define	SUN3SPOOLDIR	\"${SUN3SPOOLDIR}/\""
+	echo "#define	SUN3STATEP	\"${SUN3STATEP}\""
+	echo "#define	SUN3STATER	\"sun3stater\""
+	echo "#define	SUN3USERNAME	\"${SUN3USERNAME}\""
+	echo "#define	SUN3WORKDIR	\"${SUN3WORKDIR}/\"" ;;
+esac
+case "$VERSION"x in
+	x) ;;
+	*) echo "#define	VERSION		\"${VERSION}\"" ;;
+esac
+case "$WHOISARGS"x in
+	x) echo "#define	WHOISARGS	NULLSTR" ;;
+	*) echo "#define	WHOISARGS	${WHOISARGS}" ;;
+esac
+case "$WHOISFILE"x in
+	x) echo "#define	WHOISFILE	NULLSTR" ;;
+	*) echo "#define	WHOISFILE	\"${WHOISFILE}\"" ;;
+esac
+case "$WHOISPROG"x in
+	x) echo "#define	WHOISPROG	NULLSTR" ;;
+	*) echo "#define	WHOISPROG	\"${WHOISPROG}\"" ;;
+esac
+) | sort >${BIN}/new-site-info
+
+DATA1='"|NULLSTR|LOCALSEND|MAIL_RFC822_HDR|MAIL_TO|MAX_MESG_DATA|MINSPOOLFSFREE'
+DATA2='NETADMIN|NICEDAEMON|NICEHANDLERS|NOADDRCOMPL|NVETIMECHANGE|FILESEXPIREDAYS'
+DATA3='IGNMAILERSTATUS|KEEPSTATE|MAIL_FROM|NEWSIGNERR|SHOW_ROUTE|UUCP|VALIDATEMAIL'
+
+<${BIN}/new-site-info \
+	egrep -v "${DATA1}" | \
+	egrep -v "${DATA2}" | \
+	egrep -v "${DATA3}" >${INC}/site.h.new
+
+egrep "${DATA1}" ${BIN}/new-site-info  >${BIN}/stringsd.h.new
+egrep "${DATA2}" ${BIN}/new-site-info >>${BIN}/stringsd.h.new
+egrep "${DATA3}" ${BIN}/new-site-info >>${BIN}/stringsd.h.new
+
+eval ${RM} ${BIN}/new-site-info
+
+if cmp -s ${INC}/site.h.new ${INC}/site.h
+then
+	eval ${RM} ${INC}/site.h.new
+else
+	if [ -s ${INC}/site.h ]
+	then
+		diff ${INC}/site.h ${INC}/site.h.new
+	fi
+	eval ${MV} ${INC}/site.h.new ${INC}/site.h
+fi
+
+sort -u -o ${BIN}/stringsd.h.new ${BIN}/stringsd.h.new
+
+if cmp -s ${BIN}/stringsd.h.new ${BIN}/strings-data.h
+then
+	eval ${RM} ${BIN}/stringsd.h.new
+else
+	if [ -s ${BIN}/strings-data.h ]
+	then
+		diff ${BIN}/strings-data.h ${BIN}/stringsd.h.new
+	fi
+	eval ${MV} ${BIN}/stringsd.h.new ${BIN}/strings-data.h
+fi

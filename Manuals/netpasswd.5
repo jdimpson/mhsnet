@@ -1,0 +1,48 @@
+.ds S1 NETPASSWD
+.ds S2 Netpasswd
+.ds S3 netpasswd
+.ds S4 MHSnet
+.ds S5 network
+.TH \*(S1 5 "\*(S4 1.5" \^
+.nh
+.SH NAME
+netpasswd \- network password file
+.SH SYNOPSIS
+.BI \s-1SPOOLDIR\s0/_call/passwd
+.SH DESCRIPTION
+.if t \f(CWSPOOLDIR/_call/passwd\fP
+.if n `SPOOLDIR/_call/passwd'
+contains lines with network addresses and their respective passwords.
+Each line contains a network address,
+an encrypted password delineated by semi-colons (`\fB:\fP'),
+and an optional comment field.
+Empty lines, and lines beginning with the character `#', are ignored.
+Each address field may be any legal typed network address.
+If the node name of any site making a connection
+matches an address in the file,
+then
+.I netshell
+will prompt the caller for a password to be encryped
+and matched against the password field.
+Null passwords are indicated by an empty password field.
+.PP
+The passwords are maintained by the program
+.IR netpasswd (8).
+.PP
+.SH EXAMPLE
+.ft CW
+.nf
+.if \n(.lu<6i .ps -2
+\&.9=pollux.3=mhs.2=oz.0=au:Mf8GSTaaenqko:specifically pollux
+\&.9=castor.3=mhs.2=oz.0=au::no password for castor
+\&*.3=mhs.2=oz.0=au:JtFyNzqwXdENQ:all other MHS sites
+.DT
+.if \n(.lu<6i .ps
+.fi
+.ft
+.ne 3
+.SH "SEE ALSO"
+.IR \*(S5 (7),
+.IR netpasswd (8),
+.IR netshell (8).
+.br

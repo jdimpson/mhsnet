@@ -1,0 +1,7 @@
+
+	-c	Continous [seconds between scans; default: 4.]
+	-h	No header.
+	-r	Show I/O rates on short listing.
+	-t	Show channel totals.
+	-v	Verbose.
+	-w	Complain about errors.

@@ -1,0 +1,198 @@
+
+
+
+Maintenance Procedures                              NETSTATSPR(8)
+
+
+
+NNNNAAAAMMMMEEEE
+     netstatspr - print selected network statistics records
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     ____bbbbiiiinnnn////nnnneeeettttssssttttaaaattttsssspppprrrr [-_f_l_a_g_s]
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_s_t_a_t_s_p_r prints statistics  records  from  the  statistics
+     file  created by the network routing program.  There are ten
+     fields in each record,  any  combination  of  which  can  be
+     printed:
+
+     ddddaaaatttteeee
+         The date the record was written.
+
+     ddddeeeellllaaaayyyy
+         The delay over the last link for incoming messages.
+
+     ddddeeeessssttttiiiinnnnaaaattttiiiioooonnnn
+         The destination address for the message.
+
+     ddddiiiirrrreeeeccccttttiiiioooonnnn
+         Indicates whether the message was inbound, or outbound.
+
+     ffffllllaaaaggggssss
+         Routing flags for the message.
+
+     hhhhaaaannnnddddlllleeeerrrr
+         The handler for the message.
+
+     IIIIDDDD  The message ID that is unique to its source.
+
+     lllliiiinnnnkkkk
+         The link that the message arrived on, or was  queued  to
+         depart on.
+
+     ssssiiiizzzzeeee
+         The final size of the message.
+
+     ssssoooouuuurrrrcccceeee
+         The source address for the message.
+
+     ttttrrrraaaavvvveeeellll ttttiiiimmmmeeee
+         The total travel time for the message.
+
+     Records printed may be selected based on handler, source and
+     destination  addresses.  The default prints date, direction,
+     source, destination, and  handler,  for  both  in-bound  and
+     out-bound messages.
+
+     The optional flags are:
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+
+
+
+
+Maintenance Procedures                              NETSTATSPR(8)
+
+
+
+     ----aaaa  Print all fields.
+
+     ----dddd  Print message destination address.
+
+     ----ffff  Print  routing  flags.   (File  names  if  file   server
+         record.)
+
+     ----hhhh  Print message  handler  name.   (Service  type  if  file
+         server record.)
+
+     ----iiii  Print message identifier.
+
+     ----jjjj  Print total travel time for message.
+
+     ----kkkk  Print inbound link delay time.
+
+     ----llll  Print inbound/outbound link.
+
+     ----nnnn  Print message handler by description  in  _h_a_n_d_l_e_r_s  file
+         (see _n_e_t_h_a_n_d_l_e_r_s(5)).
+
+     ----pppp  Print a header line describing columns printed.
+
+     ----rrrr  Select in-bound messages.
+
+     ----ssss  Print message source address.
+
+     ----tttt[_t_y_p_e]
+         The default address style is _t_y_p_e_l_e_s_s, the  alternatives
+         are _e_x_t_e_r_n_a_l (----tttteeee), or _i_n_t_e_r_n_a_l (----ttttiiii).
+
+     ----vvvv  Verbose: show complete network  addresses  (the  default
+         truncates addresses to 23 characters).
+
+     ----wwww  Select out-bound messages.
+
+     ----xxxx  Print record date.
+
+     ----zzzz  Print message size.
+
+     ----AAAA _h_a_n_d_l_e_r
+         Select messages for _h_a_n_d_l_e_r.
+
+     ----DDDD _d_e_s_t
+         Select messages whose destination matches _d_e_s_t.
+
+     ----FFFF[_f_i_l_e]
+         Use _f_i_l_e instead of the default as  the  source  of  the
+         statistics records.  If _f_i_l_e is `----', then _s_t_d_i_n is used.
+         If _f_i_l_e is missing, then the file server statistics  log
+         is used [SPOOLDIR/_stats/servedfiles].
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    2
+
+
+
+
+
+
+Maintenance Procedures                              NETSTATSPR(8)
+
+
+
+     ----SSSS _s_o_u_r_c_e
+         Select messages whose source matches _s_o_u_r_c_e.
+
+     ----TTTT[_l_e_v_e_l]
+         Turns on tracing at _l_e_v_e_l (default: 1).  If  tracing  is
+         not compiled in, this flag will have no effect.
+
+     ----????  Explain argument options and exit.
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEE
+     Print a header, followed by source, travel  time,  and  size
+     for all messages of type _M_a_i_l.
+
+       _bin/netstatspr -jpsz -A Mail
+
+FFFFIIIILLLLEEEESSSS
+     _state/routefile    Routing  tables  for  resolving  address
+                         arguments.
+     _stats/Accumulated  Current message statistics file.
+     _stats/servedfiles  Current file server statistics file.
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _n_e_t_m_a_p(1), _n_e_t_h_a_n_d_l_e_r_s(5), _n_e_t_w_o_r_k(7).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    3
+
+
+

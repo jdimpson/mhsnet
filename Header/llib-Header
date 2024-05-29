@@ -1,0 +1,39 @@
+	/*LINTLIBRARY*/
+#	Copyright 2012 Piers Lauder
+
+#	This file is part of MHSnet.
+
+#	MHSnet is free software: you can redistribute it and/or modify
+#	it under the terms of the GNU General Public License as published by
+#	the Free Software Foundation, either version 3 of the License, or
+#	(at your option) any later version.
+
+#	MHSnet is distributed in the hope that it will be useful,
+#	but WITHOUT ANY WARRANTY; without even the implied warranty of
+#	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#	GNU General Public License for more details.
+
+#	You should have received a copy of the GNU General Public License
+#	along with MHSnet.  If not, see <http://www.gnu.org/licenses/>.
+
+
+#define	STDIO
+
+#include	"global.h"
+#include	"commandfile.h"
+#include	"header.h"
+
+/*        */	bool	AllParts(p,s,e,h,a,w,n) CmdHead *p; Ulong s, e, h; CmdHead *a; char *w, *n; { return false; }
+/*VARARGS1*/	bool	DelEnv(n,v) char *n, *v; { return false; }
+/*        */	bool	ExRoute(s,r,f) char *s, *r; bool (*f)(); { return false; }
+/*        */	void	FreeHeader() { return; }
+/*        */	char *	GetEnv(n) char *n; { return n; }
+/*        */	bool	GetEnvBool(n) char *n; { return false; }
+/*        */	char *	GetEnvNext(n,l) char *n, *l; { return n; }
+/*        */	int	InRoute(n,m) char *n; int m; { return 0; }
+/*VARARGS3*/	char *	MakeEnv(s1,s2,s3) char *s1, *s2, *s3; { return s1; }
+/*        */	void	PrintHeader(fd,i,b) FILE *fd; int i; bool b; { return; }
+/*        */	HdrReason	ReadHeader(fd) int fd; { return hr_ok; }
+/*        */	bool	ReRoutable(a) char *a; { return false; }
+/*        */	bool	UpdateHeader(t,h) Time_t t; char *h; { return false; }
+/*        */	int	WriteHeader(i,l,m) int i; long l; int m; { return 0; }

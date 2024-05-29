@@ -1,0 +1,187 @@
+.ds S1 NETSTATSPR
+.ds S2 \fINetstatspr\fP
+.ds S3 \fInetstatspr\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 _bin/netstatspr
+.TH \*(S1 8 "\*(S4 1.10" \^
+.nh
+.SH NAME
+netstatspr \- print selected network statistics records
+.SH SYNOPSIS
+.BI \*(S6
+.RI [\- flags \|]
+.SH DESCRIPTION
+\*(S2
+prints statistics records from the statistics file created by the network routing program.
+There are ten fields in each record, any combination of which can be printed:
+.if n .ds tw 4
+.if t .ds tw \w'\fBtravel\ time\fPX'u
+.TP "\*(tw"
+.BI date
+The date the record was written.
+.TP
+.BI delay
+The delay over the last link for incoming messages.
+.TP
+.BI destination
+The destination address for the message.
+.TP
+.BI direction
+Indicates whether the message was inbound, or outbound.
+.TP
+.BI flags
+Routing flags for the message.
+.TP
+.BI handler
+The handler for the message.
+.TP
+.BI ID
+The message ID that is unique to its source.
+.TP
+.BI link
+The link that the message arrived on,
+or was queued to depart on.
+.TP
+.BI size
+The final size of the message.
+.TP
+.BI source
+The source address for the message.
+.TP
+.BI "travel time"
+The total travel time for the message.
+.PP
+Records printed may be selected based on handler, source and destination addresses.
+The default prints date, direction, source, destination, and handler,
+for both in-bound and out-bound messages.
+.PP
+The optional flags are:
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-A\fP\ \fIhandler\fPX'u
+.TP "\*(tw"
+.BI \-a
+Print all fields.
+.TP
+.BI \-d
+Print message destination address.
+.TP
+.BI \-f
+Print routing flags.
+(File names if file server record.)
+.TP
+.BI \-h
+Print message handler name.
+(Service type if file server record.)
+.TP
+.BI \-i
+Print message identifier.
+.TP
+.BI \-j
+Print total travel time for message.
+.TP
+.BI \-k
+Print inbound link delay time.
+.TP
+.BI \-l
+Print inbound/outbound link.
+.TP
+.BI \-n
+Print message handler by description in
+.I handlers
+file
+(see
+.IR nethandlers (5)).
+.TP
+.BI \-p
+Print a header line describing columns printed.
+.TP
+.BI \-r
+Select in-bound messages.
+.TP
+.BI \-s
+Print message source address.
+.TP
+.BI \-t [type]
+The default address style is
+.IR typeless ,
+the alternatives are
+.I external
+(\fB\-te\fP), or
+.I internal
+(\fB\-ti\fP).
+.TP
+.BI \-v
+Verbose: show complete network addresses
+(the default truncates addresses to 23 characters).
+.TP
+.BI \-w
+Select out-bound messages.
+.TP
+.BI \-x
+Print record date.
+.TP
+.BI \-z
+Print message size.
+.TP
+.BI \-A \ handler
+Select messages for
+.IR handler .
+.TP
+.BI \-D \ dest
+Select messages whose destination matches
+.IR dest .
+.TP
+.BI \-F [file]
+Use
+.I file
+instead of the default as the source of the statistics records.
+If
+.I file
+is `\fB\-\fP', then
+.I stdin
+is used.
+If
+.I file
+is missing,
+then the file server statistics log is used
+[\f(CWSPOOLDIR/_stats/servedfiles\fP].
+.TP
+.BI \-S \ source
+Select messages whose source matches
+.IR source .
+.TP
+.BI \-T \fR[\fPlevel\fR]\fP
+Turns on tracing at
+.I level
+(default: 1).
+If tracing is not compiled in,
+this flag will have no effect.
+.TP
+.BI \-?
+Explain argument options and exit.
+.SH EXAMPLE
+Print a header, followed by source, travel time, and size for all messages of type
+.IR Mail .
+.PP
+.RS 2
+.ft CW
+\*(S6 -jpsz -A Mail
+.ft
+.RE
+.SH FILES
+.PD 0
+.TP "\w'_stats/AccumulatedXX'u"
+_state/routefile
+Routing tables for resolving address arguments.
+.TP
+_stats/Accumulated
+Current message statistics file.
+.TP
+_stats/servedfiles
+Current file server statistics file.
+.PD
+.SH "SEE ALSO"
+.IR netmap (1),
+.IR nethandlers (5),
+.IR \*(S5 (7).

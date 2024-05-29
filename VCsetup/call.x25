@@ -1,0 +1,54 @@
+#!/bin/sh
+
+#	Setup circuit to "address" via an X.25 link.
+
+USAGE="[-f] link address"
+
+PATH=$PATH:/etc:/usr/ucb:/usr/local:/usr/local/bin
+
+andflag="-&"	# "-f" - run in foregound [else background]
+trace=		# "-Tn"- trace level <n>
+
+for i do
+	case "${i}" in
+	-T[0-9])trace="$i"	; shift	;;
+	-f)	andflag=	; shift	;;
+	-*)	echo "Usage: $0 $USAGE"; exit 1;;
+	esac
+done
+
+case $# in
+2)	;;
+*)	echo "Usage: $0 $USAGE"; exit 1;;
+esac
+
+link=$1
+address=$2
+
+SPOOLDIR=/usr/spool/MHSnet
+eval `egrep 'SPOOLDIR' /usr/lib/MHSnetparams 2>/dev/null`
+
+cd $SPOOLDIR
+umask 027
+
+home=`_bin/netaddr -ti`
+
+case "$link" in
+*=*)	node=`expr ${link} : '[^=]*=\([^\.]*\)'`	;;
+*)	node=`expr ${link} : '\([^\.]*\)'`		;;
+esac
+log=_call/${node}.log
+olog=_call/${node}.ol
+
+if [ -s ${log} ]
+then
+	mv ${log} ${olog}
+fi
+
+exec _lib/VCcall $andflag -v $trace \
+	-X ${log} \
+	-D "dmnargs=-dn -D 1024 -X 1000" \
+	-D "address=${address}" \
+	-D "home=${home}" \
+	-S x25.cs \
+	${link}

@@ -1,0 +1,330 @@
+
+
+
+User Commands                                           NETMAP(1)
+
+
+
+NNNNAAAAMMMMEEEE
+     netmap - show network state and routing tables
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     nnnneeeettttmmmmaaaapppp [-_f_l_a_g_s] [_r_e_g_i_o_n ...]
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_m_a_p prints the  network  state  information  and  routing
+     tables.  Its default action will print out an alphabetically
+     sorted list of all known regions in the state file, together
+     with  their  links.   If  any  regions  are mentioned in the
+     arguments, the list is  restricted  to  just  those  regions
+     mentioned.  _R_e_g_i_o_n can be any name resolvable by the routing
+     tables, or the special name `world' which matches the global
+     region.   If  only  one region is named, and a state message
+     has been received from it, then the details  will  be  taken
+     from  the  state  message,  (unless  the  flags ----iiii or ----YYYY are
+     specified).  Optional flags are:
+
+     ----aaaa  Print all regions without restriction.
+
+     ----bbbb  The region selection is extended to include all  regions
+         contained in the ones mentioned.
+
+     ----cccc  Check the CRC on the state  file.   Also,  terminate  on
+         errors (otherwise warning messages are generated).
+
+     ----dddd  Sort regions by distance if ----YYYY specified.
+
+     ----ffff  Print the _f_o_r_c_e_d route list.
+
+     ----iiii  Don't use an imported state message when printing region
+         map.
+
+     ----kkkk  Print the _a_l_i_a_s_e_s for all (selected) regions.
+
+     ----llll  Don't show links when printing region map.
+
+     ----mmmm  Print the address maps.
+
+     ----rrrr  Print the routing tables.
+
+     ----ssss  Print the region map.  If no other flags are  mentioned,
+         this becomes the default action.
+
+     ----tttt[e|i]
+         Controls the printing of domain types.  The  default  is
+         no  types,  but  this  flag  causes  either external (eeee)
+         [default], or internal (iiii) types to be prepended to  all
+         domain  names.  Unfortunately this means that any _r_e_g_i_o_n
+         arguments must also have types (except  for  names  that
+         can  be  fully  resolved  by  the  routing  tables,  see
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+
+
+
+
+User Commands                                           NETMAP(1)
+
+
+
+         _n_e_t_a_d_d_r(8)).
+
+     ----vvvv  Be more verbose when printing the region map.  This will
+         cause  regions  without links to be included, as well as
+         showing more details  for  each  region  and  link.   In
+         particular, it will show any _c_o_m_m_e_n_t for the node owning
+         the state message displayed.  This flag will  cause  the
+         typed  region  names to be shown for the routing tables,
+         and will also show more details for the address maps.
+
+     ----wwww  Warn about inconsistencies.
+
+     ----yyyy  Print link distances as times if ----YYYY selected.
+
+     ----zzzz  The region selection becomes any  region  whose  _v_i_s_i_b_l_e
+         region matches the ones mentioned.
+
+     ----RRRR _r_o_u_t_e_f_i_l_e
+         The route file name becomes _r_o_u_t_e_f_i_l_e.
+
+     ----SSSS _s_t_a_t_e_f_i_l_e
+         The state file name becomes _s_t_a_t_e_f_i_l_e.
+
+     ----TTTT[_l_e_v_e_l]
+         Turns on tracing at _l_e_v_e_l (default: 1).  If  tracing  is
+         not compiled in, this flag will have no effect.
+
+     ----YYYY[All|Cheap|Fast]
+         For each selected region, show the route from _h_o_m_e.  The
+         nominal  _d_i_s_t_a_n_c_e  for  each  link  in the route is also
+         shown, in the form [[[[<_t_o_t_a_l>;;;;<_d_i_s_t_a_n_c_e>]]]]....  Both _t_o_t_a_l and
+         _d_i_s_t_a_n_c_e  will  be  ****  if  no real route is known.  Note
+         also, that the effect of any current `route' command  is
+         ignored  by  this option.  If _A_l_l is chosen, fast routes
+         will be indicated by (_F), and cheap routes by (_C).  Only
+         the  first character of the qualifier is necessary.  The
+         default is _F_a_s_t.  `Fast' applies to the route  with  the
+         minimum  `delay',  `cheap' applies to the route with the
+         minimum `cost'.  These will be the same unless some link
+         along  the  way  has  used  _n_e_t_s_t_a_t_e's `cost' command to
+         change the default.  This option also prints  the  costs
+         for   each   link  out  of  each  region,  in  the  form
+         [[[[<_d_i_s_t_a_n_c_e>]]]] (or [[[[<_d_i_s_t_a_n_c_e>((((FFFF))))]]]] [[[[<_d_i_s_t_a_n_c_e>((((CCCC))))]]]] if  _A_l_l
+         is chosen).
+
+     ----????  Explain argument options and exit.
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEESSSS
+     Print the untyped region routing  tables,  followed  by  the
+     address maps:
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    2
+
+
+
+
+
+
+User Commands                                           NETMAP(1)
+
+
+
+       netmap -rm
+
+     Print the region map with verbose state descriptions for all
+     locally   recognized   regions   in   the   domain   `Sydney
+     University':
+
+       netmap -bv 'Sydney University'
+
+     The above example will only work  if  your  local  site  has
+     _m_a_p_p_e_d  `Sydney  University'  to `ORG=su', so here is a more
+     general example:
+
+       netmap -bl PRMD=oz.COUNTRY=au
+
+     This will give a terse listing  of  all  locally  recognized
+     regions   in  the  private  management  domain  of  `oz'  in
+     Australia (a.k.a. ACSnet).  You may  omit  the  `PRMD='  and
+     `.COUNTRY=au'  if  `oz'  is  a  unique  domain  name in your
+     routing tables.
+
+     Show details for a particular site:
+
+       netmap -v munnari.oz.au
+
+     This will print details from the latest state  message  from
+     `munnari'  if  one  has been received, otherwise it will use
+     the default data-base.
+
+     Show the route to the nearest region claiming global routing
+     knowledge:
+
+       netmap -Y world
+
+     Show typed names for all  regions  claiming  global  routing
+     knowledge:
+
+       netmap -zlti world
+
+     Produce a terse list of all sites and their  routes  ordered
+     by time distance from `home':
+
+       netmap -adlyY
+
+MMMMAAAAPPPPSSSS AAAANNNNDDDD TTTTAAAABBBBLLLLEEEESSSS
+  SSSSttttaaaatttteeee MMMMaaaapppp
+     If the ----ssss (default) option is selected, _n_e_t_m_a_p prints out (a
+     selected  portion of) the statefile as a list of regions and
+     their links.  Links are printed on separate  lines  preceded
+     by right arrows.
+
+     If the ----vvvv (verbose) option  was  also  selected,  additional
+     information  is provided.  First the region name is printed.
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    3
+
+
+
+
+
+
+User Commands                                           NETMAP(1)
+
+
+
+     Then the _v_i_s_i_b_l_e _r_e_g_i_o_n is  shown,  if  set.   This  is  the
+     region  within  which  the named region propagates its state
+     information, and within which it  is  capable  of  resolving
+     addresses.   The  next  few  lines may contain flag settings
+     such as HOME if the region contains _h_o_m_e, or FOREIGN if only
+     non-MHSnet  state messages have been received from it.  Note
+     that once a MHSnet state message has been  received  from  a
+     node,   no   further   non-MHSnet  state  messages  will  be
+     incorporated into the statefile.  Next the _c_o_m_m_e_n_t  data  is
+     shown,  if  available.   The  next  line may show the date a
+     state message was last received from the  node.   The  lines
+     for the links will be followed by any _l_i_n_k flags, or routing
+     parameters for the link.  (A link marked `(pseudo)' is for a
+     region  whose existence is known by the region it is pseudo-
+     linked to, but insufficient  routing  information  has  been
+     received locally to determine a real route.)
+
+     If the ----YYYY (show route) flag was selected, the last lines for
+     each  region will show the route from _h_o_m_e, each preceded by
+     the _w_e_i_g_h_t of the link and a left-arrow.
+
+  RRRRoooouuuuttttiiiinnnngggg TTTTaaaabbbblllleeee
+     The ----rrrr option prints out the routing table in two  sections.
+     First  the local links are listed, together with information
+     on any flags and programs associated with each link  if  the
+     ----vvvv  option  is  also selected.  The next section is a sorted
+     list of regions and shows, for each region, the link numbers
+     for  the  fastest/cheapest  route, and, if the ----vvvv flag is in
+     force, the links on  which  to  forward  broadcast  messages
+     addressed  to  it.  This is in the form of a list of numbers
+     that refer to the numbers printed for each link in the first
+     section.   An  asterisk  printed  next to a _f_a_s_t link number
+     implies that this is only one of  a  number  of  alternative
+     equi-distant  routes.   An  asterisk printed next to a _c_h_e_a_p
+     link number draws attention to the fact that it is different
+     to the _f_a_s_t route.
+
+  AAAAddddddddrrrreeeessssssss TTTTaaaabbbblllleeee
+     The ----mmmm option prints a number  of  address  mapping  tables.
+     The  `Region  Forwarding Table' lists regions that are being
+     _f_o_r_w_a_r_d_e_d to other regions.  The `Address Forwarding  Table'
+     lists  addresses  that are being _f_o_r_w_a_r_d_e_d to other regions.
+     The `Address Mapping Table' lists  the  value  of  addresses
+     that are being _m_a_p_p_e_d into other regions (which includes the
+     _a_l_i_a_s_e_s exported from other sites).  If the ----vvvv flag is  also
+     selected,  the  `Ordered Types' are shown - most significant
+     first, and the `Type Name Table' shows all  type  names  and
+     their internal order.  The last table is the `Region Vector'
+     which shows all known domains at the level of each domain in
+     the local address.
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    4
+
+
+
+
+
+
+User Commands                                           NETMAP(1)
+
+
+
+  AAAAlllliiiiaaaassss LLLLiiiisssstttt
+     The ----kkkk option prints a list of  every  known  _a_l_i_a_s,  local,
+     exported,  and  imported,  that is present in the _s_t_a_t_e_f_i_l_e.
+     (These are also shown in the `Address Mapping Table' in  the
+     routing tables.)
+
+FFFFIIIILLLLEEEESSSS
+     _state/statefile  Local state information for each region.
+     _state/routefile  Routing tables and address maps.
+     _state/MSGS/*     Imported state messages.
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _n_e_t_w_o_r_k(7), _n_e_t_a_d_d_r(8), _n_e_t_r_e_q_u_e_s_t(8), _n_e_t_s_t_a_t_e(8).
+
+CCCCAAAAVVVVEEEEAAAATTTT
+     If you get errors when printing region maps without  the  ----tttt
+     flag, try again using one of its variations.  The errors may
+     be due to the fact that stripping  typing  information  from
+     domains can lead to confusion.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    5
+
+
+

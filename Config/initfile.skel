@@ -1,0 +1,13 @@
+#
+#	Daemons:
+#
+router		restart		_lib/router -afrS10
+#
+#	Admin:
+#
+admin-purge	"15 4 * * *"	_lib/daily
+admin-stats	"25 4 1 * *"	_lib/monthly
+admin-tidy	"5 12 * * 7"	_lib/weekly
+#
+#	Calls:
+#

@@ -1,0 +1,21 @@
+
+	-a	Show all messages queued.
+	-b	Search `_bad' directory for dumped messages.
+	-c	Return message count in exit status.
+	-e	Ignore errors (in message headers.)
+	-f	Fast search (no message details.)
+	-h	Show message headers.
+	-i	Show `netinit' status.
+	-k	Show commands from message description file.
+	-l	Search `_pending' directory for looping messages.
+	-m	Show message details.
+	-n	Don't return any messages to origin.
+	-p	Search `_pending' directory for looping messages.
+	-q	Search `_route' directory for incoming messages.
+	-r	Search `_reroute' directory for rerouted messages.
+	-s	Silent.
+	-t	Search `_trace' directory for snapshot messages.
+	-v	Verbose.
+	-w	Warnings (complain about inconsistencies.)
+	-x	Search all message directories.
+	-y	Yes (assume answer "yes" to all questions.)

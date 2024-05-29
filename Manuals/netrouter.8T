@@ -1,0 +1,330 @@
+
+
+
+Maintenance Procedures                               NETROUTER(8)
+
+
+
+NNNNAAAAMMMMEEEE
+     netrouter - routing daemon for network messages
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     ____lllliiiibbbb////rrrroooouuuutttteeeerrrr [-_f_l_a_g_s]
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_r_o_u_t_e_r  is  the  routing  daemon  for  network   messages
+     awaiting local delivery and/or onward transmission.  Command
+     files for these messages are placed in the routing  daemon's
+     command directory `_route' where _n_e_t_r_o_u_t_e_r processes them in
+     lexicographic order.  Each message has  its  header  updated
+     with  transmission  time  and  route,  then  its destination
+     address is examined for actions.   Matches  with  the  local
+     address  cause  local  delivery  to the handler named in the
+     header.  Unsatisfied  addresses  cause  the  message  to  be
+     queued for onward transmission on each link lying on a route
+     to one of the destinations.
+
+     If a sub-router has been specified for  the  handler  for  a
+     message  (see _n_e_t_h_a_n_d_l_e_r_s(5)), then the message is passed to
+     a sub-router for asynchronous local delivery,  otherwise  it
+     is  delivered  synchronously.   In  either  case the message
+     handler is started with an alarm scheduled after 1 hour (see
+     _a_l_a_r_m(2),  and  ----AAAA  below).   Handlers that expect to take a
+     long time processing messages should be invoked from a  sub-
+     router,  and  handlers  expecting  to  take more than 1 hour
+     should cancel the alarm.
+
+     If a link _f_i_l_t_e_r has been specified for the link  a  message
+     arrived on, or is about to depart on, then _n_e_t_r_o_u_t_e_r invokes
+     the indicated filter  in  the  directory  SPOOLDIR.  Message
+     handlers  are  also  invoked in SPOOLDIR, see _n_e_t_w_o_r_k(7) for
+     further details on how these programs are invoked.
+
+     If a message is about to depart on a link  marked  _a_u_t_o-_c_a_l_l
+     then  _n_e_t_r_o_u_t_e_r  will  start  the  call automatically.  If a
+     special _c_a_l_l_e_r program has been specified for the link, then
+     that  process  will  be  invoked with appropriate parameters
+     (see _n_e_t_w_o_r_k(7)).  Alternatively, if a call  program  exists
+     in  the  link's  spool  directory, then it will be passed to
+     _n_e_t_c_a_l_l(8).  If neither of the above  conditions  are  true,
+     then  _n_e_t_r_o_u_t_e_r's  default action is to invoke _n_e_t_c_o_n_t_r_o_l(8)
+     with the arguments: `start _l_i_n_k_n_a_m_e' where _l_i_n_k_n_a_m_e  is  the
+     full untyped name of the link.
+
+     _N_e_t_r_o_u_t_e_r maintains a _l_o_c_k file in its command directory  to
+     prevent  multiple  invocations,  and  a  _l_o_g  file to record
+     significant events and error conditions.  The _l_o_c_k  file  is
+     also  used  by  message  senders to obtain a process ID with
+     which to signal _n_e_t_r_o_u_t_e_r when a new message is  queued  for
+     routing.    _N_e_t_r_o_u_t_e_r   also  scans  the  command  directory
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+
+
+
+
+Maintenance Procedures                               NETROUTER(8)
+
+
+
+     periodically for new messages to process.
+
+     _N_e_t_r_o_u_t_e_r  interprets  some  file  names  as  commands.   If
+     _n_e_t_r_o_u_t_e_r  encounters  a  file  named  STOP  in  the routing
+     directory, it will be unlinked and _n_e_t_r_o_u_t_e_r will  terminate
+     after  the  current  scan  - see _n_e_t_w_i_n_d_u_p(8).  If _n_e_t_r_o_u_t_e_r
+     encounters a file named DROP in the  routing  directory,  it
+     will  be  unlinked  and  _n_e_t_r_o_u_t_e_r will ignore all broadcast
+     state messages until either the routing queue becomes empty,
+     or  it  encounters  a file named NODROP. Similarly TRACE and
+     NOTRACE affect tracing (cf: ----TTTT below).
+
+     The optional flags are:
+
+     ----aaaa  Causes _n_e_t_r_o_u_t_e_r to return  all  messages  with  illegal
+         addresses.   Otherwise  these  messages  are  passed  to
+         `loophandler'.
+
+     ----ffff  Prevents  _n_e_t_r_o_u_t_e_r  from  forking  off   a   child   on
+         invocation  to run in the background, and returning from
+         the parent.  This flag also causes _n_e_t_r_o_u_t_e_r to send its
+         parent  a  SIGTERM  if  it  dies  with an error (and the
+         parent's process ID is not 1).
+
+     ----oooo  Causes  _n_e_t_r_o_u_t_e_r  to  make  one  pass  of  the  routing
+         directory, then exit.
+
+     ----rrrr  Turns off the writing of non-essential  reports  to  the
+         log file.
+
+     ----ssss  Causes _n_e_t_r_o_u_t_e_r to become a _s_u_b-_r_o_u_t_e_r running  in  the
+         directory  named  by  the  DDDD flag.  Messages found there
+         will be delivered to handlers, but not routed to further
+         destinations.
+
+     ----xxxx  Turns off the writing of routing statistics to  the  log
+         file.
+
+     ----AAAA _s_e_c_o_n_d_s
+         Change  the  alarm  for   child   processes   (including
+         handlers) from the default [1 hour] to _s_e_c_o_n_d_s.
+
+     ----BBBB _d_u_r_a_t_i_o_n
+         Limited duration router.  _N_e_t_r_o_u_t_e_r  will  terminate  as
+         soon as queue has been empty for _d_u_r_a_t_i_o_n seconds.
+
+     ----DDDD _d_i_r_e_c_t_o_r_y
+         Causes _n_e_t_r_o_u_t_e_r to use this directory  instead  of  the
+         default [_route].
+
+     ----LLLL _l_o_o_p_c_o_u_n_t
+         This determines the maximum number of  times  a  message
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    2
+
+
+
+
+
+
+Maintenance Procedures                               NETROUTER(8)
+
+
+
+         can  traverse  a  given  link before being passed to the
+         administration for intervention [default: 2].
+
+     ----MMMM _m_a_x_r_e_t_s_i_z_e
+         Messages that are being returned to their origin with an
+         error  indication  are truncated to _m_a_x_r_e_t_s_i_z_e [default:
+         10000].
+
+     ----NNNN _N
+         Causes _n_e_t_r_o_u_t_e_r to run as _p_a_r_a_l_l_e_l router number _N.  If
+         this  flag is used for any, then it must be used for aaaallllllll
+         routers, each with a different _N, and one of  them  must
+         have ----NNNN1111.  _N value 0 is the same as 1.
+
+     ----PPPP _p_i_d
+         Parent router process ID (_s_u_b-_r_o_u_t_e_r only).
+
+     ----QQQQ _q_u_e_u_e__s_i_z_e[::::_l_o_w]
+         Maximum  size  of  the  message  routing  queue   before
+         broadcast   state   messages   are   ignored   [default:
+         infinite].  Broadcast state messages are processed again
+         once the queue size falls to _l_o_w [default: 0].
+
+     ----RRRR _r_o_u_t_e_f_i_l_e
+         An alternate name for the routing tables file  [default:
+         _state/routefile].
+
+     ----SSSS _s_c_a_n_r_a_t_e
+         This alters  the  rate  at  which  _n_e_t_r_o_u_t_e_r  scans  the
+         routing   directory   for   new  messages  [default:  60
+         seconds].
+
+     ----TTTT[_l_e_v_e_l]
+         Turns on tracing at _l_e_v_e_l (default: 1).  If  tracing  is
+         not compiled in, this flag will have no effect.
+
+     ----????  Explain argument options and exit.
+
+PPPPSSSS LLLLIIIISSSSTTTTIIIINNNNGGGG
+     _N_e_t_r_o_u_t_e_r alters  its  argument  list  to  indicate  current
+     status.   The  result has three fields: program name, state,
+     and current command-file / handler name if active.   On  BSD
+     systems, the _p_s(1) output shows the altered argument list.
+
+FFFFIIIILLLLEEEESSSS
+     _bad/*              Messages awaiting operator  intervention
+                         via _n_e_t_b_a_d(8).
+     _handlers/*         Names of local  handlers  that  messages
+                         can be addressed to.  Messages addressed
+                         to any other handlers  are  returned  to
+                         their source.
+     _lib/handlers       This file is consulted periodically  for
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    3
+
+
+
+
+
+
+Maintenance Procedures                               NETROUTER(8)
+
+
+
+                         legal  handlers  and  their  parameters.
+                         The handler parameter used by  _n_e_t_r_o_u_t_e_r
+                         is  _n_i_c_e  which,  if present, is used to
+                         indicate that  a  _s_u_b-_r_o_u_t_e_r  should  be
+                         started  to  process  messages  for this
+                         handler  asynchronously.   Handlers  not
+                         mentioned   here  but  existing  in  the
+                         _h_a_n_d_l_e_r_s directory are invoked with  the
+                         default _n_i_c_e value [NICEHANDLERS].
+     _pending            Directory  where  looping  messages   or
+                         messages with bad addresses are spooled.
+     _reroute            Directory where  messages  awaiting  re-
+                         routing are spooled.
+     _route/lock         Lock  file  created  by   _n_e_t_r_o_u_t_e_r   on
+                         startup to prevent multiple invocations.
+     _route/log          Log file for special event messages from
+                         _n_e_t_r_o_u_t_e_r.   It  needs  to  be truncated
+                         from time-to-time.
+     _route/[0-9]*       Messages awaiting routing.
+     _route/_h_a_n_d_l_e_r/*    Messages queued for local delivery by  a
+                         sub-router specific to this handler.
+     _route/DROP         If a file with this name is encountered,
+                         _n_e_t_r_o_u_t_e_r   will  start  to  ignore  all
+                         broadcast  state  messages   until   the
+                         routing   queue  becomes  empty,  or  it
+                         encounters      a      file       called
+                         `_route/NODROP'.
+     _route/NOTRACE      If a file with this name is encountered,
+                         then  it  will be unlinked and the trace
+                         level (cf: ----TTTT) will be set to 0.
+     _route/STOP         If a file with this name is encountered,
+                         _n_e_t_r_o_u_t_e_r  will make one further pass of
+                         the routing directory  for  messages  to
+                         route,    and   then   terminate   after
+                         unlinking the file.  See _n_e_t_w_i_n_d_u_p(8).
+     _route/TRACE        If a file with this name is encountered,
+                         then  it  will be unlinked and the trace
+                         level (cf: ----TTTT) will be increased  by  1.
+                         However,  if the file contains a string,
+                         it will be used to match the contents of
+                         each   message   header,   (ID,  source,
+                         destination,  or  handler)  and  tracing
+                         will  be  increased  by  3 levels during
+                         processing of matched messages.
+     _state/routefile    Routing  tables  for  resolving  message
+                         addresses, and finding link details.
+     _stats/Accumulated  _N_e_t_r_o_u_t_e_r  writes  statistics  for  each
+                         message in this file, if it exists.
+     _work               Directory for temporary files.
+     _l_i_n_k_d_i_r/call        Link-specific    call     script     for
+                         _n_e_t_c_a_l_l(8).
+     _l_i_n_k_d_i_r/cmds        Directory for out-bound message  command
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    4
+
+
+
+
+
+
+Maintenance Procedures                               NETROUTER(8)
+
+
+
+                         files.
+     _l_i_n_k_d_i_r/out         Directory  for  out-bound  message  data
+                         files.
+
+DDDDIIIIAAAAGGGGNNNNOOOOSSSSTTTTIIIICCCCSSSS
+     Serious errors cause _n_e_t_r_o_u_t_e_r to  terminate  after  sending
+     mail to NCC_ADMIN.
+
+     Any message commands files that cause an error will be moved
+     to  the  directory  `_bad'  and the the program `badhandler'
+     invoked to send mail to NCC_ADMIN.
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _n_e_t_q(1),    _n_e_t_h_a_n_d_l_e_r_s(5),    _n_e_t_p_a_r_a_m_s(5),     _n_e_t_w_o_r_k(7),
+     _n_e_t_c_a_l_l(8),    _n_e_t_c_h_a_n_g_e(8),    _n_e_t_c_o_n_t_r_o_l(8),   _n_e_t_i_n_i_t(8),
+     _n_e_t_w_i_n_d_u_p(8).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    5
+
+
+

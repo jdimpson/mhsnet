@@ -1,0 +1,444 @@
+.nr S3 1 \" 1 for ACSnet
+.ds S1 NETCALLERS
+.ds S2 \fINetcallers\fP
+.ds S3 \fInetcallers\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 _call/call*
+.TH \*(S1 8 "\*(S4 1.16" \^
+.nh
+.SH NAME
+netcallers \- shell programs for creating network connections
+.SH SYNOPSIS
+.BI \*(S6
+.RI [\- flags ]
+.IR link
+.RI [ parameter "] ..."
+.SH DESCRIPTION
+These shell programs are provided to establish network transport daemon
+connections over the more common types of virtual circuits.
+They each invoke
+.IR netcall (8)
+with a suitable call script and network transport daemon
+parameters appropriate to the link type.
+.PP
+They may be found in the network spool area in a directory called
+.if t \f(CW_call\fP
+.if n `_call'
+with the filename pre-fix:
+.if t \f(CWcall.\fP
+.if n `call.'
+This directory is also used to contain the log files for each link.
+A log is kept for the current call,
+and the previous call, for each link.
+.PP
+Each shell program takes several parameters,
+some optional,
+that are described below.
+The non-flag parameters are order-dependant,
+and are described in the order that they must be specified.
+Every program has the following parameters in common:
+.PP
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-p\fP\fIpassword\fPX'u
+.TP "\*(tw"
+.BI \-a "daemon-args"
+Optional extra arguments to be passed to the selected transport daemon,
+eg:
+.if n -a "-Q6 -R"
+.if t \f(CW-a "-Q6 -R"\fP
+.TP
+.BI \-f
+Prevents
+.I netcall
+from forking to run in the background.
+(Should always be specified in
+.I netinit
+commands \(em see
+.IR netinit (8).)
+.TP
+.BI \-?
+Explain argument options and exit.
+.TP
+.I link
+The name of the link being established.
+This may be any name resolvable in the routing tables.
+Always the first non-flag parameter.
+.PP
+The following call programs are available:
+.SS _call/call.call
+A general purpose program that invokes
+.I netcall
+assuming the existence of a link-specific call script in the link's spool directory.
+It requires no additional parameters.
+.SS _call/call.login
+A call program to make connections to directly connected sites
+over a `tty' style virtual circuit.
+It uses the call-script `login.cs',
+and takes the following parameters:
+.PP
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-p\fP\fIpassword\fPX'u
+.TP "\*(tw"
+.I device
+The special device attached to the direct link.
+.TP
+.I speed
+Speed for direct link.
+.TP
+.I login
+The login name at the remote site.
+.TP
+.I passwd
+The password required by the remote login account.
+.SS _call/call.modem_0
+A call program for making circuits via various `Hayes'-compatible modem types.
+It allows the specification of alternate modems and numbers, as many as are needed.
+It uses the call-scripts `hayes_*.cs',
+and takes the following parameters:
+.PP
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-p\fP\fIpassword\fPX'u
+.TP "\*(tw"
+.if \n(S3 \{\
+.BI \-3
+An optional parameter that specifies a connection to a \s-1SUN III\s0 site.
+(This selects the callscript `hayes_4_3.cs' when a login is established.)
+.TP\}
+.BI \-c
+Optional flag to turn on full
+.I cooked
+mode.
+This causes the daemon to
+.I cook
+the data transmitted on the circuit
+using only printing characters from the \s-1ASCII\s0 set,
+and is useful dealing with circuits which interfere with the data.
+See
+.IR netdaemon (8)
+for an explanation of
+.IR cooking .
+.TP
+.BI \-CX
+Optional flag to turn on XON/XOFF
+.I cooked
+mode (for where these are the only bytes being interfered with by the circuit).
+.TP
+.BI \-d daemon
+Optional parameter to specify an alternate transport daemon
+[default:
+.if t \f(CWVCdaemon\fP].
+.if n `VCdaemon'].
+.TP
+.BI \-D script-arg
+Optional argument for optional call script \(em see \fB\-S\fP below.
+.TP
+.BI \-e
+Optional flag to indicate modem does not change speed to match connection.
+.TP
+.BI \-i initstr
+Optional \s-1AT\s0 initialising commands for modem, eg:
+.if t \f(CW-i$C0\fP.
+.if n `-i$C0'.
+Any space encountered causes a new \s-1AT\s0 sequence,
+so can be used to break up long commands.
+.TP
+.BI \-n
+Specifies a `noisy' link, and selects a smaller initial packet size,
+and lower expected throughput.
+.TP
+.BI \-p
+Selects a `permanent' connection, ie: once made, it never terminates.
+(Otherwise connections are `batch', and terminate when all messages have been sent.)
+.TP
+.BI \-P n
+Turns on protocol packet tracing at level
+.IR n .
+(See
+.IR netdaemon (1)
+for details.)
+.TP
+.BI \-q
+Causes a queue-check to be made after the connection terminates:
+if there are still messages in the transmission queue,
+one further call is made.
+.TP
+.BI \-Q n
+Message quality parameter \(em sets the lowest quality message to be transmitted/received.
+[Default: \-Q9.]
+(See
+.IR netdaemon (1)
+for details.)
+.TP
+.BI \-s
+Causes a `slow' termination:
+the connection won't terminate until no message has been transmitted for 5 minutes.
+[The default waits 10 seconds.]
+.TP
+.BI \-S script
+Optional call script to be called after connect, before login.
+This can be used to negotiate intermediary networks between the modem and the host,
+eg:
+.if t \f(CW-Shayes_annex.cs\fP.
+.if n `-Shayes_annex.cs'.
+.TP
+.BI \-t
+Causes immediate termination:
+the connection will terminate immediately the last message has been transmitted.
+[The default waits 10 seconds.]
+.TP
+.BI \-T level
+Turns on tracing at
+.I level
+in
+.IR netcall (8).
+.TP
+.I modems
+A string denoting the modems to be used.
+The syntax is:
+.if t \fItype\fP\fB@\fP\fIdevice\fP[\fB|\fP...]
+.if n type<@>device[<|>...]
+.I Type
+can be either `hayes',
+`interlink',
+`netcomm',
+any of the above concatenated with
+.SM XON
+(for
+.SM XON/XOFF
+flow-control)
+to get a `cooked' connection,
+or any of the above concatenated with
+.SM RTS
+(for
+.SM RTS/CTS
+flow-control \(em interface speed won't be changed after the
+.SM CONNECT
+response from the modem).
+.I Device
+is the special device attached to each modem.
+.TP
+.I dialstrings
+A string denoting the telephone numbers to be tried.
+The syntax is:
+.if t \fInumber\fP\fB@\fP\fIspeed\fP[\fB|\fP...]
+.if n number<@>speed[<|>...]
+.I Number
+is a dial number for the modem to reach the remote site.
+.I Speed
+is the speed for the modem interface.
+.TP
+.I login
+The login name at the remote site.
+.TP
+.I passwd
+The password required by the remote login account.
+.PP
+On termination, the call log is checked for errors,
+and if any are detected,
+a description is mailed to the people identified in
+.SM NCC_ADMIN.
+.SS _call/call.modem
+[Superceded by `call.modem_0' above.]
+A call program for making circuits via various `Hayes'-compatible modem types.
+It uses the call-script `hayes.cs',
+and needs the following parameters:
+.PP
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-p\fP\fIpassword\fPX'u
+.TP "\*(tw"
+.BI \-p
+Selects a `permanent' connection, ie: once made, it never terminates.
+(Otherwise connections are `batch', and terminate when all messages have been sent.)
+.TP
+.BI \-q
+Causes a queue-check to be made after the connection terminates:
+if there are still messages in the transmission queue,
+one further call is made.
+.TP
+.I modem
+The type of `Hayes' modem:
+either `hayes',
+`hayesXON' (for `cooked' connections that use XON/XOFF flow-control),
+`slowhayes' (for modems that need slow command processing),
+`interlink',
+`netcomm',
+`trailblazerRTS' (for Trailblazer modems connected with RTS/CTS flow-control),
+or `trailblazerXON' (for Trailblazer modems connected without RTS/CTS,
+and which must use XON/XOFF flow-control for speeds greater than 2400 baud).
+.TP
+.I device
+The special device attached to the modem.
+.TP
+.I speed
+Speed for modem interface.
+.TP
+.I login
+The login name at the remote site.
+.TP
+.I passwd
+The password required by the remote login account.
+.TP
+.I dial
+The telephone number for the remote site.
+.TP
+.RI [ dial2 ]
+An optional second telephone number for the remote site
+that is tried if the first is busy.
+.SS _call/call.setup
+A program that invokes
+.I netcall
+to set up parameters for a Hayes-compatible modem.
+It uses the call-script `setup.cs' and takes the following arguments:
+.PP
+.if n .ds tw 4
+.if t .ds tw \w'\fIinitstring\fPX'u
+.TP "\*(tw"
+.I device
+The device attached to the modem.
+.TP
+.I speed
+The speed of the interface.
+.TP
+.I initstr
+A string to initialise the modem.
+`setup.cs' initialises the modem with \f(CWATE0Q0S0=0S2=43\fP
+followed by \fIinitstr\fP \(em which can instead be a known modem type.
+\fIinitstr\fP is normally a space-separated series of setup
+commands for the modem.
+Each command is written separately,
+with \f(CWAT pre-pended.
+.SS _call/call.tcp
+A call program to make TCP/IP circuits.
+It uses the call-script `ip.cs',
+and takes the following optional parameters:
+.PP
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-p\fP\fIpassword\fPX'u
+.TP "\*(tw"
+.BI \-d daemon
+Optional parameter to specify an alternate transport daemon
+[default:
+.if t \f(CWVCdaemon\fP].
+.if n `VCdaemon'].
+.TP
+.BI \-o port
+Optional parameter needed only if the local host has no
+.if t \f(CW/etc/services\fP
+.if n `/etc/services'
+file to identify port numbers by IP service.
+.TP
+.BI \-p password
+Optional parameter needed only if a network password has been set for the calling region.
+(See:
+.IR netpasswd (8)).
+.TP
+.BI \-r
+The default uses 512 byte packets with a CRC check for data integrity.
+This optional flag should be used where the circuit is known to be reliable,
+(eg: via a single Ethernet),
+and causes the protocol to use 1024 byte packets and no CRC check.
+.TP
+.I target
+Optional parameter needed only if the IP name of the link is different from the network name.
+.SS _call/call.tty
+A call program to make permanent connections to directly connected sites
+over a `tty' style virtual circuit that has no `login' process.
+Instead it is assumed that a similarly configured script is run at the remote end simultaneously.
+It uses the call-script `tty.cs',
+and takes the following parameters:
+.PP
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-p\fP\fIpassword\fPX'u
+.TP "\*(tw"
+.I tty
+The `tty' device attached to the direct link.
+.TP
+.I speed
+Speed for direct link.
+.SS _call/call.udial
+A call program to setup connections using the \s-1UUCP\s0-compatible `dial(3)' sub-routine.
+It uses the call-script `udial.cs',
+and takes the following parameters:
+.PP
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-p\fP\fIpassword\fPX'u
+.TP "\*(tw"
+.I telno
+The telephone number for the remote site.
+.TP
+.I speed
+Speed for link.
+.TP
+.I login
+The login name at the remote site.
+.TP
+.I passwd
+The password required by the remote login account.
+.SS _call/call.udp
+A call program to make UDP/IP circuits.
+(Not recommended, except in special circumstances,
+note the `Caveat' in the manual
+.IR netdaemon (8).)
+It uses the call-script `ip.cs',
+and takes the same parameters as
+.if t \f(CW_call/call.tcp\fP
+.if n `_call/call.tcp'
+above.
+.SS _call/call.x25
+A call program to make X.25 circuits.
+It uses the call-script `x25.cs',
+and takes the following parameter:
+.PP
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-p\fP\fIpassword\fPX'u
+.TP "\*(tw"
+.I address
+X.25 address of remote site.
+.if \n(S3 \{\
+.SH "SUN III CONNECTIONS"
+Call programs are provided for making calls to sites
+running the old version of the software,
+which can be identified by the fact that they all end with the numeral `3',
+(although `call.modem_0' can be used with the \fB\-3\fP parameter).
+They take the same parameters as their equivalent program above.\}
+.SH FILES
+.PD 0
+.TP "\w'\fIlinkdir\fP/cmds/lockXX'u"
+_call
+Directory where call programs are to be found.
+.TP
+_call/*.cs
+Call scripts for
+.IR netcall (8).
+.TP
+_call/call.*
+Call programs that invoke
+.IR netcall (8)
+with appropriate call script.
+.TP
+_call/log
+Every call writes one final status line to this file.
+.TP
+_call/\fIlink\fP.log
+Log file for current call to `link'.
+.TP
+_call/\fIlink\fP.ol
+Log file for previous call to `link'.
+.TP
+_lib/VCcall
+Default
+.I virtual-circuit
+establishment program.
+.TP
+_state/routefile
+Routing tables for resolving addresses.
+.PD
+.SH "SEE ALSO"
+.IR sh (1),
+.IR \*(S5 (7),
+.IR netcall (8),
+.IR netdaemon (8),
+.IR netpasswd (8),
+.IR netshell (8),
+.IR netstate (8).

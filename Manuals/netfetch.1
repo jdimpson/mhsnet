@@ -1,0 +1,139 @@
+.ds S1 NETFETCH
+.ds S2 \fINetfetch\fP
+.ds S3 \fInetfetch\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 netfetch
+.TH \*(S1 1 "\*(S4 1.9" \^
+.nh
+.SH NAME
+netfetch \- request that files be sent from a remote site
+.SH SYNOPSIS
+.BI \*(S6
+.RI [\- flags \|]
+.I fromhost
+.I "filename ..."
+.SH DESCRIPTION
+\*(S2
+will obtain files from publicly available directories
+on consenting hosts.
+.PP
+Filenames should not be absolute path names
+(a leading slash will be ignored)
+\(em they will be interpreted
+relative to some appropriate directory on the remote host.
+The directory used might depend upon the host that you
+issue the request from, or your login name, or both.
+.PP
+Files are returned by the remote server executing
+.IR netfile (1)
+with appropriate arguments.
+.PP
+There is a (small) upper limit on the number of
+files that may be retrieved in any one execution
+of the
+\*(S3
+command.
+Requests for more than this number of files
+will return the allowed number of files,
+and a message indicating that the limit
+was exceeded.
+The limit can be expected to be in the mid twenties.
+.PP
+The mandatory
+.I fromhost
+argument specifies the host that files are to
+be obtained from.
+.PP
+Please note that wildcard symbols in the filename part will not be expanded.
+.PP
+\*(S2's
+action may be modified by the following flags:
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-S\fP\fI\ sender\fP]X'u
+.TP "\*(tw"
+.BI \-c
+Request that a \s-1CRC\s0 be applied to files returned from the remote host.
+.TP
+.BI \-e
+Don't return message if errors are detected in request.
+.TP
+.BI \-l
+Instead of returning the files named,
+return names of those files that are available.
+This can be used to discover which files exist
+at a remote host, without actually retrieving them.
+With this flag,
+.I filename
+arguments may also be directory names.
+Note that in the returned list,
+overlong filenames will have leading ellipses.
+.TP
+.BI \-q
+Report the request ID on
+.I stdout
+and include it in any response that is returned.
+This allows the matching of requests with responses.
+.TP
+.BI \-m
+Don't signal reception of requested files via mail.
+.TP
+.BI \-r
+With
+.BI \-l
+causes the search to recurse through any directories encountered.
+.TP
+.BI \-v
+With
+.BI \-l
+returns more data, including last modification time and size.
+.TP
+.BI \-S " sender"
+Change the name of the originator to
+.IR sender .
+(This option is restricted to network
+.IR super-users .)
+.TP
+.BI \-T n
+Activate tracing at level
+.IR n .
+If tracing is not compiled in,
+this flag will have no effect.
+.TP
+.BI \-?
+Explain argument options and exit.
+.SH EXAMPLES
+Obtain the file
+.I foo
+from the public directory at
+Sydney University's Computer Science Department.
+.PP
+.RS 2
+.ft CW
+\*(S6 cs.su.oz.au foo
+.ft
+.RE
+.PP
+Obtain a listing of the public file directory
+.BR `\&.'
+from
+Melbourne University's Computer Science Department.
+.PP
+.RS 2
+.ft CW
+\*(S6 \-lv cs.mu.oz.au .
+.ft
+.RE
+.PP
+This is the starting point to determine what might be available at some site.
+.SH "SEE ALSO"
+.IR netfile (1),
+.IR netfetch (5),
+.IR netmsg (8).
+.br
+.ne 11
+.SH DIAGNOSTICS
+Consult
+.IR netmsg (8)
+for possible diagnostic messages,
+as \*(S2 invokes that program to send the requests.

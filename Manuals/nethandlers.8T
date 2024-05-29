@@ -1,0 +1,66 @@
+
+
+
+Maintenance Procedures                             NETHANDLERS(8)
+
+
+
+NNNNAAAAMMMMEEEE
+     nethandlers - show network handlers
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     ____bbbbiiiinnnn////nnnneeeetttthhhhaaaannnnddddlllleeeerrrrssss [-_f_l_a_g_s] [_h_a_n_d_l_e_r]
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_h_a_n_d_l_e_r_s prints details of the network handlers that have
+     been described locally.  If the optional _h_a_n_d_l_e_r argument(s)
+     are present, _n_e_t_h_a_n_d_l_e_r_s displays details for  each  of  the
+     named  handlers.   Otherwise  details for all known handlers
+     are displayed.   The  details  are  in  the  same  order  as
+     described in _n_e_t_h_a_n_d_l_e_r_s(5).
+
+     The optional flags are:
+
+     ----AAAA _h_a_n_d_l_e_r
+         Display details for _h_a_n_d_l_e_r.  You  may  use  the  common
+         _d_e_s_c_r_i_p_t_i_o_n  for the handler as reported by _n_e_t_q(1) (eg:
+         `files'), instead of its name.
+
+     ----TTTT[_l_e_v_e_l]
+         Turns on tracing at _l_e_v_e_l [default: 1].  If  tracing  is
+         not compiled in, this flag will have no effect.
+
+     ----????  Explain argument options and exit.
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEESSSS
+     Show details of handler `filer':
+
+       _bin/nethandlers filer
+
+FFFFIIIILLLLEEEESSSS
+     SPOOLDIR/_lib/handlers  Specifies  options  for   particular
+                             handlers.
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _n_e_t_q(1), _n_e_t_h_a_n_d_l_e_r_s(5), _n_e_t_w_o_r_k(7).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+

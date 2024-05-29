@@ -1,0 +1,131 @@
+.ds S1 NETCAC
+.ds S2 \fINetcac\fP
+.ds S3 \fInetcac\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 _bin/netcac
+.TH \*(S1 8 "\*(S4 1.7" \^
+.nh
+.SH NAME
+netcac \- network transport daemon connect accounting
+.SH SYNOPSIS
+.BI \*(S6
+.RI [\- flags ]
+.BI [ link ]
+.SH DESCRIPTION
+\*(S2
+is a shell program that summaries connection statistics from the connect log.
+The optional argument names a particular link to be summarised,
+otherwise all links are summarised.
+.PP
+The flags are as follows:
+.PP
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-k\fP \fIkbytes\fPX'u
+.TP "\*(tw"
+.BI \-D
+Turn on debugging \(em will complain about missing input records.
+.TP
+.BI \-a
+Print both \s-1IN\s0 and \s-1OUT\s0 statistics.
+.TP
+.BI \-c " cost"
+Calculate cost for connection using 
+.I cost
+as the money value per hour of connect time.
+.TP
+.BI \-d
+Show `down' time.
+.TP
+.BI \-f " file"
+Take statistics from an alternate file.
+If 
+.I file
+is `\-', then read from
+.IR stdin .
+.TP
+.BI \-h
+Print a header describing each column of output.
+.TP
+.BI \-i " link"
+Add
+.I link
+to list of ignored links,
+that will be excluded from the statistics.
+.TP
+.BI \-k " kbytes"
+Selects only those connections that transferred more than 
+.I kbytes
+thousand bytes.
+.TP
+.BI \-m " mins"
+Selects only those connections that lasted more than
+.I mins
+minutes.
+.TP
+.BI \-r
+Causes a throughput rate to be calculated for the total time logged.
+.TP
+.BI \-s
+Strip types from domain names
+(default shows `internal' type for each domain name).
+.TP
+.BI \-u
+Round-up all connection times to nearest minute.
+.TP
+.BI \-v
+.I Verbose
+listing: one line for every connection.
+.SH EXAMPLE
+Print connection statistics summary for link to `tmx.mhs.oz.au',
+with a header for each field,
+limiting selection to connections lasting more than 10 minutes
+and transferring more than 10Kb,
+and print an overall throughput rate:
+.RS 2
+.ft CW
+.ps -2
+.nf
+netcac -h -k10 -m10 -r -s tmx.mhs.oz.au
+.fi
+.ps
+.ft
+.RE
+.ne 5
+.SH "FORMAT"
+Each line in the
+.I connect
+file has 8 or 9 fields as follows:
+start-date, start-time, weekday, direction, typed-link-name, elapsed-time, messages and data-bytes.
+An optional ninth field usually contains a circuit-specific description.
+\fIUni-process\fP daemons write a single line with the direction marked as \f(CWi&o\fP.
+.SH FILES
+.PD 0
+.if n .ds tw \w'_stats/connectXX'u
+.if t .ds tw \w'\*(CW_stats/connect.\fP\fIyymmdd\fP\fPX'u
+.TP "\*(tw"
+\*(CW_stats/connect\fP
+Connect accounting file with two lines per connection.
+If this file does not exist, or is unwritable,
+then connect accounting is disabled.
+.TP
+\*(CW_stats/connect.\fP\fIyymmdd\fP
+If connect accounting is enabled,
+these files are created by rotating
+.I connect
+once every week
+(by the shell script \f(CW_lib/weekly\fP).
+.TP
+\*(CW_stats/connect.\fP\fIyymm.Z\fP
+If connect accounting is enabled,
+these files are created by concatenating
+.I connect
+files for the previous month at the start of a new month
+(by the shell script \f(CW_stats/turn-acct\fP).
+.PD
+.SH "SEE ALSO"
+.IR \*(S5 (7),
+.IR netac (8),
+.IR netdaemon (8),
+.IR netinit (8),
+.IR netstatspr (8).

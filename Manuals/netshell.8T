@@ -1,0 +1,395 @@
+
+
+
+Maintenance Procedures                                NETSHELL(8)
+
+
+
+NNNNAAAAMMMMEEEE
+     netshell - login shells for intermittent network connections
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     ____lllliiiibbbb////****sssshhhheeeellllllll
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_s_h_e_l_l can be specified to be the login shell for accounts
+     representing   remote  hosts  that  will  make  intermittent
+     connections  to  exchange  queued  network  messages.    The
+     alternate names are for the various types of virtual circuit
+     that can be accepted.  On invocation, _n_e_t_s_h_e_l_l  will  accept
+     the  connection  if necessary, search the routing tables for
+     the real name of the link,  move  to  the  link's  operating
+     directory  (creating it if necessary), condition the virtual
+     circuit for use by the message transport protocol, and  then
+     negotiate the parameters for the daemon.
+
+     For connections via the standard login process,  a  suitable
+     version  of  _n_e_t_s_h_e_l_l should be entered as the _s_h_e_l_l for the
+     login account.   The  account  name  should  be  either  the
+     nodename for the site, or an _a_l_i_a_s for the real network name
+     of the connecting site (see the _m_a_p command in _n_e_t_s_t_a_t_e(8)).
+     For  example, a dial-in link from a site `altair.com.mhs.au'
+     might  have  the  following  account  set  up  (where   _S_D_I_R
+     represents  the pathname of the network operating directory,
+     normally `/usr/spool/MHSnet'):
+
+      altair::18:1:MHSnet login:_S_D_I_R:_lib/ttyshell
+
+     You ought either to set a password for the account,  or  use
+     _n_e_t_p_a_s_s_w_d(8)  to  set  a  password  for  the  network  name,
+     (particularly to protect IP type connections).
+
+     For IP type connections, suitable entries should be made  in
+     the `/etc/servers' file, eg:
+
+          mhsnet udp _S_D_I_R/_lib/udpshell
+          mhsnet tcp _S_D_I_R/_lib/tcpshell
+
+     or in the `/etc/inetd.conf' file, eg:
+
+          mhsnet dgram udp wait root _S_D_I_R/_lib/udpshell udpshell
+          mhsnet stream tcp nowait root _S_D_I_R/_lib/tcpshell tcpshell
+
+     If you have an IP connection to a  SUN III  site,  then  you
+     also need:
+
+          acsnet dgram udp wait root _S_D_I_R/_lib/ENshell ENshell
+          acsnet stream tcp nowait root _S_D_I_R/_lib/TNshell TNshell
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+
+
+
+
+Maintenance Procedures                                NETSHELL(8)
+
+
+
+     If your system lacks a version of `/etc/inetd.conf' (on some
+     systems  called `/etc/servers'), you may have to make use of
+     the program _n_e_t_l_i_s_t_e_n(8).
+
+SSSSHHHHEEEELLLLLLLLPPPPRRRROOOOGGGG
+     If a file named `shellprog' exists in the  link's  operating
+     directory,  or  if not there, then in the `_call' directory,
+     it will be executed  in  the  transport  daemon's  operating
+     directory  by  _s_h(1)  before the message transport daemon is
+     started.  It will be passed three arguments: the name of the
+     link, the name of the transport daemon, and the invoked name
+     of _n_e_t_s_h_e_l_l.  It will have standard input and output set  to
+     the  virtual  circuit, and should return a zero exit status.
+     A non-zero exit status will cause _n_e_t_s_h_e_l_l to  exit  without
+     starting  a  daemon.   Note that if `shellprog' has an owner
+     other than NETUSERNAME or a group other  than  NETGROUPNAME,
+     or is publicly writeable, then it will be ignored.
+
+AAAANNNNOOOONNNNYYYYMMMMOOOOUUUUSSSS CCCCOOOONNNNNNNNEEEECCCCTTTTIIIIOOOONNNNSSSS
+     You may allow connections from  sites  which  don't  have  a
+     pre-arranged  link  to  your  site by validating them in the
+     network `password' file (see _n_e_t_p_a_s_s_w_d(8)).  This  file  can
+     contain  any network addresses you wish to allow connections
+     from.  In particular, if any address is in  the  form  of  a
+     broadcast  address,  then  it validates connections from any
+     node within the broadcast region.
+
+     You should then create and publish your  site's  `anonymous'
+     login account (or IP address), eg:
+
+      mhsnet::18:1:Anonymous MHSnet logins:_S_D_I_R:_lib/ttyshell
+
+     The  account  name  should  be  something  that   can't   be
+     recognised as a site address, because if _n_e_t_s_h_e_l_l can't find
+     a link to match the login name (or IP source address),  then
+     it will ask for one by sending the line:
+          QUERY HOMENAME
+
+     It will then wait up to 20 seconds for a reply in the form:
+          HOMENAME <address>[ {CRC}]
+
+     The _a_d_d_r_e_s_s should be  the  one  provided  to  the  caller's
+     _c_a_l_l-_s_c_r_i_p_t in the variable HOMENAME (See _n_e_t_c_a_l_l(8).)
+
+     The optional trailer for the HOMENAME line is a  16-bit  CRC
+     generated  by  the  ccccrrrrcccc  command  in  a  _c_a_l_l-_s_c_r_i_p_t.  If it
+     doesn't match, then the HOMENAME line will be  ignored,  and
+     the query repeated, up to 10 times.
+
+     If the `password' file exists,  and  if  the  given  _a_d_d_r_e_s_s
+     matches an entry in the file, then _n_e_t_s_h_e_l_l will allow a new
+     link from _a_d_d_r_e_s_s to the local node to be created.   If  the
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    2
+
+
+
+
+
+
+Maintenance Procedures                                NETSHELL(8)
+
+
+
+     address matched was a _b_r_o_a_d_c_a_s_t address, then this link will
+     be marked `dead,nochange' in the outbound direction so  that
+     any  pre-existing  connection  to  _a_d_d_r_e_s_s will still be the
+     preferred route.  Should you wish this  new  link  to  carry
+     out-bound  traffic  in  preference to other routes, then you
+     should arrange to mark the link up and remove the `nochange'
+     flag (`-dead,-nochange') - see _n_e_t_s_t_a_t_e(8).
+
+     If the calling site isn't validated, _n_e_t_s_h_e_l_l will terminate
+     the connection after sending the line:
+          CONNECTION DISALLOWED
+
+     Sensitive links should always be protected  with  a  network
+     password.
+
+CCCCAAAALLLLLLLL PPPPAAAARRRRAAAAMMMMEEEETTTTEEEERRRR NNNNEEEEGGGGOOOOTTTTIIIIAAAATTTTIIIIOOOONNNN
+     If the network control  program  (_n_e_t_i_n_i_t(8))  is  inactive,
+     _n_e_t_s_h_e_l_l  will  terminate  the  connection after sending the
+     line:
+          NETWORK INACTIVE
+
+     If a network password has been set for the calling site,  or
+     if  a  network password has been set for a region containing
+     the calling site and there is no `/etc/passwd' entry for the
+     caller, or the IGN_ETCPASSWD parameter is set, _n_e_t_s_h_e_l_l will
+     send the line:
+          QUERY PASSWORD
+
+     It will then wait up to 20 seconds for a reply in the form:
+          PASSWORD <password>[ {CRC}]
+
+     The optional CRC is processed as for HOMENAME above.  If the
+     password  doesn't  match,  then _n_e_t_s_h_e_l_l will terminate with
+     the error:
+          FAILED PASSWORD
+
+     If a daemon is already active for the  link,  _n_e_t_s_h_e_l_l  will
+     terminate the connection after sending the line:
+          DAEMON ALREADY ACTIVE
+
+     _N_e_t_s_h_e_l_l will then send the line
+          SHELL STARTS 2V
+     [`ttyxshell' sends]
+          XON_XOFF SHELL STARTS 2V
+     and wait up to 20 seconds for either the reply:
+          VCCONF <param> ... [ {CRC}]
+     (to which it will reply)
+          QUERY DAEMON
+     and/or the reply:
+          DAEMON <daemon name> [ {CRC}]
+     (to which it will reply)
+          QUERY PARAMS
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    3
+
+
+
+
+
+
+Maintenance Procedures                                NETSHELL(8)
+
+
+
+     and/or the reply:
+          PARAMS <daemon arg> ... [ {CRC}]
+     to which it will reply:
+          DAEMON STARTS DAEMON STARTS
+     (repeated to ensure a match).
+
+     The daemon will then be started with the passed parameters.
+
+     Note that earlier versions just send:
+          SHELL STARTS
+     and don't expect the DAEMON or  VCCONF  responses,  so  call
+     scripts  should  differentiate.  (Some intermediate versions
+     send
+          SHELL STARTS 2
+     and don't expect the VCCONF response.)  The  default  daemon
+     is `VCdaemon' (see _n_e_t_d_a_e_m_o_n(8)).
+
+     The optional CRC is processed as for HOMENAME above.
+
+     If the negotiation times out, it will send the line:
+          DEFAULT STARTS
+     and a daemon will be started with the  following  _w_o_r_s_t-_c_a_s_e
+     parameters:
+          -c -B -D16 -R300 -S10 -X30
+     Ie: cooked mode, batch mode, 16 byte  packets,  maximum  run
+     time  of  5  minutes,  minimum speed of 10 bytes/second, and
+     expected throughput  of  30  bytes/second.   (See  _n_e_t_d_a_e_m_o_n
+     (_8).)  These  parameters  may  be  changed via the value for
+     DFLTPARAMS in the alternate parameters file, see below.
+
+     These parameters may  be  overridden  if  necessary  by  the
+     contents  of  a  file named `params' in the link's operating
+     directory, or,  if  specific  to  a  particular  version  of
+     _n_e_t_s_h_e_l_l, by files named as follows:
+
+       SSSShhhheeeellllllll      FFFFiiiilllleeee nnnnaaaammmmeeee   CCCCoooonnnnnnnneeeeccccttttiiiioooonnnn ttttyyyyppppeeee
+9       tcpshell   tcpparams   TCP/IP connection
+       ttyshell   ttyparams   `tty' connection
+       ttyxshell  ttyxparams  `tty' with XON/XOFF
+       udpshell   udpparams   UDP/IP connection
+       x25shell   x25params   X.25 connection
+9       NNshell    NNparams    SUN III `tty' connection
+       XNshell    XNparams    SUN III `tty' with XON/XOFF
+       CNshell    CNparams    SUN III `tty' with high error rate
+       PNshell    PNparams    SUN III `tty' with large packets
+       TNshell    TNparams    SUN III TCP/IP connection
+       ENshell    ENparams    SUN III UDP/IP connection
+
+PPPPAAAARRRRAAAAMMMMEEEETTTTEEEERRRRSSSS
+     On   starting,   _n_e_t_s_h_e_l_l   reads   the    parameter    file
+     `_params/daemon'.   This  file  can  contain  the  following
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    4
+
+
+
+
+
+
+Maintenance Procedures                                NETSHELL(8)
+
+
+
+     optional parameters:
+
+     DFLTPARAMS
+         Default parameters for the transport daemon.
+
+     IGN_ETCPASSWD
+         If  set  to  1111,  forces   network   passwords   set   by
+         _n_e_t_p_a_s_s_w_d(8)  to  be checked even though there is also a
+         password for the connecting site  in  the  `/etc/passwd'
+         file.
+
+     NICEDAEMON
+         The _n_i_c_e(2) value for the transport daemon.
+
+     TRACEFLAG
+         Sets tracing level, equivalent to ----TTTT flag.
+
+     VCDAEMON
+         The name of the transport daemon.  If the value  doesn't
+         begin  with  a  leading  `/',  then `_S_D_I_R/_lib/' will be
+         prepended.
+
+FFFFIIIILLLLEEEESSSS
+     _l_i_n_k_d_i_r/log          Opened by _n_e_t_s_h_e_l_l for  error  messages
+                          after _l_i_n_k_d_i_r has been found.
+     _l_i_n_k_d_i_r/shellprog    Optional shell program.
+     _l_i_n_k_d_i_r/*params      Optional   parameters    for    message
+                          transport  daemon  selected  by name of
+                          virtual circuit.
+     _l_i_n_k_d_i_r/cmds/lock    Lockfile   established    to    prevent
+                          simultaneous calls for this link.
+     _call/_s_h_e_l_l_n_a_m_e.log  Log file created on  startup  with  the
+                          invoked  program  name.   This log file
+                          records the time of the call,  and  any
+                          errors  that  occur  before  the link's
+                          logfile is created.
+     _call/shellprog      Optional default shell program.
+     _lib/lock            Lockfile for network control program.
+     _lib/VCdaemon        Default     _v_i_r_t_u_a_l-_c_i_r_c_u_i_t     message
+                          transport daemon.
+     _params/daemon       Alternate parameters for the shell.
+     _state/routefile     Routing  tables  for   resolving   link
+                          aliases.
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _s_h(1), _n_e_t_p_a_r_a_m_s(5), _n_e_t_w_o_r_k(7),  _n_e_t_c_a_l_l(8),  _n_e_t_d_a_e_m_o_n(8),
+     _n_e_t_i_n_i_t(8), _n_e_t_l_i_s_t_e_n(8), _n_e_t_p_a_s_s_w_d(8), _n_e_t_s_t_a_t_e(8).
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    5
+
+
+
+
+
+
+Maintenance Procedures                                NETSHELL(8)
+
+
+
+DDDDIIIIAAAAGGGGNNNNOOOOSSSSTTTTIIIICCCCSSSS
+     Could not gethostbyaddr "peername"
+         This error is produced by _t_c_p_s_h_e_l_l.  The value  returned
+         by  the  _g_e_t_p_e_e_r_n_a_m_e(2)  system call failed to deliver a
+         _s_t_r_u_c_t    _h_o_s_t_e_n_t    descriptor    when    passed     to
+         _g_e_t_h_o_s_t_b_y_a_d_d_r(3).   This  may  mean  that the local name
+         server is incorrectly configured.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    6
+
+
+

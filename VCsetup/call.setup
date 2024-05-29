@@ -1,0 +1,245 @@
+#!/bin/sh
+
+#	Setup parameters for a ``Hayes'' type modem.
+
+USAGE="device speed initstring [annex_user annex_passwd]"
+
+PATH=$PATH:/etc:/usr/ucb:/usr/local:/usr/local/bin
+
+trace=		# "-Tn"- trace level <n>
+
+for i do
+	case "${i}" in
+	-T[0-9])trace="$i"	; shift	;;
+	-*)	echo "Usage: $0 $USAGE"; exit 1;;
+	esac
+done
+
+case $# in
+3|5)	;;
+*)	echo "Usage: $0 $USAGE"; exit 1;;
+esac
+
+device=$1
+speed=$2
+initstr=$3
+
+case $# in
+5)
+	axuser="-Daxuser=$4"
+	axpasswd="-Daxpasswd=$5"
+	;;
+esac
+
+script=setup
+name=hayes
+
+#	"setup.cs" initialises the modem with ATE0Q0S0=0S2=126S12=100
+#	followed by "initstr" -- which can be a known modem type.
+#
+#	"initstr" is normally a space-separated series of setup
+#	commands for the modem. Each command is written separately,
+#	with "AT" pre-pended. Any `Q1' should be in the last command.
+
+case "${initstr}" in
+
+avtekmegaplusv32)
+		name="Avtek MegaPlus V.32 Fixed Speed RTS/CTS"
+		initstr='&F1 I9 &D&E2&K3 \N0 E0Q1&W'	# E0 because overridden by &F1
+		;;
+
+avtekmegaplusv32bis)
+		name="Avtek MegaPlus V.32bis Fixed Speed RTS/CTS"
+		initstr='&F1 I9 B9&D3&K3 \N0 E0Q1&W'
+		;;
+
+avtekmegaplusv32bisDialout)
+		name="Avtek MegaPlus V.32bis Dial Out Fixed Speed RTS/CTS"
+		initstr='&F1 I9 &D3%C0%B1&K3 \N3\V9 E0Q0V1&W'
+		;;
+
+# B9	auto-range all speeds,
+		(like B0 but follows some standard or other).
+# B13	Answer no faster than 9600 (i.e. exclude 12k & 14k4)
+# B15	only accept V32bis
+# &D0	ignore DTR
+# &D2	Hang up & return to local command state when DTR goes low,
+#		disable auto-answer until DTR asserted.
+# &D3	initialise & hangup on DTR drop; don't answer if no DTR
+# &E0	No MNP4.
+# &E2	MNP auto-reliable mode (megaplusv32 only)
+# &F1	restore factory default profile 1
+# &K3	RTS/CTS hardware flow control
+# \N0	Constant speed modem<->port interface (at whatever last speed was).
+# \N1	Variable speed mode
+# \N2	MNP Reliable mode (forced)
+# \N3	Auto-reliable mode (as &E2) (v.42->MNP4->constant speed ?)
+# \N4	v.42 forced
+# \N5	v.42, fallback to constant speed mode. (Or variable mode if \J1)
+# \N6	v.42, fallback to MNP4, fail if neither supported.
+# \V9	extended response codes with diagnostic info
+# %C0	Compression disabled
+# %B1	Allow v.32bis connections if B0/B9/B15.
+#           (%B0 doesn't allow v.32bis unless it's forced, eg. with B15.)
+
+#	These commands change all configuration memories in Interlink
+#	modems. To recover the factory defaults, cycle the power while
+#	depressing both of the right-hand lights.
+
+interlinka96)	name="Interlink IQ 12345 SA answer all CCITT 38400 fixed RTS/CTS"
+		initstr='&F I0 S0=2B0V1X4Y0 &D2$E1$F1$S9 E0Q1&W*'
+		;;
+
+# S0=1	answer after 1 ring
+# B0	All CCITT
+# B11	only connect at V.32 or V.22bis
+# V1	return result codes in English
+# X2	issue result codes 0-15, but not 7 (BUSY)
+# Y0	disable long space disconnect
+# &D0	ignore DTR
+# &D2	initialise (== ATZ) and hang up phone when DTR drops
+# &Q0	Dumb modem (answer only, don't chat to getty)
+# $C0	do not use compression (MNP5 *slows* throughput of compressed data)
+# $E0	do not use MNP
+# $E1	auto MNP negotiation (MNP4 is 18% faster)
+# $F2	RTS/CTS flow control (BASE 12345 only)
+# $F3	RTS/CTS flow control (BASE IQ6 only)
+# $S0	auto speed sensing
+# $S1	connection to DTE is same as telecom line
+# $S7	connection to DTE is fixed 9600
+# $S8	connection to DTE is fixed 19200
+# $S9	connection to DTE is fixed 38400
+# E0	do not echo commands when in command mode
+# Q1	do not issue result codes
+# &W*	write these parameters into all memories
+
+interlinkiq6a192)	name="Interlink IQ6 answer 19200 fixed auto-range RTS/CTS"
+		initstr='&F I0 S0=2B0V1X4Y0 &D2$E1$S8$F3 E0Q1&W*'
+		;;
+
+interlinkiqa192)	name="Interlink IQ answer 19200 fixed auto-range RTS/CTS"
+		initstr='&F I0 S0=2B0V1X4Y0 &D2$E1$S8$F1 E0Q1&W*'
+		;;
+
+interlinka192)	name="Interlink BASE* (IQ6) answer 38400 fixed auto-range RTS/CTS"
+		initstr='&F I0 S0=2B0V1X4Y0 &D2$E1$F3$S9 E0Q1&W*'
+		;;
+
+interlinka9624)	name="Interlink answer all CCITT"
+		initstr='&F I0 S0=2B0V1X4Y0 &D2$E1$S1 &Q0E0Q1&W*'
+		;;
+
+interlinklla96)	name="Interlink leased line answer"
+		initstr='&F I0 $E1B15$S7&D0&L3&Q0&W*'	# 9600 leased line answer mode
+		;;
+
+interlinkllo96)	name="Interlink leased line originate"
+		initstr='&F I0 $E1$C0B15$S7&D0&L2&W*'	# 9600 leased line originate mode
+		;;
+
+# &L2	leased line originate mode
+# &L3	leased line answer mode
+
+interlink96)	name="Interlink 9600 only"
+		initstr='&F I0 S0=2B14V1X2Y0 &D2$E1$S1 E0Q1&W*'	# 9600 dial out, auto MNP
+		;;
+
+interlinkf2)	name="Interlink FASTBIT II 9600/2400"
+		initstr='&F I0 S0=2B11Y0$D0&D2 &Q0E0Q1'		# 9600/2400 answer
+		;;
+
+interlinkRTS)	name="Interlink RTS 19200"
+		initstr='&F I0 S0=2B11V1X2Y0 &D2$E1$F3$S7 E0Q1&W*'	# 9600/2400 dial out, RTS/CTS flow control
+		;;
+
+interlink*)	name="Interlink"
+		initstr='&F I0 S0=2B0V1X2Y0 &D2$E1$S1 E0Q1&W*'		# all CCITT, auto MNP
+		;;
+
+netcomm)	name="${initstr}"
+		initstr='&F I9 S0=2V1X4Y0 &D2&K3\N0 E0Q1&W'
+		;;
+
+#	Trailblazer 2500 (with V.32) attached with RTS/CTS at 19200
+
+[tT]2500)	name="Trailblazer 2500 (V.32) RTS/CTS@19200"
+		initstr='&F S0=1V1X0Y0 S18=1S51=5S52=1S54=2S58=2S66=1S68=2S90=1S110=1S111=255S255=0 E0Q1&W'
+		;;
+
+# &F	first, reset to factory settings
+
+# S0=2	answer phone after two rings
+# V1	return responses in english
+# X0	only return very simple CONNECT messages (no baud rate)
+# Y0	disable long space disconnect
+
+# S18=1	When in test mode, leave it within 1 second.
+# S51=5	connection from modem to computer fixed at 19200 baud
+# S52=1	modem hangs up when DTR goes from on to off, won't answer if DTR is off
+# S52=2	perform a hard reset when DTR goes from on to off and enter command mode
+# S54=2	send breaks to remote modem
+# S58=2 use RTS/CTS flow control from modem to computer
+# S66=1	lock interface speed to computer and use flow control in low speed modes
+# S67=1	don't raise CTS until 200ms after valid carrier detected
+# S68=2 use RTS/CTS flow control from computer to modem
+# S90=1	use CCITT standards for connecting at 300 or 1200 baud
+# S110=1 enable data compression when in PEP mode
+# S111=0 disable all file transfer procotols
+# S255=0 use the profile selected by the A/B switch on the console
+# E0	do not echo characters
+# Q1	do not return response codes
+# &W	write settings into profile selected by S255
+# &W1	write settings into profile A
+# &W2	write settings into profile B
+
+[Ww]orld[Bb]lazer)
+		name="Worldblazer 3500 (V.32bis) RTS/CTS@19200 (PEP last)"
+		initstr='&F S0=2V1X0Y0 L2M1&C1&D2 S18=1S51=5S58=2S61=0S64=1S68=255S92=1S110=1S111=255S180=0S190=1S255=0 E0Q1&W'	# PEP last
+		;;
+[Ww]orld[Bb]lazerPEP)
+		name="Worldblazer 3500 (V.32bis) RTS/CTS@19200 (PEP first)"
+		initstr='&F S0=2V1X0Y0 L2M1&C1&D2 S18=1S51=5S58=2S61=0S64=1S68=255S92=0S110=1S111=255S180=0S190=1S255=0 E0Q1&W'	# PEP first
+		;;
+
+# Differences for the Worldblazer from the T2500 setup:
+#
+# L2	Medium speaker volume
+# M1	Speaker enabled when dialling/connecting
+# &C1	Carrier detect ON when connected to remote modem.
+# &D2	When DTR drops, disconnect, then disable auto-answer until reasserted.
+
+# S0=2		WB doesn't like S0=1 (apparently an Aust. standard.)
+# S41=5		Drop connection if inactive for >= 1/2 hour.
+# S51=5		19200 baud constant speed connection.
+# S52=1		NOT AVAILABLE on WB
+# S54=2		NOT AVAILABLE on WB
+# S58=2		Use full duplex RTS/CTS flow control.
+# S61=0		Ignore breaks.
+# S64=1		Don't abort answer if junk sent to tty while answering.
+# S66=1		NOT AVAILABLE on WB
+# S68=255	Use flow control defined in S58 (full duplex RTS/CTS).
+# S92=0		Put PEP sequence FIRST. If this does not work consistently, try=1.
+# S111=255	Caller specifies protocol, none otherwise.
+# S180=0	No error correction. (use 3 for MNP4 error correction)
+# S190=1	Compression optional.
+
+*hayes)		name="${initstr}"
+		initstr='S0=2V1X4Y0 E0Q1&W'
+		;;
+esac
+
+SPOOLDIR=/usr/spool/MHSnet
+eval `egrep 'SPOOLDIR' /usr/lib/MHSnetparams 2>/dev/null`
+
+cd $SPOOLDIR
+
+echo "setup \"$name\" modem on $device at $speed"
+
+exec _lib/VCcall -tv $trace \
+	-D "linespeed=${speed}" \
+	-D "modemdev=${device}" \
+	-D "initstr=${initstr}" \
+	$axuser \
+	$axpasswd \
+	-S ${script}.cs \
+	_setup

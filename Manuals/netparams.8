@@ -1,0 +1,137 @@
+.ds S1 NETPARAMS
+.ds S2 \fINetparams\fP
+.ds S3 \fInetparams\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 _bin/netparams
+.TH \*(S1 8 "\*(S4 1.10" \^
+.nh
+.SH NAME
+netparams \- show current/default network parameters
+.SH SYNOPSIS
+.BI \*(S6
+.RI [\- flags ]
+.RI [ handler ]
+.RI [ match ...]
+.SH DESCRIPTION
+\*(S2
+prints the network parameters that are being set by the various
+.I parameter
+files.
+If the optional
+.I handler
+argument is present,
+\*(S3 displays the parameters specific to the named handler.
+The
+.I handler
+argument may be the name of any network program,
+or the absolute pathname of a parameter file.
+If optional
+.I match
+arguments are present,
+\*(S3 displays any parameters that match the arguments.
+If the
+.I handler
+argument is all upper-case, then it is considered to be a
+.I match
+argument which is checked against the basic parameters only.
+.PP
+\*(S2
+checks the parameter files for any inconsistencies,
+and also checks that all the user and group names supplied actually exist.
+.PP
+The optional flags are:
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-A\fP\ \fIhandler\fPX'u
+.TP "\*(tw"
+.BI \-a
+This flag causes all the default parameter settings to be printed.
+.TP
+.BI \-d
+Show default parameter settings
+(ie: ignore the contents of parameter files).
+.TP
+.BI \-f
+Show available free space on network file-system.
+If this space is below that set by the parameter
+.SM MINSPOOLFSFREE
+then the message
+.SM "NO SPACE"
+will be printed.
+.TP
+.BI \-l
+Prints out the site address and licence number,
+followed by `ok' if the licence number is valid,
+or `incorrect' if it is invalid.
+.TP
+.BI \-n
+Prints out the distribution's version information.
+This is in the form:
+.br
+release serial date CPU operating_system
+.TP
+.BI \-v
+If the \fB\-a\fP flag or a match are selected,
+then any parameters that have been changed from the default
+are indicated by a trailing asterisk (`*').
+If \fB\-f\fP is selected,
+then the value of
+.SM MINSPOOLFSFREE
+is printed as well as the available free space.
+.TP
+.BI \-w
+Don't warn about unmatched parameters.
+.TP
+.BI \-A \ handler
+Print parameters specific to
+.IR handler .
+You may use the common
+.I description
+for the handler as defined in the
+.I handlers
+file
+(eg: `files'),
+instead of its name.
+(See
+.IR nethandlers (5).)
+.TP
+.BI \-T \fR[\fPlevel\fR]\fP
+Turns on tracing at
+.I level
+[default: 1].
+If tracing is not compiled in,
+this flag will have no effect.
+.TP
+.BI \-?
+Explain argument options and exit.
+.SH EXAMPLES
+Show default and changed parameters
+for the message transport daemon
+and virtual circuit setup programs:
+.PP
+.RS 2
+.ft CW
+\*(S6 -av daemon
+.ft
+.RE
+.PP
+Show all the parameters relevant to network mail:
+.PP
+.RS 2
+.ft CW
+\*(S6 mailer MAIL
+.ft
+.RE
+.SH FILES
+.PD 0
+.TP "\w'\f(CW/usr/lib/MHSnetparams\fPXX'u"
+\f(CW/usr/lib/MHSnetparams\fP
+Basic parameters for all network programs.
+.TP
+\f(CW\s-1SPOOLDIR\s0/_params/*\fP
+Handler-specific parameter files.
+.PD
+.SH "SEE ALSO"
+.IR nethandlers (5),
+.IR netparams (5),
+.IR \*(S5 (7).

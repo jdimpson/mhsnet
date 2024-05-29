@@ -1,0 +1,236 @@
+/* Ver 1.00 21-Apr-88 WB Initial Version
+ * Ver 1.01 24-May-88 WB If sendfile dies, run COLONMAILER
+ * Ver 2.00 17-Aug-89 CS Try a list of things - THIS SHOULD BE IN AN ASCII FILE
+ * Ver 2.01 17-Aug-89 CS add tlxlink & add intelligence for Excelan existence
+ *
+ * This program is a quick-and-dirty to replace SCO's "mail.cln".
+ * It simply maps whatever it is given into being an invocation of
+ * the SUNIII "sendfile", the SUNIV/MHSnet "netfile" and so on...
+ *
+ * INSTALLATION:
+ * Step 1. Install any Excelan, Xenix-Net, SCO TCP/IP ... stuff before MHSnet
+ *
+ * Step 2. add an init.mail script to MHSnet
+ *	Which:	if [ -x /usr/lib/mail/colon.true ] then
+ *		{  #Excelan Exists
+ *		   if [ -x /usr/lib/mail/colon.exos ] then
+ *		   {
+ *			echo "MHSnet mailer already installed";
+ *			exit 0;
+ *		   }
+ *		   elif
+ *		   {
+ *			mv /usr/lib/mail/mail.cln /usr/lib/mail/colon.exos;
+ *			mv /tmp/mail.cln /usr/lib/mail/mail.cln
+ *			exit 0;
+ *		   }
+ *		   fi
+ *		   # No Excelan
+ *		   mv /usr/lib/mail/mail.cln /usr/lib/mail/colon.true;
+ *		   mv /tmp/mail.cln /usr/lib/mail/mail.cln
+ *		   exit 0;
+ *		}
+ *	
+ * This program gets installed in /usr/lib/mail as "mail.cln" and
+ * must be setuid root.
+ * The old mail.cln is renamed mail.cln.sco
+ *
+ * This program was written by Bill Baker at Blue Sky Industries
+ * Permission is granted for Licensed Users of SCO Xenix V to copy this program
+ * as is needed for their own purposes.
+ * No Warranty or Support of any kind is offered.
+ * You use this program at your own risk.
+ *
+ *NOTE: Brain damage....
+ *	To send mail out of Xenix, you must mail to "bob:sarad" NOT "bob@sarad"
+ *	THEN every thing works OK! (AAAARRRRGGGGHHHH!!!!)
+ */
+
+/* The arguments we receive are as follows:
+ *	argv[0] = "my name", as is expected
+ *	argv[1] = "-h", which we ignore
+ *	argv[2] = "0", which we ignore
+ *	argv[3] = name of addressee	- bob
+ *	argv[4] = name of sender	- christos
+ *	argv[5] = name of target machine- sarad
+ *
+ ACSnet: ( SUN III - Sydney Uni Network ver III )
+ *
+ * These get mapped into the following invocation of sendfile:
+ *	argv[0] = sendfile's name, as is required by it
+ *	argv[1] = "-amailer", so that the mail handler is invoked
+ *	argv[2] = "-nMail"
+ *	argv[3] = "-ssender", so that the sender appears correctly
+ *	argv[4] = "user@machine", so that it gets there!
+ *	argv[5] = "-", so that std input gets sent to through the net
+ * Note that use of the "-a", "-n" & "-s" options to sendfile all can only
+ * be done by root. Hence this program must be setuid root.
+ *
+ MHSnet: ( SUN IV - Sydney Uni Network ver IV )
+ *
+ * These get mapped into the following invocation of netfile:
+ *	argv[0] = netfile's name, as is required by it
+ *	argv[1] = "-Amailer", so that the mail handler is invoked
+ *	argv[2] = "-NMail"
+ *	argv[3] = "-u" , no usage message
+ *	argv[4] = "-Ssender", so that the sender appears correctly
+ *	argv[5] = "user@machine", so that it gets there!
+ *	argv[6] = "-", so that std input gets sent to through the net
+ * returned errors
+ *	64 usage error
+ *	65 data error
+ *	66 addressee unknown
+ *	67 remote host unknown
+ *	68 service unavailable
+ *	70 internal error
+ *	71 system error
+ *	72 critical file missing
+ *	74 i/o error
+ *	77 permission denied
+ *
+ * Note that use of the "-A", "-N" & "-S" options to sendfile all can only
+ * be done by root. Hence this program must be setuid root.
+ */
+
+#include <errno.h>
+
+#define SENDFILE	"/usr/localbin/sendfile"
+#define NETFILE		"/usr/bin/netfile"
+#define TLXLINK		"/usr/lib/mail/mail.telex"
+#define COLONMAILER	"/usr/lib/mail/colon.true"
+#define COLONEXOS	"/usr/lib/mail/colon.exos"
+
+/* The mail.cln mailer must be saved - If we can't cope with the mail address,
+ * maybe it can. This will be the case if you have Xenix-Net installed.
+ * So I use Excelan's name for the saved mailer
+ */
+
+main(argc, argv)
+int argc;
+char *argv[];
+{
+	char *newargv[8];
+	char *sender;
+	char *addressee;
+	extern char *malloc();
+	int childpid;
+	int childstat;	/* what did my child think of it all? */
+
+/* Firstly, if we have MHSnet installed, try it */
+	if (0 == access(NETFILE, 1))
+	{
+		newargv[0]=NETFILE;
+		newargv[1]="-Amailer";
+		newargv[2]="-Nmail";
+		newargv[3]="-u";
+
+		sender=malloc(strlen(argv[4])+3);
+		sprintf(sender, "-S%s", argv[4]);
+		newargv[4]=sender;
+
+		addressee=malloc(strlen(argv[3])+strlen(argv[5])+2);
+		sprintf(addressee, "%s@%s", argv[3], argv[5]);
+		newargv[5]=addressee;
+		newargv[6]="-";
+		newargv[7]=(char *)0;
+
+		if((childpid=fork())<0)
+		{
+			perror(argv[0]);
+			exit(EAGAIN);
+		}
+		else if(childpid==0)
+		{
+			/* we're the child process, so exec NETFILE */
+			execv(NETFILE, newargv);
+		}
+		else
+		{
+			/* wait for our child process to finish */
+			while (wait (&childstat) == -1)
+				;
+			if(childstat == 0)	/* ...and Away */
+					exit(0);
+		}
+	}
+/* OK, so it didn't go.. so */
+/* Next, if we have ACSnet installed, try it */
+	if (0 == access(SENDFILE, 1))
+	{
+		newargv[0]=SENDFILE;
+		newargv[1]="-amailer";
+		newargv[2]="-nmail";
+
+		sender=malloc(strlen(argv[4])+3);
+		sprintf(sender, "-s%s", argv[4]);
+		newargv[3]=sender;
+
+		addressee=malloc(strlen(argv[3])+strlen(argv[5])+2);
+		sprintf(addressee, "%s@%s", argv[3], argv[5]);
+		newargv[4]=addressee;
+		newargv[5]="-";
+		newargv[6]=(char *)0;
+
+		if((childpid=fork())<0)
+		{
+			perror(argv[0]);
+			exit(EAGAIN);
+		}
+		else if(childpid==0)
+		{
+			/* we're the child process, so exec SENDFILE */
+			execv(SENDFILE, newargv);
+		}
+		else
+		{
+			/* wait for our child process to finish */
+			while (wait (&childstat) == -1)
+				;
+			if(childstat == 0)
+					exit(0);
+		}
+	}
+	if (0 == access(TLXLINK, 1))
+	{
+		newargv[0]=TLXLINK;
+
+		sender=malloc(strlen(argv[4])+3);
+		sprintf(sender, "-S%s", argv[4]);
+		newargv[1]=sender;
+
+		addressee=malloc(strlen(argv[3])+2);
+		sprintf(addressee, "-D%s", argv[3]);
+		newargv[2]=addressee;
+		newargv[3]="-";
+		newargv[4]=(char *)0;
+
+		if((childpid=fork())<0)
+		{
+			perror(argv[0]);
+			exit(EAGAIN);
+		}
+		else if(childpid==0)
+		{
+			/* we're the child process, so exec TLXLINK */
+			execv(TLXLINK, newargv);
+		}
+		else
+		{
+			/* wait for our child process to finish */
+			while (wait (&childstat) == -1)
+				;
+			if(childstat == 0)
+					exit(0);
+		}
+	}
+	if (0 == access(COLONEXOS, 1))
+	{
+		/* Excelan mail Fiddle is installed, so call it */
+		execv(COLONEXOS, argv);
+	}
+	else
+	{
+		/* Call the REAL colon mailer */
+		execv(COLONMAILER, argv);
+	}
+}

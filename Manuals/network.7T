@@ -1,0 +1,1188 @@
+
+
+
+Device and Network Interfaces                          NETWORK(7)
+
+
+
+NNNNAAAAMMMMEEEE
+     network - network management details
+
+IIIINNNNTTTTRRRROOOODDDDUUUUCCCCTTTTIIIIOOOONNNN
+     MHSnet is a message handling network.  Messages  are  passed
+     around  the  network  by  transport  _d_a_e_m_o_n_s  which  provide
+     reliable transmission on the links between nodes.   Messages
+     are routed from node to node by a routing program until they
+     reach their destinations.   When  a  message  arrives  at  a
+     destination node, the routing program passes it to a _h_a_n_d_l_e_r
+     for delivery.
+
+     The routing program consults a  routing  file  to  find  the
+     shortest  path  to  each  destination.   The routing file is
+     compiled from network  state  information  kept  in  another
+     file,  which  is updated from time to time by _s_t_a_t_e messages
+     broadcast  throughout  the  network  whenever  the  topology
+     changes.   The contents of the _s_t_a_t_e_f_i_l_e are controlled by a
+     _c_o_m_m_a_n_d_s_f_i_l_e which  can  be  used  to  override  information
+     imported  from  state messages, and to configure the details
+     of the local site and its links.
+
+     Most messages are inserted into  the  network  by  the  user
+     program  _n_e_t_f_i_l_e(1)  or  by  the  network  interface  in the
+     mailing system, but state messages are generated  internally
+     by  the  _n_e_t_c_h_a_n_g_e(8) program invoked by the routing program
+     when it detects a change in topology.   State  messages  can
+     also   be   generated   by   management  with  the  programs
+     _n_e_t_r_e_q_u_e_s_t(8), and _n_e_t_r_e_r_o_u_t_e(8), or indirectly by  changing
+     significant  local  site  details  in  the  statefile.  This
+     causes  the  statefile  management  program  _n_e_t_s_t_a_t_e(8)  to
+     invoke _n_e_t_r_e_q_u_e_s_t(8) to propagate the changes.
+
+DDDDIIIIRRRREEEECCCCTTTTOOOORRRRIIIIEEEESSSS
+     All the directories used by the network are in the top-level
+     directory  identified  as  SPOOLDIR during the installation.
+     Some of them are _w_o_r_k directories, and are identified  by  a
+     leading non-alphanumeric character, usually `____'.
+
+     _bad
+         Contains messages and command files that have  been  the
+         subject  of an error message to the person identified as
+         NCC_ADMIN in the installation process.  These should  be
+         processed   as   soon   as  possible  with  the  command
+         _n_e_t_b_a_d(8).
+
+     _bin
+         All the management programs live here, as well as (links
+         to)  the user programs.  The pathname for this directory
+         could be included in the shell PATH environment variable
+         for network administrators.
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+
+
+
+
+Device and Network Interfaces                          NETWORK(7)
+
+
+
+     _call
+         Contains scripts, control programs, and  log  files  for
+         various    connection   types.    See   _n_e_t_c_a_l_l(8)   and
+         _n_e_t_s_h_e_l_l(8).
+
+     _config
+         Contains the network configuration  program  `configmhs'
+         and its work files.  See _n_e_t_c_o_n_f_i_g(8).
+
+     _explain
+         Contains files used in response to the ----???? flag  in  user
+         programs,  one  file for each user program with the same
+         name.
+
+     _files
+         Contains commands describing files  awaiting  collection
+         by  their recipient using _n_e_t_g_e_t(1).  These all carry an
+         expiry date, and  regular  invocations  of  the  command
+         _n_e_t_p_u_r_g_e(8)  will clean out (and return) the uncollected
+         ones.
+
+     _forward
+         Contains one file  for  each  user  that  has  activated
+         message  forwarding  that describes forwarding on a per-
+         handler basis.  There may also be  entries  named  after
+         non-FTP  handlers which specify a forwarding destination
+         for all messages for that handler.  See _n_e_t_f_o_r_w_a_r_d(1).
+
+     _handlers
+         All the message handlers live here.  See HANDLERS below.
+
+     _lib
+         Contains management programs, shell scripts and  control
+         files.  The log files for _n_e_t_i_n_i_t(8) and the _s_t_a_r_t shell
+         script also live here.
+
+     _messages
+         Root of a  directory  tree  that  has  arriving  message
+         fragments   being   collected   before   delivery.   The
+         fragments are collected in a directory with a name equal
+         to  the  message  ID,  at the end of a directory path in
+         which each name is a domain in the typed source  address
+         of  the message in reverse order.  So a message fragment
+         which is the first of nine with  an  ID  of  `XYZ'  from
+         `9=n1.4=cs.3=su.2=oz.0=au'  might  be  found  in  a file
+         named
+         `_messages/0=au/2=oz/3=su/4=cs/9=n1/handler/XYZ/1:9'
+         (the directory name _h_a_n_d_l_e_r is specific to a  particular
+         handler,   spooler   or  filter  program).   Uncollected
+         fragments  time-out  after  a  certain  period  and  are
+         automatically returned to their source by _n_e_t_p_u_r_g_e(8).
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    2
+
+
+
+
+
+
+Device and Network Interfaces                          NETWORK(7)
+
+
+
+     _params
+         Parameter files for network programs.  Programs look for
+         files  in this directory with the same name as they were
+         invoked with.  These  files  can  be  edited  to  change
+         network parameters (see _n_e_t_p_a_r_a_m_s(5)), and examined with
+         _n_e_t_p_a_r_a_m_s(8).
+
+     _pending
+         Command files for messages that are looping and awaiting
+         operator intervention via _n_e_t_r_e_r_o_u_t_e(8).
+
+     _reroute
+         This directory is used as a temporary spooling area  for
+         command  files  for  messages that are in the process of
+         being re-routed.
+
+     _route
+         The  directory  where  the  routing  program   operates.
+         Messages  to  be routed are queued here.  _R_o_u_t_e_r creates
+         two files here, `lock' and `log'.   There  may  be  sub-
+         directories  created  here  if  you  have specified _s_u_b-
+         _r_o_u_t_e_r_s for particular message handlers in the  handlers
+         _c_o_n_f_i_g_u_r_a_t_i_o_n     _f_i_l_e.     _S_e_e    _n_e_t_h_a_n_d_l_e_r_s(5)    and
+         _n_e_t_r_o_u_t_e_r(8).
+
+     _state
+         This directory contains the network state tables.  There
+         are  also  two  directories:  one, NOTES, contains files
+         with error summaries from any  state  messages  received
+         that  caused  problems.   Each  file  is named after the
+         source of the message, and is created by  the  topology-
+         update  handler `stater'.  The other directory, MSGS, is
+         the root of the tree based on the reverse ordered  typed
+         address  of  the  source of each state message received.
+         The program _n_e_t_m_a_p(1) looks for these files to find  out
+         information  on particular sites.  These directories are
+         cleaned out periodically by  the  administration  script
+         `_lib/daily'  run nightly by _n_e_t_i_n_i_t, but you may choose
+         to speed-up the aging process by editing the script  (it
+         uses  `find ... -mtime +365 ...'   to  remove files more
+         than a year old).
+
+     _stats
+         Contains statistics accumulating  files,  the  main  one
+         being  the  file  _A_c_c_u_m_u_l_a_t_e_d, which, if it exists, will
+         accumulate one line for every message processed  by  the
+         routing program.
+
+     _trace
+         If you turn on tracing for _r_o_u_t_e_r, various messages will
+         be  created  here  with  a  time-out  of  24 hours.  The
+         directory  is  cleaned  out  by  the   `-t'   flag   for
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    3
+
+
+
+
+
+
+Device and Network Interfaces                          NETWORK(7)
+
+
+
+         _n_e_t_p_u_r_g_e(8).
+
+     _ubin
+         All the user-visible programs live here.   Each  program
+         in  this  directory should be linked into a user-visible
+         program directory (such  as  /usr/bin),  otherwise  this
+         directory should be included in the path of every user.
+
+     _work
+         This is where  all  locally  generated  messages  reside
+         while in transit.
+
+     Any other directories are link directories,  with  names  as
+     specified  for each link in _c_o_m_m_a_n_d_s_f_i_l_e.  (If no local name
+     has been  specified,  the  default  directory  name  is  the
+     reverse  ordered typed address of the link, with each domain
+     in the address becoming a  directory  name.)   They  contain
+     files  that  are special to the transport daemon running the
+     link,  see  _n_e_t_d_a_e_m_o_n(8).   There   will   also   be   three
+     directories  for  messages  travelling over the link: `cmds'
+     will contain a lock  file  for  the  daemon,  together  with
+     command  files  describing  messages  awaiting  transmission
+     which will all start  with  a  number  (in  the  range  0-9)
+     representing  the  message's  priority (0 is highest), `out'
+     contains the actual data for out-bound messages  (there  are
+     usually  two or more files per message described in `cmds'),
+     and  `in'  contains  in-bound  messages  being  received  or
+     awaiting routing.
+
+DDDDAAAAEEEEMMMMOOOONNNN SSSSUUUUPPPPPPPPOOOORRRRTTTT PPPPRRRROOOOGGGGRRRRAAAAMMMMSSSS
+     These programs are invoked  by  the  daemons  to  carry  out
+     message control:
+
+     badhandler
+         This program is invoked whenever the  transport  program
+         finds  a  command  file  it can't carry out.  It is also
+         invoked by the routing program  when  it  can't  find  a
+         route  for a message, when a handler fails unexpectedly,
+         or  when  a  message  or  its   _c_o_m_m_a_n_d_f_i_l_e   can't   be
+         understood.  The program invoking _b_a_d_h_a_n_d_l_e_r first moves
+         the _c_o_m_m_a_n_d_s_f_i_l_e describing the problem message into the
+         directory  `_bad'.   _B_a_d_h_a_n_d_l_e_r  then mails a message to
+         the relevant authorities (as defined  in  the  parameter
+         NCC_ADMIN).
+
+     loophandler
+         This program is invoked by the routing program  whenever
+         a  message  is attempting to traverse a link for the _nth
+         time (controlled by the ----LLLL parameter  to  _r_o_u_t_e_r).   The
+         message   is   queued  in  the  directory  __p_e_n_d_i_n_g  and
+         _l_o_o_p_h_a_n_d_l_e_r invoked to inform management of the problem.
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    4
+
+
+
+
+
+
+Device and Network Interfaces                          NETWORK(7)
+
+
+
+     netchange
+         Whenever the routing program  detects  a  new  link,  it
+         invokes   this   program.   This  program  is  also  run
+         periodically by the _n_e_t_i_n_i_t shell script `_lib/daily' to
+         check  for  links  that have been idle for long periods.
+         See _n_e_t_c_h_a_n_g_e(8).
+
+     netinit
+         This is the controlling daemon for the network.   It  is
+         started  at  network  initialization time to run all the
+         permanent   and   periodic   network   processes.    See
+         _n_e_t_i_n_i_t(8).
+
+     router
+         This is the routing program, see _n_e_t_r_o_u_t_e_r(8)  for  more
+         details.    It   is   started   by  _n_e_t_i_n_i_t  at  network
+         initialization time, and runs continuously, scanning its
+         message  queue  directory  for  messages that need to be
+         routed.  If a filter has been specified for messages  on
+         the  source link, _r_o_u_t_e_r first passes the message to the
+         filter for pre-processing.   The  filter's  exit  status
+         determines  what  happens  to the message - see GATEWAYS
+         below.  _R_o_u_t_e_r then  attempts  to  deliver  the  message
+         locally, if the local site is in the address, by passing
+         the message to the handler named in its header.  If  the
+         handler  doesn't  exist,  or returns a non-serious error
+         status, the message is returned to its  origin  with  an
+         explanation.   _R_o_u_t_e_r then calculates the shortest paths
+         for  any  further  destinations  for  the  message,  and
+         derives a list of links to propagate it on.  If the next
+         link has a filter specified, the message  is  passed  to
+         the  filter for processing, and, as before, the filter's
+         exit status determines what happens next.  If  the  link
+         has  a  special  spooler,  the  message is passed to it,
+         otherwise a transport daemon command file  is  generated
+         for   the   link,  and  queued  in  the  link's  command
+         directory.   _R_o_u_t_e_r  examines  the  handlers   file   on
+         startup, and starts _s_u_b-_r_o_u_t_e_r_s for any handler that has
+         a non-standard priority (see _n_e_t_h_a_n_d_l_e_r_s(5)).
+
+HHHHAAAANNNNDDDDLLLLEEEERRRRSSSS
+     These programs each handle a  particular  type  of  message.
+     They  all  live  in  the directory __h_a_n_d_l_e_r_s, which is where
+     _r_o_u_t_e_r expects to  find  them.   Most  of  them  have  their
+     behaviour  modified  by  configuration  options  (listed  in
+     upper-case below) specified in a file  called  _params/_n_a_m_e,
+     _w_h_e_r_e _n_a_m_e is the name of the handler - see _n_e_t_p_a_r_a_m_s(5) for
+     further details.  There may be other handlers existing at  a
+     site, but the following list covers all the common ones:
+
+     filer
+         File transfer handler.  The received message is  spooled
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    5
+
+
+
+
+
+
+Device and Network Interfaces                          NETWORK(7)
+
+
+
+         in  the  directory __f_i_l_e_s, and the recipient(s) notified
+         of its arrival.  Fails if any of the recipients  doesn't
+         exist, or the mail program fails.
+
+     fileserver
+         File request server.  Attempts to return requested files
+         to the origin.  Fails if request is denied, or files are
+         unavailable.
+
+     handler
+         This is a general purpose handler that passes  any  data
+         from  the message to a program that can be specified via
+         its  HANDLERPROG  parameter.   See   _n_e_t_h_a_n_d_l_e_r(8)   for
+         further details.
+
+     mailer
+         Mail transfer handler.  The received message  is  passed
+         to  the  local  mail  delivery program.  This program is
+         specified by  the  configuration  parameter  MAILER  and
+         takes the optional arguments specified in MAILERARGS. It
+         is also passed an argument for each recipient  specified
+         in  the  mail  message.   _M_a_i_l_e_r  fails if MAILER fails,
+         unless the IGNMAILERSTATUS option is set to 1111, or it  is
+         set  to  2222 and the exit status was not EX_NOUSER. If the
+         VALIDATEMAIL option is on, _m_a_i_l_e_r will fail  if  any  of
+         the recipients doesn't exist in the _p_a_s_s_w_d file.
+
+     peter
+         Name server.  The query is looked up in a  local  people
+         data-base,  and  the  result  passed  back  in the error
+         status.  _P_e_t_e_r invokes the program  WHOISPROG  with  the
+         arguments WHOISARGS, the pattern from the query, and the
+         name of the data-base specified by WHOISFILE, and passes
+         back any data written to _s_t_d_o_u_t.  Messages returned from
+         a remote handler are turned into mail  items  which  are
+         then mailed back to the original requester.
+
+     printer
+         Remote printing handler.  Each file  from  the  received
+         message  is  passed to the local print spooler, with any
+         extra arguments  passed  in  the  message's  environment
+         field.   The  print spooler is specified by PRINTER with
+         additional arguments specified by PRINTERARGS. Fails  if
+         the  print  spooler  fails,  or  if a restricted list of
+         addresses has been specified  in  PRINTORIGINS  and  the
+         message source doesn't match.
+
+     reporter
+         News handler.  The news item is passed to the local news
+         service.   The  program  NEWSEDITOR  is invoked with the
+         optional parameters specified in NEWSARGS and passed the
+         news item on _s_t_d_i_n.  Fails if NEWSEDITOR fails, although
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    6
+
+
+
+
+
+
+Device and Network Interfaces                          NETWORK(7)
+
+
+
+         errors in  news  delivery  can  be  ignored  be  setting
+         NEWSIGNERR to 1111.
+
+     stater
+         Network   topology   update   handler.    The   topology
+         information  from  the  message  is piped to the program
+         _n_e_t_s_t_a_t_e(8).   Messages  from  unwanted  sites  can   be
+         ignored by including their address in _state/ignorefile.
+         (The name of this file is defined by the  value  of  the
+         STATERNOTLIST  parameter  in _params/stater).  The state
+         message  is  then  linked  into  a  directory  hierarchy
+         representing  its  source address in `_state/MSGS'.  Any
+         warnings  or  errors  from  the  topology   update   are
+         preserved  in  a file `_state/NOTES/<site>' where `site'
+         is the message's source address.  _S_t_a_t_e_r  then  searches
+         the __r_e_r_o_u_t_e directory for any stalled messages that can
+         now be forwarded.  Fails if _n_e_t_s_t_a_t_e fails.
+
+  IIIInnnnssssttttaaaalllllllliiiinnnngggg yyyyoooouuuurrrr oooowwwwnnnn hhhhaaaannnnddddlllleeeerrrrssss
+     You  may  install  your  own  handlers  in   the   __h_a_n_d_l_e_r_s
+     directory.   Make sure they are executable by _r_o_u_t_e_r.  Add a
+     line describing the options for each new handler to the file
+     _lib/handlers  (_s_e_e _n_e_t_h_a_n_d_l_e_r_s(5)).  When a message arrives
+     for your handler, it will be invoked in the same way as  the
+     standard  ones  above.  If it returns a non-zero exit status
+     to _r_o_u_t_e_r, the message  will  be  returned  to  its  source.
+     Handlers  are  invoked  in  the  directory SPOOLDIR with the
+     following arguments:
+
+       ----bbbb  Present if the  destination  address  is  a  broadcast
+           type.
+
+       ----DDDD _d_a_t_a_l_e_n_g_t_h
+           The length of the data in the message  (ie:  excluding
+           message header).
+
+       ----EEEE _e_n_v_i_r_o_n_m_e_n_t
+           The environment field from the message header.  Can be
+           processed with the routine _G_e_t_E_n_v.
+
+       ----FFFF _f_l_a_g_s
+           Flags from the message header.
+
+       ----HHHH _h_o_m_e
+           The address of the node you are running on.
+
+       ----IIII _I_D
+           The ID field from the message header.
+
+       ----LLLL _l_i_n_k
+           The address of the link that the message arrived on.
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    7
+
+
+
+
+
+
+Device and Network Interfaces                          NETWORK(7)
+
+
+
+       ----MMMM _t_r_a_v_e_l-_t_i_m_e
+           The message total travel time.
+
+       ----PPPP _p_a_r_t_n_o
+           The message part number from the header.
+
+       ----RRRR _r_o_u_t_e
+           The message route.
+
+       ----SSSS _s_o_u_r_c_e
+           The source address of the message.
+
+       ----WWWW _r_o_u_t_e_r-_p_i_d
+           Only present if invoked by a  `sub-router'.   This  is
+           the _p_i_d to signal if the handler inserts a new message
+           into the routing queue.
+
+     The handler  should  read  commands  describing  the  actual
+     message  from standard input.  These commands will be in the
+     format described in the header  file  `commandfile.h'.   The
+     best  way to introduce a new handler is to write a script to
+     be executed by the general purpose version `handler'.
+
+RRRREEEERRRROOOOUUUUTTTTIIIINNNNGGGG
+     When  directly  connected  links  go   down,   the   program
+     _n_e_t_c_h_a_n_g_e(8)  is  invoked  which  attempts  to  re-route any
+     blocked messages with simple destination addresses.  If they
+     can't  be  re-routed,  (the shortest path still lies via the
+     down link), they  are  re-spooled  in  a  holding  directory
+     called `_reroute'.  The next time the network routing status
+     changes, the  `_reroute'  directory  will  be  examined  for
+     waiting  messages  to see if they can now be released.  This
+     may happen both when a link  comes  up,  and  when  a  state
+     message is received by the state handler.
+
+     Messages queued for any particular link can be re-routed  by
+     hand   should  this  become  necessary  -  use  the  program
+     _n_e_t_r_e_r_o_u_t_e(8).
+
+     The program _n_e_t_c_h_a_n_g_e(8)  is  run  periodically  to  reroute
+     messages  that  are  stuck on queues that have been inactive
+     longer than some specifiable time.  It will find links  that
+     are  _d_e_a_d or _d_o_w_n, broadcast a state message to that effect,
+     and attempt to reroute the messages queued on the dead link.
+
+GGGGAAAATTTTEEEEWWWWAAAAYYYYSSSS
+     Links to other nodes can be treated  as  gateways  to  other
+     networks  in  various  ways.  See _n_e_t_s_t_a_t_e(1) for details of
+     the _f_i_l_t_e_r and _s_p_o_o_l_e_r commands.
+
+  LLLLiiiinnnnkkkk FFFFiiiilllltttteeeerrrrssss
+     You can specify a _f_i_l_t_e_r for any link, and then any  message
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    8
+
+
+
+
+
+
+Device and Network Interfaces                          NETWORK(7)
+
+
+
+     passing  through  the  link will be processed by the filter.
+     _L_i_n_k _f_i_l_t_e_r_s are the approved way of gathering site or  link
+     specific  accounting  information,  or  of dropping messages
+     from interdicted sites.  Filters may modify the  body  of  a
+     message,  both  by  changing the data, and the size, so they
+     may be used to do  data  compression/de-compression,  and/or
+     encryption/decryption.   The filter will be invoked for each
+     message (with working directory set to  SPOOLDIR)  with  the
+     following arguments:
+
+       ----iiii _o_r ----oooo
+           Inbound, or outbound, message.
+
+       ----rrrr  This message is being re-routed.
+
+       ----uuuu  This message is being directed over an _a_d_v_i_s_e_d link.
+
+       ----HHHH _h_o_m_e
+           The address of the node you are running on.
+
+       ----LLLL _l_i_n_k
+           The address of the link  that  the  message  has  just
+           arrived on (----iiii), or is about to depart on (----oooo).
+
+       ----NNNN _d_i_r_e_c_t_o_r_y
+           The name of  the  directory  for  the  link  that  the
+           message  has  just  arrived  on  (----iiii),  or is about to
+           depart on (----oooo).
+
+       ----MMMM_t_i_m_e
+           The start time of the message.
+
+       ----XXXX_d_e_l_a_y
+           The delay in seconds over the last link for an inbound
+           message.
+
+     The  filter  should  read  commands  describing  the  actual
+     message  from standard input.  These commands will be in the
+     format described in the header  file  `commandfile.h'.   The
+     filter  should  process  the message, if necessary write the
+     modified message onto a new file, write commands  describing
+     the  new message on standard output, and then return an exit
+     status to inform the routing program what  to  do  with  the
+     message.   If the filter doesn't change the message, then it
+     shouldn't write any commands.
+
+     The exit status of the filter  (see  _I_n_c_l_u_d_e/_s_y_s_e_x_i_t_s._h)  is
+     used  to  control  further  processing  of  the  message  as
+     follows:
+
+       EX_DROPMESG [105]
+           The message will be forgotten.  Presumably the message
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    9
+
+
+
+
+
+
+Device and Network Interfaces                          NETWORK(7)
+
+
+
+           has  been  processed  satisfactorily by the filter, or
+           the sender has been notified some other way.
+
+       EX_EXMESG [107]
+           The (incoming) message should  be  routed  to  further
+           destinations,  but  not  delivered  locally.  Has same
+           effect as EX_OK on out-bound messages.
+
+       EX_OK [0]
+           The message will be processed normally.
+
+       EX_RETMESG [106]
+           The  message  is  returned  to  its  source,  with  an
+           explanation  culled  from the contents of the filter's
+           _s_t_d_e_r_r file.
+
+     Any other exit status will cause _r_o_u_t_e_r to fail.
+
+     You can install your own _f_i_l_t_e_r_s,  the  easiest  way  is  to
+     supply  a  shell  script  that can be invoked by the general
+     purpose filter described below.
+
+     The following filters are provided:
+
+     filter
+         This is a general purpose filter program  that  defaults
+         to  collecting  all the parts of a message into one file
+         and writing statistics (including any  names  of  sender
+         and  recipients) to the file _stats/_l_i_n_k.fltr.log, _w_h_e_r_e
+         _l_i_n_k is  the  name  of  the  link  that  the  filter  is
+         operating  on.   _F_i_l_t_e_r  looks for a parameter file with
+         the same name as the one it was invoked under  in  which
+         the  name  of  the statistics file can be changed by the
+         configuration parameter LOGFILE. However its main use is
+         as an invoker of management-supplied programs defined by
+         the parameter FILTERPROG. See  the  manual  _n_e_t_f_i_l_t_e_r(8)
+         for further details.
+
+     filter43
+         This is a filter for converting messages between the old
+         format used in SUN III and the new format.  It should be
+         specified for links that are connecting to old sites via
+         the SUN III compatible daemons.
+
+  LLLLiiiinnnnkkkk SSSSppppoooooooolllleeeerrrrssss
+     You may also specify a special spooler for an outbound link.
+     The  spooler  will  be passed the message, instead of having
+     the message queued on the link in the  standard  way.   _L_i_n_k
+     _s_p_o_o_l_e_r_s are the approved way of spooling messages for links
+     to  foreign  networks  whose  addresses  are   well   enough
+     understood  by  MHSnet for _r_o_u_t_e_r to make routing decisions.
+     If the spooler returns a non-zero exit status,  the  message
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                   10
+
+
+
+
+
+
+Device and Network Interfaces                          NETWORK(7)
+
+
+
+     will  be  returned  to  its source with the spooler's _s_t_d_e_r_r
+     file as an explanation.  The spooler will  be  invoked  with
+     the following arguments:
+
+       ----HHHH _h_o_m_e
+           The address of the node you are running on.
+
+       ----LLLL _l_i_n_k
+           The address of the link  that  the  message  is  being
+           passed to.
+
+       ----NNNN _n_a_m_e
+           The local  (directory)  name  of  the  link  that  the
+           message is being passed to.
+
+     The spooler  should  read  commands  describing  the  actual
+     message  from standard input.  These commands will be in the
+     format described in the header file `commandfile.h'.
+
+     You can install your own _s_p_o_o_l_e_r_s, the  easiest  way  is  to
+     supply  a  shell  script  that can be invoked by the general
+     purpose spooler described below.
+
+     The following spooler is provided:
+
+     spooler
+         This is a general purpose  spooler  program  capable  of
+         interfacing to most foreign networks.  It pipes the data
+         from a message into a shell script that  is  invoked  to
+         pass the data to the foreign network.  A shell script is
+         provided  for  interfacing  with  UUCP  networks  called
+         `UUCP.sh',  and there is another for SMTP gateways - see
+         _n_e_t_s_p_o_o_l_e_r(8) for details.
+
+CCCCAAAALLLLLLLLIIIINNNNGGGG RRRREEEEMMMMOOOOTTTTEEEE HHHHOOOOSSSSTTTTSSSS
+     Many nodes will be reached via intermittent links which  are
+     set  up by _c_a_l_l programs.  The default, _n_e_t_c_a_l_l(8), will run
+     user defined call programs installed in the link  directory.
+     See  _n_e_t_c_a_l_l(8) for details on producing call programs.  You
+     may also specify a particular _c_a_l_l_e_r to be invoked  directly
+     for  a link with _n_e_t_s_t_a_t_e's command `caller'.  The aim is to
+     set up a virtual circuit and start the appropriate transport
+     daemon,  in  the  same  way  that  _n_e_t_c_a_l_l  operates.  These
+     programs are invoked with arguments as follows:
+
+       ----&&&&  A flag requesting that the program _f_o_r_k and the parent
+           return  immediately.  The child should continue and do
+           the work, so that _r_o_u_t_e_r can process more messages.
+
+       ----HHHH _h_o_m_e
+           The address of the node you are running on.
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                   11
+
+
+
+
+
+
+Device and Network Interfaces                          NETWORK(7)
+
+
+
+       ----LLLL _l_i_n_k
+           The address of the link that is being called.
+
+       ----NNNN _n_a_m_e
+           The local (directory) name of the link that  is  being
+           called.
+
+     There may be a final argument being the path name of a  file
+     _c_a_l_l if it exists in the _n_a_m_e directory.  The program should
+     establish a _l_o_c_k in `_n_a_m_e/cmds/lock'  (before  returning  in
+     the  parent) to prevent multiple invocations by _r_o_u_t_e_r.  The
+     exit status is ignored.
+
+AAAACCCCCCCCEEEEPPPPTTTTIIIINNNNGGGG CCCCAAAALLLLLLLLSSSS
+     Some nodes may wish to call you, in which case  arrangements
+     must  be made to allow the connections.  The explicit method
+     is to create the link  via  _n_e_t_s_t_a_t_e  and  arrange  for  the
+     connection  to  be  accepted.  If this is via a normal _l_o_g_i_n
+     then entries must be made in the `/etc/passwd' file  as  for
+     ordinary  users,  except that the _s_h_e_l_l must be specified to
+     be one of the versions of _n_e_t_s_h_e_l_l(8).  Calls  may  also  be
+     accepted  via  TCP/IP,  or X.25.  It is strongly recommended
+     that all calls accepted be protected  with  a  password  via
+     _n_e_t_p_a_s_s_w_d(8),  which can control passwords for whole regions
+     of the network, or for individual sites, as preferred.
+
+  PPPPrrrroooommmmiiiissssccccuuuuoooouuuussss CCCCoooonnnnnnnneeeeccccttttiiiioooonnnnssss
+     It is possible to allow sites from particular regions of the
+     network  which  don't have pre-arranged links with your site
+     to  make  connections  `anonymously'  via  a  single   login
+     mechanism,  such  as  an  account  called `anonymous' with a
+     suitable network shell.  This is  controlled  by  using  the
+     program _n_e_t_p_a_s_s_w_d(8) to validate the addresses of sites that
+     are allowed to make links anonymously.  The addresses can be
+     broadcast  region  addresses  in  which  case  any site from
+     within those regions may connect.  See _n_e_t_s_h_e_l_l(8) for  more
+     details.
+
+EEEERRRRRRRROOOORRRR RRRREEEECCCCOOOOVVVVEEEERRRRYYYY
+     An  error  condition  that  requires  operator  intervention
+     occurs  when  the _s_t_a_t_e_f_i_l_e containing the routing data gets
+     corrupted.  This will cause the program  _n_e_t_s_t_a_t_e  to  abort
+     with  an  error  condition and an explanation.  This will in
+     turn cause programs invoking  _n_e_t_s_t_a_t_e  to  abort,  such  as
+     _s_t_a_t_e_r when receiving a foreign network topology message, or
+     _n_e_t_c_h_a_n_g_e when invoked by the routing program to propagate a
+     change  of link status.  This last condition will also cause
+     the routing program to terminate with  an  error  condition,
+     and  messages  will  cease  to be routed.  At this point the
+     _s_t_a_t_e_f_i_l_e must be recovered before the network will continue
+     to operate.
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                   12
+
+
+
+
+
+
+Device and Network Interfaces                          NETWORK(7)
+
+
+
+     The _s_t_a_t_e_f_i_l_e can be recovered with the command
+       netstate -esC
+     but in the worst case, this may  remove  knowledge  of  most
+     other  sites.   This  knowledge  will  be recovered when the
+     network is started and the information is imported from each
+     link, but it will take time.  A _b_a_c_k_u_p copy of the statefile
+     called `_state/statefile.back' is made periodically  by  the
+     _n_e_t_i_n_i_t administration program `_lib/daily', and this may be
+     copied over the corrupted statefile.  Redundant  information
+     is  kept  in  the  imported  state  messages  stored  in the
+     `_files/MSGS' directory hierarchy,  and  these  may  may  be
+     incorporated into the _s_t_a_t_e_f_i_l_e by invoking _n_e_t_i_n_c_o_r_p(8).
+
+     The network can also be stalled by resource exhaustion, such
+     as  of  spool  directory space, or of processes.  This won't
+     cause any errors, but on the other hand messages  may  cease
+     to  be  processed, and operator intervention may be required
+     to free up resources.  Network processes check  periodically
+     that  free  space  on  the network file-system hasn't fallen
+     below  the  number  in  the  parameter  MINSPOOLFSFREE   (in
+     kilobytes  - see _n_e_t_p_a_r_a_m_s(5)) in which case they will pause
+     until more space becomes free again.
+
+     Unexpected errors in messages or handlers cause the  routing
+     program  to  invoke  the  program  _b_a_d_h_a_n_d_l_e_r  to report the
+     problem and clean up.  Should _b_a_d_h_a_n_d_l_e_r itself fail for any
+     reason,  then  the  routing  program  will terminate with an
+     error condition.  It  will  be  restarted  automatically  by
+     _n_e_t_i_n_i_t, but operator intervention is then necessary to find
+     the problem and fix it (if it fails  repeatedly).   Look  in
+     _route/log for information on the cause of the problem.
+
+NNNNEEEETTTTWWWWOOOORRRRKKKK AAAADDDDMMMMIIIINNNNIIIISSSSTTTTRRRRAAAATTTTOOOORRRR
+     Also known as the `network super-user', this is  anyone  who
+     is  a  system  `super-user',  or who is a member of the same
+     group that the network operates under (cf: NETGROUPNAME), or
+     who   is  explicitly  given  SU  privilege  in  the  network
+     privileges file (see _n_e_t_p_r_i_v_s(5)).  Various  programs,  such
+     as  _n_e_t_q(1)  and _n_e_t_s_t_o_p(1), offer special privileges to the
+     network super-user.
+
+     There are two separate addresses  used  for  administration,
+     these  may be either a local login name, or a set of network
+     mail addresses:
+
+     NCC_MANAGER
+         Notifications of interesting events are  mailed  to  the
+         person  (or  people)  identified as NCC_MANAGER, usually
+         `root'.  The definition of `interesting'  is  controlled
+         by  the  value of the parameter NETADMIN: 0000 - nothing is
+         interesting; 1111 - new regions added to the routing tables
+         are  notified,  as  are links that are marked `dead' for
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                   13
+
+
+
+
+
+
+Device and Network Interfaces                          NETWORK(7)
+
+
+
+         inactivity; 2222 - new regions added to the  state  message
+         data-base  (but  that otherwise don't change the routing
+         tables) are notified, as are  calling  sites  that  have
+         problems  connecting.   3333  -  links  that  change  state
+         between `up' and `down' are notified.
+
+     NCC_ADMIN
+         Notifications of problems are mailed to the  person  (or
+         people)  identified  as  NCC_ADMIN,  usually `root'.  We
+         strongly recommend that at least one  of  the  addresses
+         specified  is the login name of a real user on the local
+         node - in case the network is inoperable.
+
+     These  parameters  can  be  changed  at  any  time   -   see
+     _n_e_t_p_a_r_a_m_s(5).
+
+CCCCHHHHAAAANNNNGGGGIIIINNNNGGGG YYYYOOOOUUUURRRR NNNNOOOODDDDEEEE''''SSSS AAAADDDDDDDDRRRREEEESSSSSSSS
+     Changing the address of your node is easy, but will probably
+     generate  a  lot  of resentment from users who must learn to
+     use the new address.  However,  there  are  a  few  features
+     designed  to ease the transition, such as the propagation of
+     an alias for the old name.
+
+     When you change the name, the next state  message  broadcast
+     will  change it everywhere.  However you first must persuade
+     the managers of the nodes  to  which  your  node  is  linked
+     explicitly  to  cooperate.  They must change the name of the
+     link to your node to be the  new  name.   They  should  also
+     install  an  _a_l_i_a_s for the old name to the new name (use the
+     `ialias' command to _n_e_t_s_t_a_t_e(8)), although _n_e_t_s_t_a_t_e(8)  will
+     set  up  automatically  an  _e_x_p_o_r_t _a_l_i_a_s for the old name of
+     your node, and this will soon propagate throughout the  rest
+     of   the   network.   Messages  travelling  on  the  network
+     addressed to the old name will then be delivered to the  new
+     name.
+
+FFFFIIIILLLLEEEESSSS
+     Various files are accessed by network programs:
+
+     /usr/lib/MHSnetparams
+         This is the _m_a_s_t_e_r network parameter configuration file,
+         principally  because it allows the name of the network's
+         operating directory  (SPOOLDIR)  to  be  changed.   (See
+         _n_e_t_p_a_r_a_m_s(5).)
+
+     _call/log
+         A log of the success/fail status of every call  made  by
+         _n_e_t_c_a_l_l(8).
+
+     _call/*shell.log
+         A log of the success/fail  status  of  every  connection
+         processed by a _n_e_t_s_h_e_l_l(8).
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                   14
+
+
+
+
+
+
+Device and Network Interfaces                          NETWORK(7)
+
+
+
+     _call/passwd
+         The network passwords file maintained by _n_e_t_p_a_s_s_w_d(8).
+
+     _lib/handlers
+         Handler  descriptions.   Contains,  for   each   handler
+         installed  locally,  a description, protocol identifier,
+         and other options.  (See _n_e_t_h_a_n_d_l_e_r_s(5).)
+
+     _lib/lock
+         Lockfile created by _n_e_t_i_n_i_t that is interrogated by  the
+         connection  accepting  programs  -  if it doesn't exist,
+         then connections are not accepted.
+
+     _lib/log
+         The log file maintained by _n_e_t_i_n_i_t  -  error  conditions
+         are logged here.
+
+     _lib/privsfile
+         User network privileges.  Contains  optional  privileges
+         for  users.   By  default,  most users have unrestricted
+         access to the network facilities, this file can be  used
+         to  restrict  them  in particular ways, or to create new
+         network _s_u_p_e_r-_u_s_e_r_s.  (See _n_e_t_p_r_i_v_s(5).)
+
+     _params/*
+         These are all optional network  parameter  configuration
+         files defining parameters specific to particular message
+         handlers, whose names are the same as the  files.   (See
+         _n_e_t_p_a_r_a_m_s(5).)
+
+     _route/lock
+         Lockfile established by _n_e_t_r_o_u_t_e_r that  is  interrogated
+         by  the  message queueing programs - if it doesn't exist
+         they will notify the user.
+
+     _route/log
+         The log file maintained by _n_e_t_r_o_u_t_e_r  -  routing  errors
+         are logged here.
+
+     _state/commandsfile
+         Default _s_t_a_t_e_f_i_l_e control  commands.   May  be  used  to
+         override  routing  information  from  other nodes.  (See
+         _n_e_t_s_t_a_t_e(8).)
+
+     _state/exportfile
+         This file contains the local region routing  information
+         that  is  used  in  replies  to  sites  making  explicit
+         enquiries via _n_e_t_r_e_q_u_e_s_t(8).
+
+     _state/ignorefile
+         An optional list of sites whose state messages should be
+         ignored.   The  list  can be any <white-space> separated
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                   15
+
+
+
+
+
+
+Device and Network Interfaces                          NETWORK(7)
+
+
+
+         set of addresses.
+
+     _state/routefile
+         Routing tables.  The information in this file is binary,
+         and is created by the program _n_e_t_s_t_a_t_e(8).
+
+     _state/sitefile
+         This file contains the local  site  routing  information
+         that  is used in local topology change broadcasts, or in
+         replies to sites making broadcast requests.
+
+     _state/statefile
+         State information.  This is a binary file maintained  by
+         _n_e_t_s_t_a_t_e(8)  and contains details of all known sites and
+         their links.
+
+     _state/MSGS/*
+         The top of a tree of imported  state  messages  arranged
+         according to region.
+
+     _stats/Accumulated
+         Saved statistics.  If this file  exists,  one  line  for
+         each  message  is  accumulated  here  by  _r_o_u_t_e_r.   (See
+         _n_e_t_s_t_a_t_s(5) and _n_e_t_s_t_a_t_s_p_r(8).)
+
+     _stats/connect
+         If this file exists, it will contain  lines  written  by
+         the   virtual   circuit   daemons  to  log  transmission
+         statistics.  See _n_e_t_d_a_e_m_o_n(8).
+
+     _l_i_n_k/cmds/lock
+         Lockfile established by a transport  daemon  running  on
+         _l_i_n_k.
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _n_e_t_a_d_d_r(8)     Resolves addresses and shows routes.
+     _n_e_t_b_a_d(8)      Manages messages with transmission errors.
+     _n_e_t_c_a_l_l(8)     Describes how to set up a call program.
+     _n_e_t_c_h_a_n_g_e(8)   Changes the state of links.
+     _n_e_t_c_h_e_c_k_d_b(8)  Compacts the broadcast message ID data-base.
+     _n_e_t_c_o_n_f_i_g(8)   Network configuration program.
+     _n_e_t_c_o_n_t_r_o_l(8)  Communicates with _n_e_t_i_n_i_t(8).
+     _n_e_t_d_a_e_m_o_n(8)   Node-node virtual circuit  message  transport
+                    daemon.
+     _n_e_t_d_i_s(1)      Program  to  provide  continuous  updates  on
+                    display terminals.
+     _n_e_t_f_e_t_c_h(1)    Requests files from remote sites.
+     _n_e_t_f_e_t_c_h(5)    Format of public files availability register.
+     _n_e_t_f_i_l_e(1)     Creates  messages  using  the  file  transfer
+                    protocol,  and queues them for routing by the
+                    routing program.
+     _n_e_t_f_i_l_t_e_r(8)   Controls messages to/from links.
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                   16
+
+
+
+
+
+
+Device and Network Interfaces                          NETWORK(7)
+
+
+
+     _n_e_t_f_o_r_w_a_r_d(1)  Manages  the   forwarding   information   for
+                    handlers.
+     _n_e_t_h_a_n_d_l_e_r(8)  Delivers  messages  to   various   management
+                    programs.
+     _n_e_t_h_a_n_d_l_e_r_s(5) A description of the format  of  the  network
+                    message handlers options file.
+     _n_e_t_h_a_n_d_l_e_r_s(8) Prints contents of message  handlers  options
+                    file.
+     _n_e_t_i_n_c_o_r_p(8)   Incorporates     state     messages      from
+                    `_state/MSGS' into routing tables.
+     _n_e_t_i_n_i_t(8)     Network control daemon.
+     _n_e_t_l_i_n_k(1)     Shows network link statistics.
+     _n_e_t_l_i_n_k_d_a_t_a(8) Detailed link statistics.
+     _n_e_t_l_i_s_t_e_n(8)   Performs some of the functions of _i_n_e_t_d where
+                    it   is  not  available  to  accept  incoming
+                    network IP connections.
+     _n_e_t_m_a_i_l(1)     A mail composition and sending program.
+     _n_e_t_m_a_p(1)      Prints network topology details.
+     _n_e_t_m_s_g(8)      Creates messages  containing  raw  data,  and
+                    queues   them  for  routing  by  the  routing
+                    program.
+     _n_e_t_p_a_r_a_m_s(5)   A description of the format of  the  optional
+                    network parameter configuration files.
+     _n_e_t_p_a_r_a_m_s(8)   Prints out network parameter settings.
+     _n_e_t_p_a_s_s_w_d(5)   Format of network password file.
+     _n_e_t_p_a_s_s_w_d(8)   Maintains the network password file.
+     _n_e_t_p_a_t_h(8)     Turns  network   addresses   into   directory
+                    pathnames, and _v_i_c_e-_v_e_r_s_a.
+     _n_e_t_p_r_i_v_s(1)    Prints out network privileges.
+     _n_e_t_p_r_i_v_s(5)    A description of the format of  the  optional
+                    network user privileges control file.
+     _n_e_t_p_u_r_g_e(8)    Cleans out timed-out messages.
+     _n_e_t_q(1)        Shows message queues.
+     _n_e_t_r_e_q_u_e_s_t(8)  Requests  state  updates  from   neighbouring
+                    nodes.
+     _n_e_t_r_e_r_o_u_t_e(8)  Reroutes stalled messages, and moves messages
+                    queues.
+     _n_e_t_r_l(8)       Interrogate state of links at a remote site.
+     _n_e_t_r_o_u_t_e_r(8)   Routes  messages  queued   for   transmission
+                    and/or delivery.
+     _n_e_t_r_q(8)       Interrogate state of queues at a remote site.
+     _n_e_t_s_h_e_l_l(8)    Program  for   accepting   incoming   network
+                    connections.
+     _n_e_t_s_p_o_o_l_e_r(8)  Spools messages for various  foreign  network
+                    gateways.
+     _n_e_t_s_t_a_r_t(8)    Program for starting the network.
+     _n_e_t_s_t_a_t_e(8)    Controls the state and routing tables.
+     _n_e_t_s_t_a_t_s(5)    A description of the format of  the  optional
+                    network message statistics files.
+     _n_e_t_s_t_a_t_s_p_r(8)  Prints selected records from  the  statistics
+                    files.
+     _n_e_t_s_t_o_p(1)     Program for returning or  de-queuing  network
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                   17
+
+
+
+
+
+
+Device and Network Interfaces                          NETWORK(7)
+
+
+
+                    messages.
+     _n_e_t_w_h_o_i_s(1)    Requests information about people  at  remote
+                    sites.
+     _n_e_t_w_i_n_d_u_p(8)   Terminates network operations gracefully.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                   18
+
+
+

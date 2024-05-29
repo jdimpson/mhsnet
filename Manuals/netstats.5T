@@ -1,0 +1,131 @@
+
+
+
+Headers, Environments, and Macros                     NETSTATS(5)
+
+
+
+NNNNAAAAMMMMEEEE
+     netstats - formats of network statistics files
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     SSSSPPPPOOOOOOOOLLLLDDDDIIIIRRRR////____ssssttttaaaattttssss////AAAAccccccccuuuummmmuuuullllaaaatttteeeedddd
+     SSSSPPPPOOOOOOOOLLLLDDDDIIIIRRRR////____ssssttttaaaattttssss////sssseeeerrrrvvvveeeeddddffffiiiilllleeeessss
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     These files are maintained  by  network  programs  to  track
+     messages  as  they  pass  through the system.  If they don't
+     exist, then statistics records won't be written to them,  so
+     to turn on statistics collection, create the relevant file.
+
+  AAAAccccccccuuuummmmuuuullllaaaatttteeeedddd
+     This  file  is  written  by  _n_e_t_r_o_u_t_e_r(8)  and  printed   by
+     _n_e_t_s_t_a_t_s_p_r(8).   It contains records terminated by newlines.
+     There are eleven fields in each record, separated by  colons
+     (`:'), as follows (in record order):
+
+     ttttyyyyppppeeee        Indicates whether the message was inbound (`I'),
+                 or outbound (`O').
+
+     ddddaaaatttteeee        The date the record  was  written.   (In  `UNIX'
+                 time,  usually decimal seconds since 1 Jan 1970,
+                 GMT)
+
+     IIIIDDDD          The message ID that is  unique  to  its  source.
+                 (If  there are any _m_u_l_t_i-_p_a_r_t messages, the part
+                 numbers are converted from  the  message  header
+                 form _p_a_r_t::::_m_a_x to _p_a_r_t////_m_a_x).
+
+     ffffllllaaaaggggssss       A decimal number representing the routing  flags
+                 for the message.  (See below.)
+
+     hhhhaaaannnnddddlllleeeerrrr     The handler for the message.
+
+     ttttrrrraaaavvvveeeellll ttttiiiimmmmeeee The  total  travel  time  for  the  message  (in
+                 seconds).
+
+     ssssiiiizzzzeeee        The final size of the message (in bytes).
+
+     ssssoooouuuurrrrcccceeee      The source address for the message.
+
+     ddddeeeessssttttiiiinnnnaaaattttiiiioooonnnn The destination address for the message.
+
+     lllliiiinnnnkkkk        The link that the message  arrived  on,  or  was
+                 queued to depart on.
+
+     ddddeeeellllaaaayyyy       The  delay  measured  over  the  link  that  the
+                 message  arrived on (in seconds).  (Always 0 for
+                 outbound messages.)
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+
+
+
+
+Headers, Environments, and Macros                     NETSTATS(5)
+
+
+
+  sssseeeerrrrvvvveeeeddddffffiiiilllleeeessss
+     This file is written by _f_i_l_e_s_e_r_v_e_r, the message handler  for
+     _f_e_t_c_h_f_i_l_e(1),   and   printed  by  _n_e_t_s_t_a_t_s_p_r(8).   It  also
+     contains records terminated by newlines.   There  are  seven
+     fields in each record, separated by colons (`:'), as follows
+     (in record order):
+
+     ttttyyyyppppeeee        Indicates that the record is from  a  fileserver
+                 request (`F').
+
+     ddddaaaatttteeee        The date the record  was  written.   (In  `UNIX'
+                 time,  usually decimal seconds since 1 Jan 1970,
+                 GMT)
+
+     IIIIDDDD          The message ID from the request.
+
+     ssssiiiizzzzeeee        The size of the response (in bytes).
+
+     ddddeeeessssttttiiiinnnnaaaattttiiiioooonnnn The destination of the response (source  of  the
+                 request).
+
+     sssseeeerrrrvvvviiiicccceeee     Service requested.
+
+     nnnnaaaammmmeeeessss       File names in response.
+
+RRRROOOOUUUUTTTTIIIINNNNGGGG FFFFLLLLAAAAGGGGSSSS
+     Message routing flags have the following values:
+
+       OOOOccccttttaaaallll  NNNNaaaammmmeeee         DDDDeeeeccccrrrriiiippppttttiiiioooonnnn
+9
+       00001  RQA          Request for acknowledgement
+       00002  ACK          This message is an acknowlegement
+       00004  ENQ          Reply requested
+       00010  NAK          Negative acknowlegement
+       00020  NOOPT        Don't optimise message order
+       00040  NO_AUTOCALL  Ignore auto-call flag when spooling
+       00100  RETURNED     Message is being returned with error
+       00200  NORET        Don't return if error
+       00400  REV_CHARGE   Reverse charging for this message
+       01000  REGISTERED   Message has registered delivery
+
+FFFFIIIILLLLEEEESSSS
+     _stats/Accumulated  Current message statistics file.
+     _stats/servedfiles  Current fileserver request log.
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _n_e_t_w_o_r_k(7), _n_e_t_r_o_u_t_e_r(8), _n_e_t_s_t_a_t_s_p_r(8).
+
+
+
+
+9
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    2
+
+
+

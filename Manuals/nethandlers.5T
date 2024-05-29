@@ -1,0 +1,198 @@
+
+
+
+Headers, Environments, and Macros                  NETHANDLERS(5)
+
+
+
+NNNNAAAAMMMMEEEE
+     nethandlers - network message handlers description file
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     SSSSPPPPOOOOOOOOLLLLDDDDIIIIRRRR////____lllliiiibbbb////hhhhaaaannnnddddlllleeeerrrrssss
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_h_a_n_d_l_e_r_s contains lines describing each  message  handler
+     available  locally.  Each line contains a description of the
+     handler, and fields representing protocols and  permissions.
+     Empty lines, and lines beginning with the character `#', are
+     ignored.  The contents can be  printed  selectively  by  the
+     program _n_e_t_h_a_n_d_l_e_r_s(8).
+
+     This file is scanned regularly by the  router  to  determine
+     what sub-routers should be started.
+
+     The fields, separated from each other by tabs,  are  ordered
+     as follows:
+
+     hhhhaaaannnnddddlllleeeerrrr nnnnaaaammmmeeee
+         The name of the handler as installed  in  the  directory
+         __h_a_n_d_l_e_r_s.
+
+     mmmmeeeessssssssaaaaggggeeee ccccoooonnnntttteeeennnnttttssss
+         A one-word description of the message contents (for  use
+         by programs such as _n_e_t_q(1)).  [Default: null.]
+
+     pppprrrroooottttooooccccoooollll
+         A byte designating the message protocol expected by  the
+         handler.  Allocated protocols are: 0000 - routing protocol;
+         1111 - file transfer protocol; ----  -  protocol  unspecified.
+         [Default: ----.]
+
+     rrrreeeessssttttrrrriiiiccccttttiiiioooonnnn
+         A 1111, if use of this handler is restricted to  privileged
+         users (`root' or network SU), 0000 otherwise.
+         [Default: 0000.]
+
+     qqqquuuuaaaalllliiiittttyyyy
+         An asterisk, (indicating the default should be used), or
+         a  byte  in  the range 0000 to 9999, which becomes the minimum
+         _r_o_u_t_i_n_g _q_u_a_l_i_t_y that may be specified for this  type  of
+         message.  [Default: depends on message size.]
+
+     oooorrrrddddeeeerrrr
+         A byte defining whether messages for this handler should
+         be  ordered.   Possibilities are: 0000 - never ordered; 1111 -
+         always ordered; ---- - ordering unspecified.  [Default: ----.]
+
+     nnnniiiicccceeee
+         An asterisk, (indicating the default should be used), or
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+
+
+
+
+Headers, Environments, and Macros                  NETHANDLERS(5)
+
+
+
+         an  integer  in  the  range -20 to 19, which becomes the
+         _n_i_c_e value used when the handler is invoked to deliver a
+         message.   [Default: NICEHANDLERS.]  Anything other than
+         an asterisk causes the message router to invoke  a  _s_u_b-
+         _r_o_u_t_e_r    to    handle   messages   for   this   handler
+         asynchronously.  The nice value can  be  followed  by  a
+         colon  and  a  _d_u_r_a_t_i_o_n in seconds to specify a limited-
+         duration sub-router (see _n_e_t_r_o_u_t_e_r(8) for the meaning of
+         the ----BBBB flag).
+
+     aaaaddddddddrrrreeeessssssss
+         An `@' sign,  (indicating  no  address),  or  a  network
+         address  (eg:  a  multicast  address),  or  a  file name
+         containing a `////'.  (If the file name doesn't begin  with
+         a  leading  `////', then the value of SPOOLDIR will be pre-
+         pended.)  The message insertion programs will check this
+         list  (or  file)  for  legal  destinations if it exists.
+         [Default: null.]
+
+     ttttiiiimmmmeeeeoooouuuutttt
+         An integer specifying maximum seconds allowed to  handle
+         this   message  type.   [Default:  set  by  -AAAA  flag  to
+         _n_e_t_r_o_u_t_e_r(8)].
+
+     Only the first field need be present, the rest are optional,
+     and  will  get  default values if missing.  However, default
+     descriptions for three basic handlers will override  any  in
+     the  file  -  see  the values shown for the handlers _s_t_a_t_e_r,
+     _f_i_l_e_r, and _m_a_i_l_e_r below.
+
+     If a handler is not specified in this file, then a user must
+     either request that the message not be returned in the event
+     of an error (as otherwise  there  would  be  no  handler  to
+     receive it), or have network OTHERHANDLERS permission.
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEE
+     # Handler  Desc    P  R  Q  O  Nice    Address
+     filer      Files   1
+     fileserver Request -  1  *  -  *       *.su.oz.au
+     ftpserver  Request -  0  7  -  17:60
+     mailer     Mail    1
+     peter      Query   -  1  *  -  *       *.oz.au
+     printer    Print   1  1  7  1  *       /usr/lib/prsites
+     stater     State   0  1  0  1  16:60
+     reporter   News    -  1  9  1  18:600
+
+     Sub-routers are activated to handle messages for  news,  ftp
+     service,  and  topology  updates  as  background  tasks (the
+     numbers in the `Nice' column).  They are `limited  duration'
+     sub-routers, as indicated by the number of seconds after the
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    2
+
+
+
+
+
+
+Headers, Environments, and Macros                  NETHANDLERS(5)
+
+
+
+     colon.
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _n_e_t_f_i_l_e(1),    _n_e_t_w_o_r_k(7),    _n_e_t_h_a_n_d_l_e_r_s(8),     _n_e_t_m_s_g(8),
+     _n_e_t_r_o_u_t_e_r(8).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    3
+
+
+

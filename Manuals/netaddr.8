@@ -1,0 +1,132 @@
+.ds S1 NETADDR
+.ds S2 \fINetaddr\fP
+.ds S3 \fInetaddr\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 _bin/netaddr
+.TH \*(S1 8 "\*(S4 1.11" \^
+.nh
+.SH NAME
+netaddr \- resolve network addresses
+.SH SYNOPSIS
+.BI \*(S6
+.RI [\- flags \|]
+.RI [ address ...\|]
+.SH DESCRIPTION
+\*(S2
+produces canonical network addresses.
+Each address argument is translated into canonical form using the routing tables
+and printed on
+.IR stdout .
+If no address argument is present,
+the local address is used.
+.PP
+The optional flags modify this behaviour:
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-F\fP\ \fIpermissions\fPX'u
+.TP "\*(tw"
+.BI \-c
+All the address arguments will be collected into a composite address and
+checked for legality against the prevailing network permissions.
+The default checks use the invoker's own network permissions.
+.TP
+.BI \-l
+Show the
+.I linkname
+for each address.
+.TP
+.BI \-n
+Strip all but nodenames from each address.
+.TP
+.BI \-r
+All the address arguments will be collected into a composite address and
+run through the routing algorithm to find address partitioning by link.
+.TP
+.BI \-s
+Reduces each address to just the `site' address.
+.TP
+.BI \-t \fR[\fPtype\fR]\fP
+The default address style is
+.IR typeless ,
+the alternatives are
+.I external
+(\fB-te\fP), or
+.I internal
+(\fB-ti\fP).
+.TP
+.BI \-v
+Verbose \(em shows typed name (if not selected above) and composite address.
+.TP
+.BI \-F \ flags
+Change the network permission flags
+used in the legality check for subsequent addresses to be
+.I flags
+(an octal, hexadecimal, or decimal number, depending on the leading characters).
+.TP
+.BI \-L \ link
+Set the name of the link to be used in non-local source based routing.
+.TP
+.BI \-N \ restriction
+Change the network address restriction
+used in the legality check for subsequent addresses to be
+.IR restriction .
+.TP
+.BI \-P \ priority
+Use
+.I priority
+(in range `0'-`9')
+when routing composite address
+[default: 0].
+Also turns on the \fB\-r\fP flag.
+.TP
+.BI \-R \ route
+Set a message route (from its source)
+to be used in the routing calculation.
+.I Route
+can be any comma separated list of node names
+\(em which will be expanded to canonical form.
+.TP
+.BI \-S \ source
+Set the address of the source to be used in routing lookup.
+The default is the local address.
+.TP
+.BI \-T \fR[\fPlevel\fR]\fP
+Turns on tracing at
+.I level
+(default: 1).
+If tracing is not compiled in,
+this flag will have no effect.
+.TP
+.BI \-V \ user
+Use the network permissions of
+.I user
+in legality checks for subsequent addresses.
+.TP
+.BI \-?
+Explain argument options and exit.
+.SH EXAMPLES
+Show local site address with external types:
+.PP
+.RS 2
+.ft CW
+\*(S6 -ste
+.ft
+.RE
+.PP
+Show all routes for an organization-wide broadcast,
+and check that you are allowed to use them:
+.PP
+.RS 2
+.ft CW
+\*(S6 -cr *.ORG=su
+.ft
+.RE
+.SH FILES
+.PD 0
+.TP "\w'_state/routefileXX'u"
+_state/routefile
+Routing tables for resolving address arguments.
+.PD
+.SH "SEE ALSO"
+.IR netmap (1),
+.IR \*(S5 (7).

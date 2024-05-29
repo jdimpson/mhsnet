@@ -1,0 +1,59 @@
+.ds S1 NETSTART
+.ds S2 \fINetstart\fP
+.ds S3 \fInetstart\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 _bin/netstart
+.TH \*(S1 8 "\*(S4 1.6" \^
+.nh
+.SH NAME
+netstart \- initialise and start network operations
+.SH SYNOPSIS
+.BI \*(S6
+.RB [ \-p ]
+.SH DESCRIPTION
+\*(S2
+is a shell script that checks the network databases and starts the network running.
+It keeps a log of its actions in the file
+.if t \f(CWSPOOLDIR/_lib/start.log\fP
+.if n `SPOOLDIR/_lib/start.log'
+Any errors cause \*(S3 to terminate with exit code 1
+after writing an error reason to
+.IR stdout .
+.PP
+The optional argument causes \*(S3 to avoid the 
+.I netpurge 
+phase \(em useful for a quick start when the links hierarchy is large.
+.PP
+\*(S2 must be invoked with `root' or
+.SM NETUSERNAME
+privileges to start the network.
+.PP
+\*(S2
+should be run from the system initialisation script at system boot time using the pathname
+.if t \f(CWSPOOLDIR/_lib/start\fP.
+.if n `SPOOLDIR/_lib/start'.
+.SH FILES
+.PD 0
+.TP "\w'_state/mesgsfileXX'u"
+_lib/start.log
+Log of startup operations.
+The last line of this file will contain the error reason if the initialisation fails.
+.TP
+_state/mesgsfile
+Broadcast messages database.
+.TP
+_state/routefile
+Routing tables for resolving network addresses.
+.TP
+_state/statefile
+Routing information describing network topology.
+.PD
+.SH "SEE ALSO"
+.IR \*(S5 (7),
+.IR netcheckdb (8),
+.IR netcontrol (8),
+.IR netinit (8),
+.IR netpurge (8),
+.IR netrequest (8),
+.IR netstate (8).

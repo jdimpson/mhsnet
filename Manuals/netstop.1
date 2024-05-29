@@ -1,0 +1,218 @@
+.ds S1 NETSTOP
+.ds S2 \fINetstop\fP
+.ds S3 \fInetstop\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 netstop
+.TH \*(S1 1 "\*(S4 1.11" \^
+.nh
+.SH NAME
+netstop \- stop network messages from being transmitted
+.SH SYNOPSIS
+.BI \*(S6
+.RI [\- flags ]
+.RI [ link | address ...]
+.SH DESCRIPTION
+\*(S2
+searches the network spool area for links to remote hosts,
+and, by interaction with the invoker,
+de-queues messages sent by the invoker
+which are awaiting transmission.
+.PP
+If any links are mentioned,
+the search is restricted to those named.
+Addresses may also be specified, and then
+\*(S3
+will only select links on the shortest paths to destinations matched by each address.
+If only one non-link destination is named in an address argument,
+then the search will be restricted to messages matched by
+.IR address .
+.PP
+Any messages originating off site, or that don't belong to the invoker,
+will be returned to their source with an accompanying return reason.
+.PP
+The optional flags modify this behaviour:
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-D\fP\ \fIdestination\fPX'u
+.TP "\*(tw"
+.BI \-a
+Select all messages queued.
+(This option is restricted to network
+.IR super-users .)
+Messages from remote sites stopped in this way are returned to their source
+with an appropriate reason.
+.TP
+.BI \-b
+Search the
+.I _bad
+directory for failed messages awaiting operator intervention.
+(See
+.IR netbad (8).)
+.TP
+.BI \-c
+Return the messages queued count in the exit status.
+.TP
+.BI \-delete
+Assume the answer `delete' to any questions.
+.TP
+.BI \-e
+Ignore any message header error,
+and print it out `as is'.
+.TP
+.BI \-f
+Fast search (no message details).
+.TP
+.BI \-h
+Show message headers.
+.TP
+.BI \-k
+Show commands from message description file.
+.TP
+.BI \-l
+Search the
+.I pending
+directory for looping messages awaiting operator re-routing.
+(See
+.IR netreroute (8).)
+.TP
+.BI \-m
+Show message queueing details from message descriptors.
+.TP
+.BI \-n
+Prevent \*(S3 from returning messages you didn't originate.
+.TP
+.BI \-p
+Search the
+.I pending
+directory for looping messages awaiting operator re-routing.
+(See
+.IR netreroute (8).)
+.TP
+.BI \-q
+Search the
+.I routing
+directory for messages queued for routing by the
+.I router
+process.
+.TP
+.BI \-r
+Search the
+.I reroute
+directory for messages awaiting automatic re-routing.
+.TP
+.BI \-s
+Silent mode.
+(For use with the
+.BI \-c
+and/or
+.BI \-y
+flags.)
+.TP
+.BI \-t
+Search the
+.I trace
+directory for snapshot messages.
+.TP
+.BI \-v
+Print details from any \s-1FTP\s0 header
+(such as file names),
+also print entire addresses
+(the normal format can truncate overlong addresses).
+This flag is on by default.
+.TP
+.BI \-w
+Complain about irregularities.
+.TP
+.BI \-x
+Search all messages directories.
+.TP
+.BI \-y
+Yes.
+Assume a positive response to all queries.
+.TP 
+.BI \-A \ handler
+Restrict the search to just messages of type
+.IR handler .
+.TP
+.BI \-D \ address
+Restrict the search to messages whose
+.I destination
+address matches
+.IR address .
+.TP
+.BI \-P \ priority
+Use
+.I priority
+when looking up the links for address arguments.
+.TP
+.BI \-R \ reason
+Set the
+.I "stop reason"
+appended to messages that are returned.
+[Default: `Message returned by operator'.]
+.TP
+.BI \-S \ address
+Restrict the search to messages whose
+.I source
+address matches
+.IR address .
+.TP
+.BI \-T \fR[\fPlevel\fR]\fP
+Turns on tracing at
+.I level
+(default: 1).
+If tracing is not compiled in,
+this flag will have no effect.
+.TP
+.BI \-U \ user
+Look for messages from
+.I user
+rather than the invoker.
+(This option is restricted to network
+.IR super-users .)
+.TP
+.BI \-?
+Explain argument options and exit.
+.SH EXAMPLES
+Stop all messages from the invoker queued for a set of destinations:
+.PP
+.RS 2
+.ft CW
+\*(S6 -y *.mu.oz
+.ft
+.RE
+.SH FILES
+.PD 0
+.TP "\w'\fIlinkname\fP/writerstatusXX'u"
+_lib/handlers
+Names of common handlers and their protocols.
+.TP
+_state/routefile
+Routing tables for finding links.
+.TP
+\fIlinkname\fP/cmds/[0-9]*
+Messages queued on link to
+.IR linkname .
+.TP
+\fIlinkname\fP/cmds/lock
+Lockfile for daemon and
+.IR caller .
+.TP
+\fIlinkname\fP/cmds/reroute.lock
+Lockfile for \*(S3.
+.TP
+\fIlinkname\fP/readerstatus
+Status information from daemon reader process for link to
+.IR linkname .
+.TP
+\fIlinkname\fP/writerstatus
+Status information from daemon writer process for link to
+.IR linkname .
+.PD
+.SH "SEE ALSO"
+.IR netq (1),
+.IR \*(S5 (7),
+.IR netbad (8),
+.IR netcall (8),
+.IR netdaemon (8),
+.IR netreroute (8).

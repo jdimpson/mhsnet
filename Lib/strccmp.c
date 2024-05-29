@@ -1,0 +1,50 @@
+/*
+**	Copyright 2012 Piers Lauder
+**
+**	This file is part of MHSnet.
+**
+**	MHSnet is free software: you can redistribute it and/or modify
+**	it under the terms of the GNU General Public License as published by
+**	the Free Software Foundation, either version 3 of the License, or
+**	(at your option) any later version.
+**
+**	MHSnet is distributed in the hope that it will be useful,
+**	but WITHOUT ANY WARRANTY; without even the implied warranty of
+**	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+**	GNU General Public License for more details.
+**
+**	You should have received a copy of the GNU General Public License
+**	along with MHSnet.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
+#include	"global.h"
+
+/*
+**	Compare two strings in a case-independant way similar to "strcmp()".
+*/
+
+int
+#ifdef	ANSI_C
+strccmp(const char *s1, const char *s2)
+#else	/* ANSI_C */
+strccmp(s1, s2)
+	register char *	s1;
+	register char *	s2;
+#endif	/* ANSI_C */
+{
+	register int	c;
+
+	while ( (c = *s1++) != 0 )
+		if ( (c ^= *s2++) && c != 040 )
+			break;
+
+	if ( c == 0 )
+	{
+		if ( *s2 == '\0' )
+			return 0;
+		return -1;	/* s2 longer than s1 */
+	}
+
+	return ((*--s1)|040) - ((*--s2)|040);
+}

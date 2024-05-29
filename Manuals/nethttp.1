@@ -1,0 +1,77 @@
+.ds S1 NETHTTP
+.ds S2 \fINethttp\fP
+.ds S3 \fInethttp\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 nethttp
+.TH \*(S1 1 "\*(S4 1.6" \^
+.nh
+.SH NAME
+nethttp \- request documents from a remote WWW server
+.SH SYNOPSIS
+.BI \*(S6
+.RI [\- D
+.IR fromhost \|]
+.I "URL ..."
+.SH DESCRIPTION
+\*(S2
+will obtain documents from the World Wide Web by using an
+.I http
+program on the indicated
+.IR fromhost .
+[Default: the value of the parameter
+.SM HTTPSERVER
+if set, otherwise the local host.]
+.PP
+Documents are returned by the
+.I fromhost
+executing
+.IR netfile (1)
+with appropriate arguments. If one or more documents cannot be retrieved,
+an error report will be returned using
+.IR netmail (1).
+.SH EXAMPLES
+Obtain the document from the URL
+.I http://aaoepp.aao.gov.au/image/UKS001.gif
+.PP
+.RS 2
+.ft CW
+\*(S6 http://aaoepp.aao.gov.au/image/UKS001.gif
+.ft
+.RE
+.PP
+As above, with authentication and non-std. port:
+.PP
+.RS 2
+.ft CW
+\*(S6 http://username:password@restricted.com.au:8001/path/name
+.ft
+.RE
+.SH ADMIN
+Your site will need to have a
+.I handlers
+entry validating this message type, see
+.IR nethandlers (5)
+for details.
+.SH PARAMETERS
+On starting, \*(S3 examines the MHSnet parameter file in
+.if n `/usr/lib/MHSnetparams'
+.if t \f(CW/usr/lib/MHSnetparams\fP
+for a definition of
+.SM HTTPSERVER
+and uses it as the default
+.IR fromhost .
+.SH "SEE ALSO"
+.IR netfetch (1),
+.IR netfile (1),
+.IR netftp (1),
+.IR netmail (1),
+.IR nethandlers (5),
+.IR netmsg (8).
+.br
+.ne 11
+.SH DIAGNOSTICS
+Consult
+.IR netmsg (8)
+for possible diagnostic messages,
+as \*(S3 invokes that program to send the requests.

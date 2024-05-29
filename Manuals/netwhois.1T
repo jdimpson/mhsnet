@@ -1,0 +1,66 @@
+
+
+
+User Commands                                         NETWHOIS(1)
+
+
+
+NNNNAAAAMMMMEEEE
+     netwhois - request information about people at other sites
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     nnnneeeettttwwwwhhhhooooiiiissss _p_a_t_t_e_r_n@@@@_a_d_d_r_e_s_s
+     nnnneeeettttwwwwhhhhooooiiiissss _a_d_d_r_e_s_s _p_a_t_t_e_r_n
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_w_h_o_i_s will obtain information about people from  publicly
+     available data-bases on consenting hosts.
+
+     The pattern supplied should be a regular expression suitable
+     for  use by _e_g_r_e_p(1).  It will be used to match lines in the
+     people data-base at the remote sites addressed  by  _a_d_d_r_e_s_s.
+     The resulting output will be returned to you by mail.
+
+     There is a (small) upper limit on the amount of  information
+     that  may  be  returned  by  this command.  The limit can be
+     expected to be around 2K bytes.
+
+     _N_e_t_w_h_o_i_s's action may be modified by the following flags:
+
+     ----qqqq  Report the request ID on _s_t_d_o_u_t and include  it  in  any
+         response  that is returned.  This allows the matching of
+         requests with responses.
+
+     ----SSSS _s_e_n_d_e_r
+         Change the name of  the  originator  to  _s_e_n_d_e_r.   (This
+         option is restricted to network _s_u_p_e_r-_u_s_e_r_s.)
+
+     ----TTTT_n Activate tracing at level _n.  If tracing is not compiled
+         in, this flag will have no effect.
+
+     ----????  Explain argument options and exit.
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEESSSS
+     netwhois  mhs.oz.au  'lauder|kummerfeld'
+          Return information about the authors at MHS.
+
+FFFFIIIILLLLEEEESSSS
+     /usr/pub/whois
+         This is the  default  data-base  for  information  about
+         people.  It should consist of one line per person (lower
+         case only,  unless  your  version  of  _e_g_r_e_p(1)  has  an
+         `ignore  case'  flag),  with information such as mailing
+         address (account name),  full  name,  telephone  number,
+         etc.
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     egrep(1), mail(1), netfetch(1).
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+

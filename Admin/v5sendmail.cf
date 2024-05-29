@@ -1,0 +1,450 @@
+############################################################
+############################################################
+#####
+#####   SENDMAIL CONFIGURATION FILE FOR MHSnet MACHINES
+#####
+#####	You MUST edit this for local addresses, etc.
+#####
+############################################################
+############################################################
+
+############################################################
+###     local info
+############################################################
+
+#  Official hostname ($j).
+Dj$w.$D.$A.$C
+
+# major relay mailer
+DMMHS
+
+# local domain names
+#
+# These can now be set from the domainname system call.
+# Otherwise, edit them to be your mail domain name.
+#
+# "CDorg mhs au" is INCORRECT because ruleset 6 would match au.au.au (for
+# example) since au is in all three of classes D, A and C.
+#
+#DDorg
+#CDorg
+DDmhs
+CDmhs
+
+# domain-spec for local domain within universe (eg, what domains are above?)
+#DAmhs
+#CAmhs
+DAoz
+CAoz
+
+# country name
+DCau
+CCau
+
+#  Define relay host ($R) - where we send mail that we can't handle.
+#  Define relay class - drop this from addresses on incoming local mail
+#                if we would use $R to send mail to that address anyway.
+#  Define known domain class ($K) - domains we can send to via relay.
+
+DRmunnari.oz.au
+CRmunnari.oz.au
+CKcsnet bitnet dec mailnet uk gov edu
+CKcom mil net us org arpa nl kr aus cdn uninett
+CKcern chunet irl dfn iris sunet osiride surfnet hasler dunet
+CKjunet jp jpn uucp
+
+#  UUCP name ($U), and list of hosts we connect directly to.
+
+DU$w
+FU/usr/lib/uucp/L.sys %s
+
+# If you want to pre-load the "mailhosts" then use a line like
+# FS /usr/lib/mailhosts
+# and then change all the occurences of $%y to be $=S instead.
+# Otherwise, the default is to use the hosts.byname map if YP
+# is running (or else the /etc/hosts file if no YP).
+# known hosts in this domain are obtained from gethostbyname() call
+#FS/etc/hosts
+FS/usr/lib/ether.hosts
+
+############################################################
+#
+#       General configuration information
+#
+#############################################################
+
+#       @(#)version.m4  4.7             8/31/83
+#
+#  Define version ($V).
+
+DVSMI-3.2
+
+##########################
+###   Special macros   ###
+##########################
+
+# my name
+DnMAILER-DAEMON
+
+# UNIX header format
+DlFrom $g $d
+
+# delimiter (operator) characters
+Do.:%@!^=/[]
+
+# format of a total name
+Dq$g$?x ($x)$.
+
+# SMTP login message
+De$j Sendmail $v/$V ready at $b
+
+#  Forwarding host ($F) - redefine this if you can't talk to the relay directly.
+DF$R
+
+###################
+###   Options   ###
+###################
+
+# location of alias file
+OA/usr/lib/aliases
+
+# wait up to ten minutes for alias file rebuild
+Oa10
+
+# default delivery mode (deliver in background)
+Odbackground
+
+# (don't) connect to "expensive" mailers
+#Oc
+
+# rebuild the alias file automagically
+OD
+
+# temporary file mode -- 0600 for secure mail, 0644 for permissive
+OF0600
+
+# default GID
+Og10
+
+# location of help file
+OH/usr/lib/sendmail.hf
+
+# log level
+OL9
+
+# default messages to old style
+Oo
+
+# Cc my postmaster on error replies I generate
+OPPostmaster
+
+# queue directory
+OQ/usr/spool/mqueue
+
+# read timeout -- violates protocols
+Or30m
+
+# status file
+OS/usr/lib/sendmail.st
+
+# queue up everything before starting transmission, for safety
+Os
+
+# default timeout interval
+OT3d
+
+# default UID
+Ou1
+
+# wizard's password
+OW*
+
+# load average at which we just queue messages
+Ox8
+
+# load average at which we refuse connections
+OX12
+
+###############################
+###   Message precedences   ###
+###############################
+
+Pfirst-class=0
+Pspecial-delivery=100
+Pjunk=-100
+
+#########################
+###   Trusted users   ###
+#########################
+
+Troot
+Tdaemon
+Tuucp
+
+#############################
+###   Format of headers   ###
+#############################
+
+H?P?Return-Path: <$g>
+H?R?Received: $?sfrom $s $.$?Lvia $L $.by $j $?rwith $r $.($v)
+	id $i; $b
+H?D?Resent-Date: $a
+H?D?Date: $a
+H?F?Resent-From: $q
+H?F?From: $q
+H?x?Full-Name: $x
+HSubject:
+# HPosted-Date: $a
+H?l?Received-Date: $b
+H?M?Resent-Message-Id: <$t.$i@$j>
+H?M?Message-Id: <$t.$i@$j>
+
+###########################
+###   Rewriting rules   ###
+###########################
+
+
+################################
+#  Sender Field Pre-rewriting  #
+################################
+S1
+# None needed.
+
+###################################
+#  Recipient Field Pre-rewriting  #
+###################################
+S2
+# None needed.
+
+#################################
+#  Final Output Post-rewriting  #
+#################################
+
+S4
+R$+<@$+.uucp>		$2!$1			u@h.uucp => h!u
+R$+			$: $>9 $1		Clean up addr
+R$*<$+>$*		$1$2$3			defocus
+
+
+################################################
+#  Clean up an address for passing to a mailer #
+#  (but leave it focused)                      #
+################################################
+
+S9
+# externalize internal forms which don't meet external specs
+R@			$@$n			handle <> error addr
+R$*<$*.local>$*		$1<$2>$3		change local info
+R$*<@local>$*		$1$2			strip spurious local
+R<@$+>$*:$+:$+		<@$1>$2,$3:$4		<route-addr> canonical
+
+###########################
+#  Name Canonicalization  #
+###########################
+
+# Internal format of addresses within the rewriting rules is:
+#       anything<@host.domain.domain...>anything
+# We try to get every kind of address into this format, except for local
+# addresses, which have no host part.  The reason for the "<>" stuff is
+# that the relevant host name could be on the front of the address (for
+# source routing), or on the back (normal form).  We enclose the one that
+# we want to route on in the <>'s to make it easy to find.
+#
+
+S3
+
+# handle "from:<>" special case
+R<>			$@@			turn into magic token
+
+# basic textual canonicalization
+R$*<$+>$*		$2			basic RFC821/822 parsing 
+
+# make sure <@a,@b,@c:user@d> syntax is easy to parse -- undone later
+R@$+,$+:$+		@$1:$2:$3		change all "," to ":"
+
+#  Localize and dispose of domain-based addresses.
+R@$+:$+			$@$>6<@$1>:$2		handle <route-addr>
+
+#  More miscellaneous cleanup.
+R$+			$:$>8$1			host dependent cleanup
+R$+:$*;@$+		$@$1:$2;@$3		list syntax
+R$+@$+			$:$1<@$2>		focus on domain
+R$+<$+@$+>		$1$2<@$3>		move gaze right
+R$+<@$+>		$@$>6$1<@$2>		already canonical
+
+#  Convert old-style addresses to a domain-based address.
+
+R$-:$+			$@$>3$1@$2		user:host
+R$-^$+			$1!$2			convert ^ to !
+R$-!$+			$@$>6$2<@$1.uucp>	resolve uucp names
+R$-.$+!$+		$@$>6$3<@$1.$2>		host.domain!user
+R$+%$+			$@$>3$1@$2		user%host
+
+#######################
+#   Rewriting rules   #
+#######################
+
+S6
+R$*<@$w>$*		$1<@local>$2		convert local host
+R$*<@$j>$*		$1<@local>$2		convert local host.doms
+R$*<@$+$=D>$*		$1<@$2local>$4		convert local domain
+R$*<@$+$=D.$=A>$*	$1<@$2local>$5		or full domain name
+R$*<@$+$=D.$=A.$=C>$*	$1<@$2local>$6		or full domain name + country
+R$*<@$*$=D.local>$*	$1<@$2local>$4		hash known domains
+
+##### special local conversions
+
+S8
+#  strip dense attempts to uucp to relay host.
+R$=R!$*@$*		$2@$3
+R$=R!$*!$*		$2!$3
+
+############################################################
+############################################################
+#####
+#####           Local and Program Mailer specification
+#####
+############################################################
+############################################################
+
+Mlocal, P=/bin/mail, F=rlsDFRmn, S=10, R=20, A=mail -d $u
+Mprog,  P=/bin/sh,   F=lsDFeu,  S=10, R=20, A=sh -c $u
+
+S10
+#  Relay name in mail arriving via a mail relay is boring, delete it.
+R$*!$*<@$=R$*>		$1!$2
+R$*@$*$=K<@$=R$*>	$1@$2$3
+
+S20
+R$*<@$=w$*>		$1		Rip off our hostname
+
+############################################################
+############################################################
+#####
+#####           Ethernet Mailer specification
+#####
+#####   Messages processed by this configuration are assumed to remain
+#####   in the same domain.  Hence, they may not necessarily correspond
+#####   to RFC822 in all details.
+#####
+#####           (This should really be called the TCP mailer, since
+#####            nothing here is particular to Ethernet)
+#####
+############################################################
+############################################################
+
+MTCP, P=[IPC], F=msDFRuXn, S=11, R=21, A=IPC $h
+S11
+R$*<@$+>$*		$@$1<@$2>$3		already ok
+R$+			$@$1<@$j>		tack on our hostname
+
+S21
+
+############################################################
+############################################################
+#####
+#####           MHSnet Mailer specification
+#####
+############################################################
+############################################################
+
+MMHS,  P=SPOOLDIR/_bin/netfile, F=CDFMRhmnsu, S=14, R=24,
+	Argv=netfile -Amailer -N$i -Q$u
+#	Argv=netfile -Amailer -N$i -R$f -Q$u	# needs F=S and network SU for sendmail
+
+S14
+R$*<@$=S>		$1			strip local info
+#R$*<@$D.$A.$C>		$1			strip local domain (if you want)
+R$*<@$w.$D.$A.$C>	$1			strip local info
+R$*<@$+>$*		$@$1<@$2>$3		already ok (non-local)
+R$+			$:$1<@$j>		tack on our hostname
+
+S24
+
+############################################################
+############################################################
+#####
+#####           UUCP Mailer specification
+#####
+############################################################
+############################################################
+
+Muucp,	P=/usr/bin/uux, F=DFRMhuU, S=13, R=23, M=100000,
+	A=uux - -r -z -a$f -gC $h!rmail ($u)
+
+S13
+R$=w!$+			$2			strip local name
+R$*<@$=S>$*		$1<@$2.$D>$3		resolve abbreviations
+R$+<@$+>		$2!$1			uucpize (no @'s in addr)
+R$+			$:$U!$1			stick on our host name
+
+S23
+R$*<@$=S>$*		$1<@$2.$D>$3		resolve abbreviations
+R$*<@$=w>$*		$1<@$2.$D>$3		resolve abbreviations
+
+############################################################
+############################################################
+#####
+#####           RULESET ZERO
+#####
+############################################################
+############################################################
+
+# Ruleset 7 just calls rulesets 3 then 0.
+S7
+R$*			$: $>3 $1		First canonicalize
+R$*			$@ $>0 $1		Then rerun ruleset 0
+
+S0
+# On entry, the address has been canonicalized and focused by ruleset 3.
+# Handle special cases.....
+
+R@			$#local $:$n		handle <> form
+
+# For numeric spec, you can't pass spec on to receiver, since rcvr's
+# are not smart enough to know that [x.y.z.a] is their own name.
+R<@[$+]>:$*		$:$>9 <@[$1]>:$2	Clean it up, then...
+R<@[$+]>:$*		$#TCP $@[$1] $:$2	numeric internet spec
+R<@[$+]>,$*		$#TCP $@[$1] $:$2	numeric internet spec
+R$*<@[$+]>		$#TCP $@[$2] $:$1	numeric internet spec
+
+# now delete redundant local info
+R$*<$*$=w.local>$*	$1<$2>$4		thishost.local
+R$*<$*$=w.uucp>$*	$1<$2>$4		thishost.uucp
+R$*<$*$=w.$D>$*		$1<$2>$4		thishost.mydomain
+R$*<$*$=w.$D.$A>$*	$1<$2>$4		thishost.mydomain.hierarchy
+R$*<$*$=w.$D.$A.$C>$*	$1<$2>$4		thishost.mydomain.hierarchy.co
+R$*<$*$=w>$*		$1<$2>$4		thishost
+R$*<$*.>$*		$1<$2>$3		drop trailing dot
+R<@>:$*			$@$>7$1			retry after route strip
+R$*<@>			$@$>7$1			strip null trash & retry
+
+
+################################################
+###  Machine dependent part of ruleset zero  ###
+################################################
+
+# deliver to known TCP hosts explicitly specified in our domain
+R$*<@$*$=S>$*		$#TCP $@$3 $:$1<@$2$3>$4	user@tcphost.here
+
+#  local uucp mail - just change pattern, so it doesn't match!.
+
+R<@$=U.uucp>:$+		$1!$2			to old format
+R$+<@$=U.uucp>		$2!$1			to old format
+
+#  route mail to domains reachable from a friendly relay via them.
+
+R<@$*.$=K>:$+		$2@$1.$3<@$R>		arpanet mail, etc
+R$+<@$*.$=K>		$1@$2.$3<@$R>		arpanet mail, etc
+
+# Clean up addresses for external use -- kills LOCAL, route-addr ,=>: and etc.
+R$*			$:$>9 $1		Then continue...
+
+# Give user@host style addresses to ACSnet
+R$*<@$*>$*		$#$M $@anyhost $:$1@$2		user@anything
+
+# and host!user style to uucp
+R$-!$+			$#uucp$@$1$:$2		host!user => local uucp
+
+# everything else is a local name
+R$+			$#local $:$1		local names

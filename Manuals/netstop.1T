@@ -1,0 +1,198 @@
+
+
+
+User Commands                                          NETSTOP(1)
+
+
+
+NNNNAAAAMMMMEEEE
+     netstop - stop network messages from being transmitted
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     nnnneeeettttssssttttoooopppp [-_f_l_a_g_s] [_l_i_n_k|_a_d_d_r_e_s_s...]
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_s_t_o_p searches the network spool area for links to  remote
+     hosts,  and,  by  interaction  with  the  invoker, de-queues
+     messages  sent   by   the   invoker   which   are   awaiting
+     transmission.
+
+     If any links are mentioned,  the  search  is  restricted  to
+     those  named.   Addresses  may  also  be specified, and then
+     _n_e_t_s_t_o_p will only select links  on  the  shortest  paths  to
+     destinations  matched by each address.  If only one non-link
+     destination is named in an address argument, then the search
+     will be restricted to messages matched by _a_d_d_r_e_s_s.
+
+     Any messages originating off site, or that don't  belong  to
+     the  invoker,  will  be  returned  to  their  source with an
+     accompanying return reason.
+
+     The optional flags modify this behaviour:
+
+     ----aaaa  Select all messages queued.  (This option is  restricted
+         to  network  _s_u_p_e_r-_u_s_e_r_s.)   Messages  from remote sites
+         stopped in this way are returned to their source with an
+         appropriate reason.
+
+     ----bbbb  Search the __b_a_d directory for failed  messages  awaiting
+         operator intervention.  (See _n_e_t_b_a_d(8).)
+
+     ----cccc  Return the messages queued count in the exit status.
+
+     ----ddddeeeelllleeeetttteeee
+         Assume the answer `delete' to any questions.
+
+     ----eeee  Ignore any message header error, and print  it  out  `as
+         is'.
+
+     ----ffff  Fast search (no message details).
+
+     ----hhhh  Show message headers.
+
+     ----kkkk  Show commands from message description file.
+
+     ----llll  Search  the  _p_e_n_d_i_n_g  directory  for  looping   messages
+         awaiting operator re-routing.  (See _n_e_t_r_e_r_o_u_t_e(8).)
+
+     ----mmmm  Show message queueing details from message descriptors.
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+
+
+
+
+User Commands                                          NETSTOP(1)
+
+
+
+     ----nnnn  Prevent  _n_e_t_s_t_o_p  from  returning  messages  you  didn't
+         originate.
+
+     ----pppp  Search  the  _p_e_n_d_i_n_g  directory  for  looping   messages
+         awaiting operator re-routing.  (See _n_e_t_r_e_r_o_u_t_e(8).)
+
+     ----qqqq  Search the _r_o_u_t_i_n_g directory  for  messages  queued  for
+         routing by the _r_o_u_t_e_r process.
+
+     ----rrrr  Search  the  _r_e_r_o_u_t_e  directory  for  messages  awaiting
+         automatic re-routing.
+
+     ----ssss  Silent mode.  (For use with the ----cccc and/or ----yyyy flags.)
+
+     ----tttt  Search the _t_r_a_c_e directory for snapshot messages.
+
+     ----vvvv  Print details from any FTP header (such as file  names),
+         also  print  entire  addresses  (the  normal  format can
+         truncate  overlong  addresses).   This  flag  is  on  by
+         default.
+
+     ----wwww  Complain about irregularities.
+
+     ----xxxx  Search all messages directories.
+
+     ----yyyy  Yes.  Assume a positive response to all queries.
+
+     ----AAAA _h_a_n_d_l_e_r
+         Restrict the search to just messages of type _h_a_n_d_l_e_r.
+
+     ----DDDD _a_d_d_r_e_s_s
+         Restrict  the  search  to  messages  whose   _d_e_s_t_i_n_a_t_i_o_n
+         address matches _a_d_d_r_e_s_s.
+
+     ----PPPP _p_r_i_o_r_i_t_y
+         Use _p_r_i_o_r_i_t_y when  looking  up  the  links  for  address
+         arguments.
+
+     ----RRRR _r_e_a_s_o_n
+         Set the  _s_t_o_p  _r_e_a_s_o_n  appended  to  messages  that  are
+         returned.  [Default: `Message returned by operator'.]
+
+     ----SSSS _a_d_d_r_e_s_s
+         Restrict the search to  messages  whose  _s_o_u_r_c_e  address
+         matches _a_d_d_r_e_s_s.
+
+     ----TTTT[_l_e_v_e_l]
+         Turns on tracing at _l_e_v_e_l (default: 1).  If  tracing  is
+         not compiled in, this flag will have no effect.
+
+     ----UUUU _u_s_e_r
+         Look for messages from _u_s_e_r  rather  than  the  invoker.
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    2
+
+
+
+
+
+
+User Commands                                          NETSTOP(1)
+
+
+
+         (This option is restricted to network _s_u_p_e_r-_u_s_e_r_s.)
+
+     ----????  Explain argument options and exit.
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEESSSS
+     Stop all messages from the  invoker  queued  for  a  set  of
+     destinations:
+
+       netstop -y *.mu.oz
+
+FFFFIIIILLLLEEEESSSS
+     _lib/handlers          Names of common  handlers  and  their
+                            protocols.
+     _state/routefile       Routing tables for finding links.
+     _l_i_n_k_n_a_m_e/cmds/[0-9]*   Messages queued on link to _l_i_n_k_n_a_m_e.
+     _l_i_n_k_n_a_m_e/cmds/lock     Lockfile for daemon and _c_a_l_l_e_r.
+     _l_i_n_k_n_a_m_e/cmds/reroute.lock
+                            Lockfile for _n_e_t_s_t_o_p.
+     _l_i_n_k_n_a_m_e/readerstatus  Status information from daemon reader
+                            process for link to _l_i_n_k_n_a_m_e.
+     _l_i_n_k_n_a_m_e/writerstatus  Status information from daemon writer
+                            process for link to _l_i_n_k_n_a_m_e.
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _n_e_t_q(1), _n_e_t_w_o_r_k(7),  _n_e_t_b_a_d(8),  _n_e_t_c_a_l_l(8),  _n_e_t_d_a_e_m_o_n(8),
+     _n_e_t_r_e_r_o_u_t_e(8).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    3
+
+
+

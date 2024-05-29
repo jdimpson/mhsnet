@@ -1,0 +1,108 @@
+#!/bin/sh
+#
+#	NCR Tower 32/?00 UNIXV.1.3.1 with no IP.
+#
+#	`cc.10' compiler compatible with Mini-Tower.
+#
+#	Note that all `"' must be escaped in *ARGS lists
+#
+
+MAKE='make'
+
+case $# in
+	0)	set certain ;;
+esac
+
+MANTYPE=Tz
+ISPOOLDIR=
+VERSION="1.3 #28 92/09/09 NCR.(Mini)Tower.32.x00-V.1.3.1"
+
+case "$MANTYPE" in
+'')	MANTYPE=src
+	echo MANTYPE="\"$MANTYPE\" ? "
+	read ans
+	;;
+esac
+
+case "$ISPOOLDIR" in
+'')	ISPOOLDIR='/usr/spool/MHSnet'
+	echo ISPOOLDIR="\"$ISPOOLDIR\" ? "
+	read ans
+	;;
+esac
+
+case "$VERSION" in
+'')     VERSION=`egrep 'define.VERSION' Lib/Version.c|sed -e 's/[^"]*"//' -e 's/"//'`
+        echo VERSION="$VERSION ? "
+        read ans
+        ;;
+esac
+
+(
+date >>made 2>&1
+/bin/time \
+make \
+	BINMAIL='/bin/mail' \
+	BINMAILARGS= \
+	CARR_ON_BUG='1' \
+	CC='cc.10' \
+	CFLAGS='' \
+	CONFIG='-DCURSES_TAB_BUG -DINT_SWITCH -DNEED_BCOPY -DNO_VOID_STAR -DSLOW_MALLOC -DUDIAL -Dmc68000 ' \
+	DEBUG='-DEBUG=2' \
+	FCNTL='1' \
+	FILEBUFFERSIZE='1024' \
+	FILESERVERLOG='$(STATSDIR)/servedfiles' \
+	IGNMAILERSTATUS='0' \
+	INSBIN='$(ISPOOLDIR)/_ubin' \
+	ISPOOLDIR="$ISPOOLDIR" \
+	KILL_0='1' \
+	LDFLAGS='' \
+	LOCALSEND='1' \
+	LOCKF='1' \
+	MAILER='/usr/bin/mailx' \
+	MAILERARGS='' \
+	MAKE="$MAKE" \
+	MANTYPE="$MANTYPE" \
+	MKLOCK='touch -f' \
+	NCC_ADMIN='root' \
+	NCC_MANAGER=root \
+	NDIRLIB='0' \
+	NETADMIN='1' \
+	NETGROUPNAME='daemon' \
+	NETUSERNAME='daemon' \
+	NICEDAEMON='-5' \
+	NICEHANDLERS='5' \
+	PGRP='1' \
+	POSTMASTER='root' \
+	PRFORMATTER='/bin/pr -l66 -w132 -f -n4' \
+	PRINTER='/usr/bin/lp' \
+	PRINTERARGS='\"-s\"' \
+	PRIVSFILE='$(LIBDIR)/privsfile' \
+	PROTO_STATS='1' \
+	PRSPOOLER='lp -t$(NAME)' \
+	PRSPOOL='$(PRSPOOLER)' \
+	PUBLICFILES='$(LIBDIR)/publicfiles' \
+	RANLIB=': no ranlib' \
+	RENAME_2='0' \
+	SERVERGROUP='uucp' \
+	SERVERUSER='uucp' \
+	SITE_DEPEND="$0 Makefile" \
+	SPOOLDIR='/usr/spool/MHSnet' \
+	SUN3='1' \
+	TERMLIB='-lcurses' \
+	SYSLIBS='-lmalloc -lc' \
+	SYSTEM='5' \
+	SYSVREL='1' \
+	TCP_IP='0' \
+	UDP_IP='0' \
+	UUCPLOCKS='1' \
+	VCDAEMON_STATS='1' \
+	VERSION="$VERSION" \
+	VPRINTF='1' \
+	WHOISARGS='\"-i\",\"-e\"' \
+	WHOISFILE='/usr/pub/whois' \
+	WHOISPROG='/usr/bin/egrep' \
+"$@" >>made 2>&1
+
+echo `date` " Make ${1-certain} done." >/dev/tty
+)&

@@ -1,0 +1,351 @@
+.ds S1 NETMSG
+.ds S2 \fINetmsg\fP
+.ds S3 \fInetmsg\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 _bin/netmsg
+.TH \*(S1 8 "\*(S4 1.13" \^
+.nh
+.SH NAME
+netmsg \- send network message
+.SH SYNOPSIS
+.BI \*(S6
+.RI [\-[ flags \|]]
+.BI \-A \ handler
+.I destination
+\&...
+.RB [ \- ]
+.RI [ file
+\&...]
+.SH DESCRIPTION
+\*(S2
+inserts non-\s-1FTP\s0 messages into the network
+to be transmitted to remote destinations.
+(See
+.IR netfile (1)
+for sending messages using the `File Transfer Protocol',
+which includes the ability to send messages to particular users.)
+.PP
+The network will generate the minimal number of message copies to deliver
+the message to each of the specified destinations.
+There is no limit to the number of
+separate destinations that may be specified,
+but note that the first non-flag argument is always assumed to be a destination.
+A
+.I destination
+may also be specified as
+.BI \fB*.\fP \|destination,
+for
+.I broadcast
+routing,
+.IB destination ! destination\c
+\&...
+for
+.I explicit
+routing,
+or as
+.IB destination , destination\c
+\&...
+for
+.I multicast
+routing,
+although these modes may be restricted to privileged users at some sites.
+.PP
+Destinations
+are usually the names of regions in the network,
+where a region consists of domain names separated by periods, as in
+.IB domain1 . \|domain2 . \|domain3.
+Region addresses may be shortened to exclude those domains which are
+common to the origin and destination,
+and there may be other shorthand
+forms available at your local site for commonly used destinations
+\(em check with your local administration.
+See below for a full syntax for destination addresses.
+.PP
+If a
+.I file
+argument is
+.IR null ,
+it will cause an error,
+but if it is the name of a directory,
+it will be ignored after a warning message.
+File arguments supply data for the message,
+and are concatenated in the order given.
+If no files are specified,
+data will be read from
+.IR stdin .
+.PP
+To use
+\*(S3,
+you must be validated for network message privileges by your local system supervisor,
+unless the destination is a `local' node.
+.PP
+The flag arguments have meanings as follows:
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-D\fP\fI\ destination\fPX'u
+.TP "\*(tw"
+.BI \-a
+Requests that correct delivery of the message to each destination
+be acknowledged.
+Acknowledgements are handled in a way specific to each message handler.
+.TP
+.BI \-d
+Prevents this message from triggering the auto-call mechanism if present.
+.TP
+.BI \-i
+Causes
+\*(S3
+to ignore syntax errors in multiple destinations,
+provided at least one of the destinations is correct.
+.TP
+.BI \-m
+Messages over a certain size
+(normally set by site administrators to be 2 megabytes),
+are split into multiple smaller messages that are
+sent individually and re-assembled at the destination.
+This doesn't occur if the destination is directly connected
+to the origin, or if this flag is used.
+Only works for network
+.IR super-users .
+.TP
+.BI \-o
+Turns off message queueing optimization by size.
+This message will instead be sent as though it were the largest in its priority group.
+.TP
+.BI \-q
+Report the unique message ID generated on
+.IR stdout .
+.TP
+.BI \-r
+Requests that errors at destinations should be ignored,
+otherwise any error causes the whole message to be returned with an explanation.
+.TP
+.BI \-s
+Don't issue warnings on stderr.
+.TP
+.BI \-u
+Stops the usage message from being produced on
+.I stderr
+if there is any argument error.
+.TP
+.BI \-x
+Set reverse charging for message.
+Only works for network
+.IR super-users .
+.TP
+.BI \-A \ handler
+The message will be passed to
+.I handler
+at the destination.
+The handler must not be one registered for any of the standard protocols
+(see
+.IR nethandlers (5)),
+and it must exist at both source and destination
+unless the
+.BI \-r
+flag is used,
+or the invoker has \s-1OTHERHANDLERS\s0 permission,
+in which case it need only exist at the destination.
+The use of non-standard handlers is normally restricted
+to users with special network privileges.
+This argument must be present.
+.TP
+.BI \-D \ destination
+An explicit way of specifying a destination list.
+.TP
+.BI \-E \ flags
+The string will be made available to the handler at the destination
+as the header environment variable
+.SM ENV_FLAGS.
+.TP
+.BI \-F \ name
+.I Name
+will be interpreted explicitly as a file name.
+.TP
+.BI \-I " ID"
+Insert a message ID into the environment variable
+.SM ENV_ID.
+.TP
+.BI \-M \ size
+Large messages will be split into parts not exceeding this size.
+.I Size
+must be in the range 8192 to 2097152,
+unless the invoker has special network privileges.
+.TP
+.BI \-O \fR[\fPorigin\fR]\fP
+Renames the source of the message to be
+.I origin
+which must be a legal address, unless the flag
+.BI \-r
+is used.
+Note that
+.IR origin ,
+if present, may not be preceded by a space.
+This flag is restricted to the network
+.IR super-user .
+.TP
+.BI \-P \ priority
+Set the message priority in the range `1' (high) to `9' (low).
+Normal message priorities are determined by message size,
+with smaller messages having higher priority.
+Messages with priorities greater than `4' are routed
+via the cheapest route, other messages taking the fastest route.
+Non-privileged users may only lower their message's priority.
+.TP
+.BI \-T \fR[\fPlevel\fR]\fP
+Turns on tracing at
+.IR level .
+If tracing is not compiled in,
+this flag will have no effect.
+.TP
+.BI \-V " priv-user"
+Informs \*(S3 to use
+.I priv-user
+rather than the invoker to calculate the network permissions for following arguments.
+This flag is restricted to the network
+.IR super-user .
+.TP
+.BI \-X " file"
+Data from the file named will be transmitted
+.I in-place
+(without being copied first).
+If the file is on the same file-system as \*(S4,
+then it will be linked into the spool area,
+othwerise it will be referenced directly
+(in which case it musn't be removed until the message has been transmitted).
+.BR Caveat :
+the file name must be a full path name;
+the file must be readable by the message transport system
+(ie: it should probably have public read permission).
+.TP
+.BI \-Y \ travel-time
+Specifies that the message has already been travelling for
+.I travel-time
+seconds.
+Useful for messages arriving from gateways.
+.TP
+.BI \-Z \ time-to-die
+The message will be discarded on any route which takes more than
+.I time-to-die
+seconds before delivery.
+.TP
+.BI \-
+Data will be read from standard input at this point.
+.TP
+.BI \-?
+Explain argument options and exit.
+.SH ADDRESSES
+The full syntax for a destination is:
+.PP
+.RS 2
+.PD 0
+.TP "\w'broadcastX'u"
+destlist
+::= multicast\^|\|explicit\^|\|broadcast\^|\|dest
+.TP
+multicast
+::= {explicit\^|\|broadcast\^|\|dest}<\fB,\fP> {explicit\^|\|broadcast\^|\|dest}...
+.TP
+explicit
+::= {broadcast\^|\|dest}<\fB!\fP>{broadcast\^|\|dest}...
+.TP
+broadcast
+::= <\fB*\fP><\fB.\fP>dest
+.TP
+dest
+::= <alias>\^|\|domain\^[<\fB.\fP>domain...\^]
+.TP
+domain
+::= [<type><\fB=\fP>]<domain_name>
+.RE
+.PD
+.SH EXAMPLES
+.PP
+Send a message containing news to two regions,
+at a fixed priority,
+timing out after a week
+(these parameters could be used by the news posting program to propagate network news):
+.PP
+.ft CW
+.if \n(.lu<6i .ps -2
+.nf
+\&... |
+\*(S6 \-dosxP9 \-Areporter \-Drgn1,rgn2 \-Z600000
+.fi
+.if \n(.lu<6i .ps
+.ft
+.ne 4
+.SH FILES
+.PD 0
+.TP "\w'\f(CW_state/routefile\fRX'u"
+\f(CW_lib/handlers\fR
+Names of common handlers and their protocols (see
+.IR nethandlers (5)).
+.TP
+\f(CW_lib/localnodes\fR
+Optional list of legal sites for users without explicit network validation.
+.TP
+\f(CW_lib/privsfile\fP
+Privileges for network users (see
+.IR netprivs (5)).
+.TP
+\f(CW_route/*\fR
+Message description commands for routing.
+.TP
+\f(CW_state/routefile\fR
+Routing tables for resolving addresses.
+.TP
+\f(CW_work/*\fR
+Spooled messages.
+.PD
+.br
+.ne 3
+.SH "SEE ALSO"
+.IR netfile (1),
+.IR netprivs (1),
+.IR nethandlers (5),
+.IR netprivs (5),
+.IR \*(S5 (7),
+.IR nethandlers (8).
+.br
+.ne 11
+.SH DIAGNOSTICS
+Most diagnostics indicate that you were attempting something illegal,
+so consult the local network supervisor for further advice.
+.TP "\w'illegal\ handler.X'u"
+illegal handler
+The requested handler is either registered for a standard protocol,
+or you don't have permission to use this handler,
+or the handler is unregistered, and you haven't specified \fB\-r\fP.
+.TP
+illegal <message> site
+The network doesn't believe that the selected message type can be serviced
+at the destination named.
+This information is obtained from the optional address validation list in the
+.I handlers
+file (see
+.IR nethandlers (8)).
+.TP
+no permission
+You aren't validated to use the network,
+or to use a privileged network option.
+This information is obtained from the optional user network privileges list in the
+.I netprivs
+file (see
+.IR netprivs (1)).
+.TP
+no routefile
+\*(S2
+was unable to read the routing tables into memory.
+.TP
+not enough space
+The file system holding the network spool area
+has too little space left to spool another message.
+Try again later.
+.SH BUGS
+Because of the semantics of non-flag destination arguments,
+if a file name appears immediately after a legal destination,
+but the named file doesn't exist,
+then
+\*(S3
+will attempt to interpret the name as an destination.

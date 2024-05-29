@@ -1,0 +1,35 @@
+.ds S1 NETSORT
+.ds S2 \fINetsort\fP
+.ds S3 \fInetsort\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 _bin/netsort
+.TH \*(S1 8 "\*(S4 1.1" \^
+.nh
+.SH NAME
+netsort \- sort domain names into reverse order
+.SH SYNOPSIS
+.BI \*(S6
+.SH DESCRIPTION
+\*(S2
+reorders the domains in network addresses into reverse order,
+suitable for sorting addresses by region, rather than node name.
+The first word in each line on
+.I stdin
+is reordered,
+other words on the line are left unchanged.
+The output is piped through
+.IR sort (1).
+.SH EXAMPLES
+Print all site addresses from the network topology file,
+sorted by region:
+.PP
+.RS 2
+.ft CW
+netmap -l | \*(S6
+.ft
+.RE
+.SH "SEE ALSO"
+.IR netmap (1),
+.IR sort (1),
+.IR \*(S5 (7).

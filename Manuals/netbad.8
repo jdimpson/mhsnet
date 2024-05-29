@@ -1,0 +1,146 @@
+.ds S1 NETBAD
+.ds S2 \fINetbad\fP
+.ds S3 \fInetbad\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 _bin/netbad
+.TH \*(S1 8 "\*(S4 1.9" \^
+.nh
+.SH NAME
+netbad \- process failed network messages
+.SH SYNOPSIS
+.BI \*(S6
+.RI [\- flags \|]
+.RI [ address ...]
+.SH DESCRIPTION
+\*(S2
+interacts with the invoker to reroute or remove messages
+which have failed to progress through the network.
+The failed message will have its details displayed,
+and the invoker will be prompted for a command.
+Type \fB?\fP to find out possible commands.
+Note that only the minimum number of letters need be typed
+that will ensure a unique match with a command name.
+If the command is
+.IR reroute ,
+then the name of an appropriate link will be requested
+\(em a null reply will cause a link to be chosen automatically
+(but also see the \fB\-L\fP flag below).
+.PP
+If any addresses are specified,
+\*(S3
+will only select messages so addressed.
+.PP
+The optional flags modify this behaviour:
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-D\fP\ \fIdestination\fPX'u
+.TP "\*(tw"
+.BI \-c
+Return the messages queued count in the exit status.
+.TP
+.BI \-delete
+Assume the answer `delete' to any questions.
+.TP
+.BI \-h
+Show message headers.
+.TP
+.BI \-k
+Show commands from message description file.
+.TP
+.BI \-l
+Search the
+.I pending
+directory for looping messages awaiting operator re-routing,
+instead of the
+.I bad
+directory .
+(See
+.IR netreroute (8).)
+.TP
+.BI \-p
+Alternative name for \fB\-l\fP.
+.TP
+.BI \-r
+Search the
+.I reroute
+directory for messages awaiting automatic re-routing,
+instead of the
+.I bad
+directory .
+.TP
+.BI \-s
+Silent mode.
+(For use with the
+.BI \-c
+and/or
+.BI -y
+flags.)
+.TP
+.BI \-y
+Yes.
+Assume a positive response to all queries.
+.TP 
+.BI \-A \ handler
+Restrict the selection to just messages of type
+.IR handler .
+.TP
+.BI \-L \ link
+Force the
+.I reroute
+command to use
+.I link
+as the advisory link, instead of prompting for one.
+.TP
+.BI \-D \ destination
+Restrict the selection to just messages addressed to
+.IR destination .
+.TP
+.BI \-R \ reason
+Set the
+.I "stop reason"
+appended to messages that are
+returned.
+.TP
+.BI \-S \ source
+Restrict the selection to just messages from 
+.IR source .
+.TP
+.BI \-T \fR[\fPlevel\fR]\fP
+Turns on tracing at
+.I level
+(default: 1).
+If tracing is not compiled in,
+this flag will have no effect.
+.TP
+.BI \-U \ user
+Restrict the selection to just messages from 
+.IR user .
+.TP
+.BI \-?
+Explain argument options and exit.
+.SH FILES
+.PD 0
+.TP "\w'_state/routefileXX'u"
+_bad/*
+Failed messages.
+.TP
+_lib/handlers
+Names of common handlers and their protocols.
+.TP
+_pending/*
+Looping messages.
+.TP
+_reroute/*
+Delayed messages.
+.TP
+_state/routefile
+Routing tables for resolving address arguments.
+.TP
+*/reroute.lock
+Lockfile for \*(S3.
+.PD
+.SH "SEE ALSO"
+.IR netq (1),
+.IR netstop (1),
+.IR \*(S5 (7),
+.IR netreroute (8).

@@ -1,0 +1,47 @@
+#
+#	Example "initfile" for node `test1' with 1 link to `test2'.
+#
+#	See netinit(8), netcontrol(8) and netcallers(8) for further details.
+#
+
+#
+#	Daemons:
+#
+router		restart		_lib/router -frS10	# routing program
+#listen		restart		_lib/tcplisten -f	# if no inetd + /etc/servers
+#
+#	Admin:
+#
+admin-purge	"15 4 * * *"	_lib/daily		#  4:15am every night
+admin-stats	"25 4 1 * *"	_lib/monthly		#  4:25am 1st of the month
+admin-tidy	"5 12 * * 0"	_lib/weekly		# 12:05pm every Sunday
+#
+#	Calls:
+#
+#call-test2	restart		_call/call.tty -f	# permanent RS-232 link
+#				test2			# link name
+#				/dev/ttyb		# device
+#
+#call-test2	restart		_call/call.tcp -f	# permanent TCP/IP link
+#				-p"pass word"		# optional password
+#				test2			# link name
+#				000.000.000.000		# IP name (if different to link)
+#
+#call-test2	restart		_call/call.login -f	# permanent RS-232 link with login
+#				test2			# link name
+#				/dev/ttya		# device
+#				2400			# device speed
+#				test1 "pass word"	# login name, password
+#
+#call-test2 "0,15,30,45 * * * *" _call/call.modem_0 -f	# cron call via modem
+#				test2			# link name
+#				"hayes@/dev/cua"	# Hayes compatible modem @ device
+#				"T1234567@2400"		# telephone number @ speed for modem
+#				test1 "pass word"	# login name, password
+#
+#call-test2 "0 8,12,16 * * *"	_call/call.modem_0 -f	# cron call via modem
+#				test2			# link name
+#			"trailblazerRTS@/dev/cua"	# Trailblazer modem with RTS/CTS @ device
+#				"T1234567@19200"	# telephone number @ speed for modem
+#				test1 "pass word"	# login name, password
+#

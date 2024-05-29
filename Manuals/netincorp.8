@@ -1,0 +1,54 @@
+.ds S1 NETINCORP
+.ds S2 \fINetincorp\fP
+.ds S3 \fInetincorp\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 _bin/netincorp
+.TH \*(S1 8 "\*(S4 1.3" \^
+.nh
+.SH NAME
+netincorp \- add network state messages into routing tables
+.SH SYNOPSIS
+.BI \*(S6
+.RB [\- w ]
+.RI [ address ...]
+.SH DESCRIPTION
+\*(S2
+is a shell script that finds state messages
+from remote sites and incoporates them into the routing tables.
+This can be useful in re-creating the routing tables
+if state data was lost after a file-system crash.
+.PP
+The default (no \fIaddress\fP arguments) searches the state message hierarchy
+for state messages and adds them into the local statefile,
+before running 
+.IR netstate (8)
+to re-calculate the routing tables.
+With one or more
+.I address
+arguments,
+only state messages from the named sites are incorporated.
+.PP
+The optional flags are passed directly to
+.IR netstate (1)
+(eg: \fB\-w\fP to turn on warning messages).
+.SH FILES
+.PD 0
+.TP "\w'_state/routefileXX'u"
+_state/MSGS/*
+The top of a tree of directories containing state messages from sites
+with region addresses equivalent to the path names.
+Note that this tree is only maintained if the
+.SM KEEPSTATE
+parameter is set to \fB1\fP.
+.TP
+_state/routefile
+The routing tables.
+.TP
+_state/statefile
+The network connectivity data-base. 
+.PD
+.SH "SEE ALSO"
+.IR netparams (5),
+.IR \*(S5 (7),
+.IR netstate (8).

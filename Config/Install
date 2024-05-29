@@ -1,0 +1,129 @@
+#
+#	Install configuration programs in $2 (usually ISPOOLDIR/_config)
+#
+
+case $# in
+10)	;;
+*)	echo "Usage: $0 sourcedir insdir spooldir username groupname shell chown echo username2 groupname2"
+	exit 1
+	;;
+esac
+
+confdir=$1
+insconf=$2
+spooldir=$3
+username=$4
+groupname=$5
+shell=$6
+chown=$7
+echo=$8
+
+shift
+username2=$8
+groupname2=$9
+
+cd ${confdir}
+
+for i in \
+	config.menu \
+	cron.desc \
+	dialout.awk \
+	directout.awk \
+	initfile.skel \
+	links.menu \
+	mkcfile.awk \
+	mkcfile2.awk \
+	mkifile.awk \
+	newlink.menu
+do
+	cp ${i} ${insconf}
+	chmod 640 ${insconf}/${i}
+done
+
+#
+#	Copy in shell scripts that need magic strings changed.
+#
+
+for i in \
+	chngdialout.sh \
+	chngdirout.sh \
+	clean.sh \
+	cleanall.sh \
+	cleantar.sh \
+	dial.sh \
+	dialin.sh \
+	dialout.sh \
+	direct.sh \
+	directin.sh \
+	directout.sh \
+	finish.sh \
+	getaddr.sh \
+	getcron.sh \
+	listlinks.sh \
+	make_files.sh \
+	mkcfile.sh \
+	mkifile.sh \
+	NetBSD1.5+-rc.d \
+	rc.local \
+	rc2.d \
+	rclocal.d \
+	restrict.sh \
+	rmlnk.sh \
+	showlink.sh \
+	site.sh \
+	start.sh \
+	stop.sh \
+	tests.sh \
+	tcp.sh \
+	udp.sh \
+	x25.sh \
+	xinetd.d-tcp \
+	xinetd.d-udp \
+	xti.sh
+do
+	sed \
+		-e "s;SPOOLDIR=/[^ ]*;SPOOLDIR=${spooldir};" \
+		-e "s;NETUSERNAME=[^$][^ ]*;NETUSERNAME=${username};" \
+		-e "s;NETGROUPNAME=[^$][^ ]*;NETGROUPNAME=${groupname};" \
+		-e "s;SHELL=/[^ ]*;SHELL=${shell};" \
+		-e "s;^echo=[^\$][^ ]*;echo=${echo};" \
+		-e "s;^chown=[^\$][^ ]*;chown=${chown};" \
+		-e "1s;/bin/sh;${shell};" \
+		<${i} >${insconf}/${i}
+	chmod 750 ${insconf}/${i}
+done
+
+env=
+test -x /bin/env && env="/bin/env - PATH=$PATH"
+
+(cd ${insconf}
+	$chown ${username} *
+	chgrp ${groupname} *
+	x=`awk '/^SYS=/ {split($1, a, "="); print a[2]}' <installmhs`
+	case "$x" in
+	'')	echo "
+	WARNING: _config/installmhs not configured!
+	      and don't forget SYSTEM in configmhs.
+	"
+	esac
+	cd ..
+	rm -f _lib/handlers
+	x=`echo */OL*`
+	case "$x" in
+	'*/OL*'|'')
+		;;
+	*)
+		echo "
+	ERROR: remove these files: $x
+	and re-run \"config\"
+	"
+		exit 1
+		;;
+	esac
+	echo "$env ${shell} ${insconf}/make_files.sh ${username} ${groupname} ${chown} ${username2} ${groupname2}"
+	$env ${shell} ${insconf}/make_files.sh ${username} ${groupname} ${chown} ${username2} ${groupname2} || exit 1
+	echo "EXAMPLE: `tail -1 ${insconf}/chmod_files`"
+	echo "CHECK ${insconf}/chmod_files for consistency!"
+)
+
+exit 0

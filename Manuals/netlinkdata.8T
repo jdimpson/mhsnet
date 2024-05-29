@@ -1,0 +1,132 @@
+
+
+
+Maintenance Procedures                             NETLINKDATA(8)
+
+
+
+NNNNAAAAMMMMEEEE
+     netlinkdata - show network link data
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     nnnneeeettttlllliiiinnnnkkkkddddaaaattttaaaa [-_f_l_a_g_s] [_l_i_n_k_n_a_m_e|_r_e_g_i_o_n|_a_d_d_r_e_s_s ...]
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_l_i_n_k_d_a_t_a prints out transmission data for links to  other
+     nodes  directly  connected to this one based on the contents
+     of the links' status files.  By  default,  _n_e_t_l_i_n_k_d_a_t_a  will
+     search  the  spool  area for links and print out details for
+     each one found, but if particular links  are  named  in  the
+     arguments,  then the search will be restricted to just those
+     mentioned.  If a region or its alias or a complex address is
+     named,  then  _n_e_t_l_i_n_k_d_a_t_a  will show details of each link on
+     the  shortest  path(s),  unless  the  regions  are  directly
+     connected to this one, in which case _n_e_t_l_i_n_k_d_a_t_a will always
+     show the direct link.
+
+     The optional flags are:
+
+     ----aaaa  Show data for inactive channels.
+
+     ----ffff  Don't format the data.
+
+     ----wwww  Complain about non-existent links.
+
+     ----TTTT[_l_e_v_e_l]
+         Turns on tracing at _l_e_v_e_l [default 1].   If  tracing  is
+         not compiled in, this flag will have no effect.
+
+     ----????  Explain argument options and exit.
+
+     The data for each link are  printed  in  two  sections,  the
+     first  for  the  receiver,  the  second for the transmitter.
+     Each section starts with circuit statistics, followed by the
+     statistics  kept  for each channel.  There are four channels
+     for each direction.
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEESSSS
+     Print  the  unformatted  data   for   every   link   to   an
+     organisation:
+
+       _n_e_t_l_i_n_k_d_a_t_a -af *.mhs
+
+FFFFIIIILLLLEEEESSSS
+     _state/routefile       Routing tables for finding links.
+     _l_i_n_k_n_a_m_e/readerstatus  Status information from daemon reader
+                            process for link to _l_i_n_k_n_a_m_e.
+     _l_i_n_k_n_a_m_e/writerstatus  Status information from daemon writer
+                            process for link to _l_i_n_k_n_a_m_e.
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+
+
+
+
+Maintenance Procedures                             NETLINKDATA(8)
+
+
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _n_e_t_l_i_n_k(1), _n_e_t_c_a_l_l(8), _n_e_t_d_a_e_m_o_n(8).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    2
+
+
+

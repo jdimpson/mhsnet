@@ -1,0 +1,73 @@
+.ds S1 NETCRC
+.ds S2 \fINetcrc\fP
+.ds S3 \fInetcrc\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 netcrc
+.TH \*(S1 1 "1.5" \^
+.nh
+.SH NAME
+netcrc \- print 32-bit CRC of data in file(s)
+.SH SYNOPSIS
+.BI \*(S6
+.RB [\-[ a ][ b\c
+.RB ][ o ][ x ]]
+.RB [ \- ]
+.RI [ file \ ...]
+.SH DESCRIPTION
+\*(S2
+performs a 32-bit Cyclic Redundancy Check over the data from the files named in the arguments,
+and prints the result as a decimal number.
+The output base can be selected by flags.
+.P
+The optional parameters have meanings as follows:
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-xXX'u
+.TP "\*(tw"
+.BI \-a
+The output base becomes `\s-1ASCII\s0 coded'.
+.TP
+.BI \-b
+The output base becomes binary.
+.TP
+.BI \-o
+The output base becomes octal.
+.TP
+.BI \-x
+The output base becomes hexadecimal.
+.TP
+.BI \-
+Read data from
+.I stdin
+at this point.
+.PP
+Any other argument is assumed to be the name of a file whose contents are read and checked.
+If no file is named, and there is no explicit
+.I stdin
+flag,
+then data is read from
+.IR stdin .
+.SH EXAMPLES
+Produce hexadecimal CRC of three files, the second from
+.IR stdin :
+.PP
+.RS 2
+.ft CW
+.nf
+cat file2 | \*(S6 -x file1 - file3
+.fi
+.ft
+.RE
+.SH CRC
+The Cyclic Redundancy Check calculation uses the Ethernet polynomial:
+.PP
+.RS 2
+.ps -2
+.nf
+x^32+x^26+x^23+x^22+x^16+x^12+x^11+x^10+x^8+x^7+x^5+x^4+x^2+x+1
+.fi
+.ps
+.RE
+.SH "SEE ALSO"
+.IR sum (1),
+.IR wc (1).

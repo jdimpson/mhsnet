@@ -1,0 +1,178 @@
+.ds S1 NETPURGE
+.ds S2 \fINetpurge\fP
+.ds S3 \fInetpurge\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 _bin/netpurge
+.TH \*(S1 8 "\*(S4 1.9" \^
+.nh
+.SH NAME
+netpurge \- purge network temporary files
+.SH SYNOPSIS
+.BI \*(S6
+.RI [\- flags \|]
+.RI [ search_name ...]
+.SH DESCRIPTION
+\*(S2
+searches the network spool area for message command file directories
+(such as
+.I link
+directories for remote hosts),
+and builds a reference list for each message data file
+referred to by any message command files
+found in the directories.
+Any message command files found that have timed out are removed.
+Any files then found in a work directory which have not been referenced
+are removed.
+However, if any `bad' command files are discovered,
+then \*(S3 will not remove any unreferenced files,
+and will notify
+.SM NCC_ADMIN
+via mail (unless the `\-m' flag is used).
+.SM NCC_ADMIN
+will also be notified if any other exception conditions are encountered.
+.PP
+If any
+.I search_name
+(last component of a message file name) arguments are given,
+then
+\*(S3
+will report on their existence if found in a directory or message command file,
+however, no files will be removed.
+.PP
+The optional flags modify this behaviour:
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-F\fP\fI\ days\fP]X'u
+.TP "\*(tw"
+.BI \-a
+Remove all unreferenced files unconditionally.
+Otherwise unreferenced files that are less than 24 hours old are untouched.
+Only use this flag if the network is inactive.
+.TP
+.BI \-d
+Remove empty directories from multi-part message tree.
+.TP
+.BI \-f
+Remove timed-out messages from received files spooling directory.
+.TP
+.BI \-l
+Remove lock files.
+Only if the owner is not active,
+or the flag \fB\-a\fP is specified.
+(NB: this will not remove the lockfile for
+.IR netinit (8).)
+.TP
+.BI \-m
+Don't send mail to
+.SM NCC_ADMIN
+when inconsistencies detected.
+.TP
+.BI \-r
+Try routing any messages awaiting operator re-routing
+that have been waiting more than 24 hours.
+.TP
+.BI \-s
+Silent.
+Don't report number of files removed.
+.TP
+.BI \-t
+Search the
+`_trace'
+directory for messages that have timed-out and remove them.
+(Trace messages have a 24 hour timeout.)
+.TP
+.BI \-w
+Complain about inconsistencies,
+and tell about each file removed.
+.TP
+.BI \-F \ days
+Change the time-out for files spooled awaiting collection
+[default 7 days].
+Also turns on \fB-f\fP.
+.TP
+.BI \-M \ maxerrs
+Give up if more than
+.I maxerrs
+message errors are encountered
+[default 32].
+.TP
+.BI \-R \ hours
+Change the time-out (minimum 1 hour) for messages awaiting operator re-routing
+[default 24 hours].
+Also turns on \fB-r\fP.
+.TP
+.BI \-T n
+Activate tracing at level
+.IR n .
+If tracing is not compiled in,
+this flag will have no effect.
+.TP
+.BI \-?
+Explain argument options and exit.
+.SH FILES
+.PD 0
+.if n .ds tw 4
+.if t .ds tw \w'linkname/cmds/[0-9]*XX'u
+.TP "\*(tw"
+linkname/cmds/[0-9]*
+Command files queued on link to
+.IR linkname .
+.TP
+linkname/cmds/lock
+Lock file for transport daemon for link to
+.IR linkname .
+.TP
+linkname/*status
+Status files for virtual circuit transport daemon.
+.TP
+linkname/out/* linkname/in/*
+Messages spooled for/by the virtual circuit transport daemon to/from
+.IR linkname .
+.TP
+_bad/*
+Problem command files awaiting operator intervention via
+.IR netbad (8).
+.TP
+_files/*
+Command files for messages awaiting collection.
+.TP
+_lib/purge.lock
+Lock file for \*(S3 to prevent multiple invocations.
+.TP
+_messages
+Root of tree of multi-part message collection directories.
+.TP
+_pending/*
+Command files for looping messages awaiting operator intervention with
+.IR netreroute (8).
+.TP
+_reroute/*
+Command files for messages awaiting automatic re-routing.
+.TP
+_route/[0-9]*
+Command files for messages awaiting routing.
+.TP
+_route/lock
+Lock file for routing daemon.
+.TP
+_route/\fIhandler\fP/[0-9]*
+Command files for messages awaiting delivery by
+.IR handler .
+.TP
+_route/\fIhandler\fP/lock
+Lock file for
+.IR handler .
+.TP
+_trace/*
+Messages collected for inspection during tracing.
+.TP
+_work/*
+Work area files to be purged.
+.PD
+.SH "SEE ALSO"
+.IR netparams (5),
+.IR \*(S5 (7),
+.IR netbad (8),
+.IR netdaemon (8),
+.IR netreroute (8),
+.IR netrouter (8).

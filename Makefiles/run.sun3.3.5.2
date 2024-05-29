@@ -1,0 +1,140 @@
+#!/bin/sh
+#
+#	``run'' for Sun3 / SunOS 3.5.2
+#
+#	Note that all `"' must be escaped in *ARGS lists
+#
+
+MAKE='make -o'
+
+case $# in
+	0)	set certain ;;
+esac
+
+case "$MANTYPE" in
+'')	MANTYPE=src
+	echo MANTYPE="\"$MANTYPE\" ? "
+	read ans
+	;;
+esac
+
+case "$ISPOOLDIR" in
+'')	ISPOOLDIR='/usr/spool/MHSnet'
+	echo ISPOOLDIR="\"$ISPOOLDIR\" ? "
+	read ans
+	;;
+esac
+
+case "$VERSION" in
+'')     VERSION=`egrep 'define.VERSION' Lib/Version.c|sed -e 's/[^"]*"//' -e 's/"//'`
+        echo VERSION="$VERSION ? "
+        read ans
+        ;;
+esac
+
+(
+date >>made 2>&1
+/bin/time \
+$MAKE \
+	AR='ar ru' \
+	AUSAS='0' \
+	AUTO_LOCKING='0' \
+	BIN='DistBin' \
+	BINMAIL='/usr/lib/sendmail' \
+	BINMAILARGS='\"-f&F@&O\"' \
+	BSD4='2' \
+	BSD4V='0' \
+	CARR_ON_BUG='0' \
+	CFLAGS='-g -pipe' \
+	CHECK_LICENCE='1' \
+	CHMOD='chmod' \
+	CHMODMODE='u=rwx' \
+	CHMODSUMODE='u=rwxs' \
+	CHOWN='/etc/chown' \
+	CONFIG='-Dmc68000 -Dmc68020 -DMIT_68K -DNO_STRERROR -DTERMCAP -DSLOW_MALLOC' \
+	CP='cp' \
+	DEBUG='-DEBUG=2' \
+	ECHO='/bin/echo' \
+	FCNTL='1' \
+	FILEBUFFERSIZE='8192' \
+	FILESERVERLOG='$(STATSDIR)/servedfiles' \
+	FILESEXPIREDAYS='14' \
+	FLOCK='1' \
+	IGNMAILERSTATUS='2' \
+	INSBIN='$(ISPOOLDIR)/_ubin' \
+	ISPOOLDIR="$ISPOOLDIR" \
+	KILL_0='1' \
+	LDFLAGS='-g' \
+	LOCALSEND='1' \
+	LOCAL_NODES='$(LIBDIR)/localnodes' \
+	LOCKF='0' \
+	LORDER='lorder' \
+	MAILER='/usr/lib/sendmail' \
+	MAILERARGS='\"-oem\",\"-oit\",\"-f&F@&O\"' \
+	MAIL_FROM='0' \
+	MAIL_RFC822_HDR='1' \
+	MAIL_TO='1' \
+	MAKE="$MAKE" \
+	MANTYPE="$MANTYPE" \
+	MAXRETSIZE='10000' \
+	MINSLEEP='1' \
+	MKDIR='/bin/mkdir' \
+	MKLOCK='touch -f' \
+	MKLOCKTYPE= \
+	MV='mv' \
+	NCC_ADMIN='root' \
+	NCC_MANAGER='root' \
+	NDIRLIB='0' \
+	NETADMIN='1' \
+	NETGROUPNAME='daemon' \
+	NETUSERNAME='daemon' \
+	NEWSARGS= \
+	NEWSCMDS='$(LIBDIR)/newscmds' \
+	NEWSEDITOR='/usr/bin/rnews' \
+	NICEDAEMON='-10' \
+	NICEHANDLERS='10' \
+	PGRP='0' \
+	POSTMASTER='Postmaster' \
+	PRFORMATTER='/usr/local/pr -l66 -w132 -f -n4' \
+	PRINTER='/usr/ucb/lpr' \
+	PRINTERARGS='\"-C\",\"&F:&O\",\"-J\",\"&D\"' \
+	PRINTORIGINS='$(LIBDIR)/printorigins' \
+	PRIVSFILE='$(LIBDIR)/privsfile' \
+	PROTO_STATS='1' \
+	PRSPOOLER='/usr/local/apr -m$(NAME) -i' \
+	PUBLICFILES='$(LIBDIR)/publicfiles' \
+	RANLIB='ranlib' \
+	RENAME_2='1' \
+	RM='rm -f' \
+	RMPROG='/bin/rm' \
+	SERVERGROUP='' \
+	SERVERUSER='uucp' \
+	SHELL='/bin/sh' \
+	SITE_DEPEND="$0 Makefile" \
+	SPOOLDIR='/usr/spool/MHSnet' \
+	STATERNOTLIST='$(STATEDIR)/ignorefile' \
+	STRIP='strip' \
+	STTY='/bin/stty' \
+	SUN3='1' \
+	SYSTEM='0' \
+	SYSVREL='0' \
+	SYS_LOCKING='0' \
+	TCP_IP='1' \
+	TMPDIR='/tmp' \
+	TSORT='tsort' \
+	UDP_IP='1' \
+	UUCPLOCKS='1' \
+	V8='0' \
+	VALIDATEMAIL='0' \
+	VCDAEMON_STATS='1' \
+	VERSION="$VERSION" \
+	VPRINTF='1' \
+	WAIT_RESTART='1' \
+	WHOISARGS='\"-i\",\"-e\"' \
+	WHOISFILE='/usr/adm/whois' \
+	WHOISPROG='/usr/bin/egrep' \
+	WORKFLAG='_' \
+"$@" >>made 2>&1
+
+echo `date` " Make ${1-certain} done." >/dev/tty
+)&

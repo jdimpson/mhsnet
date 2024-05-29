@@ -1,0 +1,9 @@
+
+	-a	Request all state info. from a particular site.
+	-b	Broadcast to visible region.
+	-e	Export local state info. (all if "-a").
+	-i	Read export file from `stdin' (implies "-e").
+	-l	Include addresses of all links.
+	-n	Don't request state info (implies "-e").
+	-r	Enable error returns.
+	-t	Don't timeout the request (ignored for broadcast).

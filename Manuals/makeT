@@ -1,0 +1,6 @@
+#!/bin/sh
+make USER=0 \
+	INSDIR1=. INSDIR3=. INSDIR5=. INSDIR7=. INSDIR8=. \
+	SECT1=.1T SECT3=.3T SECT5=.5T SECT7=.7T SECT8=.8T \
+	COPY='{ ( cat tmac.an; sed $(TRANSFORMS) ) | nroff; }' \
+	install

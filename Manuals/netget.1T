@@ -1,0 +1,198 @@
+
+
+
+User Commands                                           NETGET(1)
+
+
+
+NNNNAAAAMMMMEEEE
+     netget - get files spooled from network
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     nnnneeeettttggggeeeetttt [-_f_l_a_g_s] [_f_i_l_e_n_a_m_e ...]
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_g_e_t will retrieve files spooled from the network  in  the
+     spool  area  (as reported by _m_a_i_l(1)).  _N_e_t_g_e_t finds all the
+     files spooled for the invoker,  prints  out  the  number  of
+     files  found,  sorts  them  into _m_o_d_i_f_y _t_i_m_e order, and then
+     prompts for each file for  the  invoker  to  decide  on  the
+     action  to  be  taken,  (reply  `append',  `basename', `cd',
+     `delete', `keep', `mkdir', `no' [default], `quit',  `rename'
+     or  `yes'  as appropriate - the first letter is sufficient).
+     The _y_e_s action is to  copy  the  file  into  the  path  name
+     indicated,  and  delete  the  spooled copy.  If the reply is
+     `cd', `mkdir' or `rename' and no path name is supplied after
+     the command, then _n_e_t_g_e_t will prompt you for a new pathname.
+     The _k_e_e_p command effect is the same as for _y_e_s, but the file
+     will  not  be  deleted after copying (can be default for all
+     files with the ----kkkk flag below).
+
+     Any filename arguments will restrict the selection to  those
+     named.
+
+     _N_e_t_g_e_t'_s action may be modified by the following flags:
+
+     ----ddddeeeelllleeeetttteeee
+         Delete all (named) files.
+
+     ----1111  Only get the first  file  with  the  same  name  as  the
+         argument.
+
+     ----aaaa  Search for all files, rather than just  those  belonging
+         to  the invoker.  The name of the recipient will also be
+         printed.   The  default  sort  order  is  on   name   of
+         recipient.   This  flag  is  restricted  to  the network
+         _s_u_p_e_r-_u_s_e_r .
+
+     ----bbbb  Truncate all file pathnames  to  their  last  component.
+         (cf: "basename" command above.)
+
+     ----cccc  Do a check  of  the  CRC  on  the  data  if  it  exists.
+         (Generated  by  the  ----cccc  flag  to _n_e_t_f_i_l_e(1) and checked
+         automatically by the file handler on reception.)
+
+     ----dddd  Create directories  as  needed  to  match  pathnames  of
+         retrieved files.
+
+     ----eeee  Files will be sorted by  delivery  time.   The  delivery
+         time  of  the  message  will  be  printed instead of the
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+
+
+
+
+User Commands                                           NETGET(1)
+
+
+
+         modify  time  of  the  file,  unless  _v_e_r_b_o_s_e  mode   is
+         selected, in which case both will be printed.
+
+     ----ffff  Set, or unset,  file  forwarding  for  the  invoker.   A
+         second  argument  should be supplied which is an address
+         for files  to  be  forwarded  to.   A  missing  argument
+         implies  that forwarding should be turned off.  See also
+         _n_e_t_f_o_r_w_a_r_d(1).
+
+     ----kkkk  Keep all files - don't delete any files  retrieved  from
+         messages.  This causes the _d_e_l_e_t_e command to be ignored.
+         Individual files may also be  retained  after  retrieval
+         (cf: the _k_e_e_p command above).
+
+     ----llll  The (named) files will be listed only.
+
+     ----mmmm  Files will be sorted by modify time [default].
+
+     ----nnnn  Files will be sorted by name.
+
+     ----oooo  The named files will be copied to _s_t_d_o_u_t.  They will not
+         then be deleted unless the flag -_d_e_l_e_t_e is used.
+
+     ----rrrr  The order of the sort will be reversed.
+
+     ----ssss  Do it silently.
+
+     ----tttt  Files will be sorted by  transmit  time.   The  transmit
+         time  of  the  message  will  be  printed instead of the
+         modify  time  of  the  file,  unless  _v_e_r_b_o_s_e  mode   is
+         selected, in which case both will be printed.
+
+     ----uuuu  Don't set the modify date for the retrieved file back to
+         the original for the transmitted file.
+
+     ----vvvv  Give a verbose description of each file, including  full
+         destination address, and route taken.  The delivery time
+         for the message will also be printed before  the  modify
+         time for the file.
+
+     ----xxxx  Just report the number of (named) files spooled  (unless
+         the  flag  ----ssss  is elected), and return the number as the
+         exit status (max. 127).
+
+     ----yyyy  Assume answer `yes' to all questions.
+
+     ----FFFF _s_o_u_r_c_e
+         Only consider messages sent from the site _s_o_u_r_c_e.
+
+     ----OOOO _d_a_y_s
+         Only consider messages older than _d_a_y_s.
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    2
+
+
+
+
+
+
+User Commands                                           NETGET(1)
+
+
+
+     ----SSSS _s_e_n_d_e_r
+         Only consider messages sent by the person _s_e_n_d_e_r.
+
+     ----TTTT[_l_e_v_e_l]
+         Turns on tracing at _l_e_v_e_l (default: 1).  If  tracing  is
+         not compiled in, this flag will have no effect.
+
+     ----UUUU _n_a_m_e
+         The name of the user whose files are to be retrieved  is
+         changed  to _n_a_m_e.  This flag is restricted to the _s_u_p_e_r-
+         _u_s_e_r.
+
+     ----????  Explain argument options and exit.
+
+     Either one of ----FFFF or ----SSSS (but not both) may be specified as in
+     ----FFFF_s_e_n_d_e_r@@@@_s_o_u_r_c_e....
+
+     _N_e_t_g_e_t will create the files with the mode of  the  original
+     as modified by your file creation mask (see _u_m_a_s_k(1)).
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEESSSS
+     Show all files spooled sorted by name:
+
+       netget -ln
+
+     Retrieve, and rename, a particular file sent  by  _j_u_d_y  from
+     _b_a_s_s_e_r._c_s._s_u._o_z._a_u:
+
+       netget -1os -delete -Fjudy@basser.cs.su.oz.au f.c >n.c
+
+     Forward your files to two other users:
+
+       netget -f john@cs.mu.oz.au fred@sw.oz.au
+
+     Any addresses will be expanded to canonical form.
+
+FFFFIIIILLLLEEEESSSS
+     _files/*          Spooled files.
+     _forward/_u_s_e_r_n_a_m_e Forwarding details for user.
+     _state/routefile  Routing tables for resolving addresses.
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _n_e_t_f_e_t_c_h(1), _n_e_t_f_i_l_e(1), _n_e_t_f_o_r_w_a_r_d(1), _u_m_a_s_k(1).
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    3
+
+
+

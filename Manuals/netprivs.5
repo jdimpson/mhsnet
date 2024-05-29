@@ -1,0 +1,167 @@
+.ds S1 NETPRIVS
+.ds S2 \fINetprivs\fP
+.ds S3 \fInetprivs\fP
+.ds S4 MHSnet
+.ds S5 network
+.TH \*(S1 5 "\*(S4 1.13" \^
+.nh
+.SH NAME
+netprivs \- network people privileges description file
+.SH SYNOPSIS
+.BI \s-1SPOOLDIR\s0/_lib/privsfile
+.SH DESCRIPTION
+\*(S2
+contains network permissions for people accessing the network.
+Each line in the file describes the permissions to be allowed
+for a particular person, or for a group.
+The contents can be printed selectively by the program
+.IR netprivs (1).
+.PP
+Lines start with a user or group name in the first field,
+followed immediately by one colon (`\fB:\fP') for a user,
+or two colons for a group,
+then a list of privileges separated by
+.IR "space" .
+.I "Space"
+is any combination of <tab>, <space>, `,', or `;'.
+Privileges may be spread over several lines
+by preceding the continuation lines with
+.IR space .
+Comments may be introduced with a hash (`\fB#\fP'),
+and continue to end-of-line.
+Any
+.I space
+colon or hash character may be escaped by preceding it with a back-slash (`\fB\e\fP').
+.PP
+An asterisk (`\fB*\fP') in the first field allows default privileges to be set.
+Subsequent default lists modify previous default lists.
+.PP
+Named users inherit the current composite set of defaults.
+Group entries set defaults for all users who are a member of that group
+and have not been named explicily before the group name occurs.
+Any users not explicitly named in the file,
+and whose group is not named,
+will inherit the final composite of defaults.
+.PP
+Each privilege listed is conferred \(em a leading plus-sign (`\fB+\fP') is ignored.
+Alternatively a privilege may be removed by preceding it with either
+a minus-sign (`\fB\-\fP'),
+exclamation point (`\fB!\fP'),
+or tilde (`\fB~\fP').
+Conferred privileges are enabled first,
+and then denied privileges are removed,
+except in the special case of `\fB\-*\fP' (see below),
+when all current privileges are turned off,
+before enabling the conferred ones.
+.PP
+A user's privileges consist of enabling flags and an optional address restriction.
+The address restriction prevents a user from sending messages outside the regions named,
+and is introduced with an
+.I at
+sign (`\fB@\fP').
+.PP
+The (case insensitive) flags are as follows:
+.if n .ds tw 4
+.if t .ds tw \w'\fBOtherhandlers\fPX'u
+.TP "\*(tw"
+.BI *
+All flags.
+.TP
+.BI Broadcast
+Broadcast routing allowed.
+.TP
+.BI Exec
+.I "Remote execution"
+requests allowed (if supported).
+.TP
+.BI Explicit
+Explicit routing allowed.
+.TP
+.BI Multicast
+Multicast routing allowed.
+.TP
+.BI Otherhandlers
+Message types not defined by
+.IR nethandlers (5)
+are allowed.
+.TP
+.BI Receive
+User is allowed to receive network messages.
+So far only applies to the ability to use
+.IR netget (1).
+.TP
+.BI Send
+User is allowed to send network messages.
+.TP
+.BI SU
+This user is a network
+.IR "super-user" .
+.TP
+.BI World
+Messages addressed to the top-level (global) region are allowed.
+.PP
+Any program running under the uid
+.SM NETUSERNAME
+automatically gets all privileges.
+If the invoker of a network program is the
+.I super-user
+or is a member of the group
+.SM NETGROUPNAME
+then they are automatically conferred the
+.IR SU ,
+.IR Broadcast ,
+.IR Otherhandlers ,
+.I Send
+and
+.I Exec
+flags.p
+
+.PP
+If the file doesn't exist, or is empty,
+then users get the following default privileges:
+.IR Multicast ,
+.IR Explicit ,
+.IR Send ,
+.IR Receive .
+.SH EXAMPLE
+.if \n(.lu<6i .RS -0.5c
+.ft CW
+.ps -1
+.nf
+.ta +\w'daemon:X'u +\w'-OTHERHANDLERSXX'u
+#	This is a comment line.
+#	(Note that empty lines are ignored.)
+
+*:	*	# Turn on everything for these:
+root:
+daemon:
+
+*:	-WORLD	# Following are network super-users:
+kre:
+bob:
+
+*:	-BROADCAST	# Mortals can't broadcast,
+	-OTHERHANDLERS	# use weird handlers,
+	-SU	# manipulate network messages,
+	@COUNTRY=au	# or send messages outside the country.
+tom:
+jane:	+OTHERHANDLERS	# (except for Jane,
+		# who is testing a new handler).
+
+#	Staff are restricted to particular networks.
+staff::	@PRMD=mhs\e,PRMD=oz
+
+#	The rest may only receive or send within XYZ.
+*:	-*; SEND, RECEIVE, MULTICAST, @ORG=xyz
+.DT
+.fi
+.ps
+.ft
+.if \n(.lu<6i .RE
+.ne 3
+.SH "SEE ALSO"
+.IR netfile (1),
+.IR netprivs (1),
+.IR netaddresses (5),
+.IR \*(S5 (7),
+.IR netmsg (8).

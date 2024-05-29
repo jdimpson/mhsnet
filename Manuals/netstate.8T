@@ -1,0 +1,990 @@
+
+
+
+Maintenance Procedures                                NETSTATE(8)
+
+
+
+NNNNAAAAMMMMEEEE
+     netstate - manage network state and routing tables
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     ____bbbbiiiinnnn////nnnneeeettttssssttttaaaatttteeee [-_f_l_a_g_s]
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_s_t_a_t_e manages the network state information  and  routing
+     tables.   The network topology and state information is held
+     in a file called `statefile'.  Commands for  controlling  or
+     modifying   this   information   are   normally   found   in
+     `commandsfile', although they can also be read  from  _s_t_d_i_n.
+     The  topology  information  is  compiled  into  another file
+     called `routefile' that contains the routing tables used  by
+     all other network programs.  All three files are kept in the
+     network spooling area in a directory called `_state'.
+
+     Optional flags are:
+
+     ----cccc  Read commands from _s_t_d_i_n.
+
+     ----eeee  Ignore CRC errors in state files.
+
+     ----iiii  Read an imported state file from _s_t_d_i_n.
+
+     ----oooo  Write state file onto _s_t_d_o_u_t.
+
+     ----nnnn  Don't generate an automatic state broadcast.
+
+     ----qqqq  Write the source address and comment onto _s_t_d_o_u_t.
+
+     ----rrrr  Update the routing tables.
+
+     ----ssss  Update the state file.
+
+     ----wwww  Complain  about  irregularities  in  state   files   and
+         commands.
+
+     ----xxxx  Force a rewrite of  the  files  `_state/exportfile'  and
+         `_state/sitefile'.  Normally, these state files are only
+         updated when significant local details are  altered  via
+         new commands.
+
+     ----CCCC[_c_o_m_m_a_n_d_s_f_i_l_e]
+         Read     commands     from     _c_o_m_m_a_n_d_s_f_i_l_e     (default
+         `_state/commandsfile').
+
+     ----DDDD _s_o_u_r_c_e_d_a_t_e
+         Give the origin date  of  the  imported  state  file  in
+         seconds.
+
+     ----FFFF _s_o_u_r_c_e_a_d_d_r
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    1
+
+
+
+
+
+
+Maintenance Procedures                                NETSTATE(8)
+
+
+
+         Give the origin source address  of  the  imported  state
+         file.
+
+     ----RRRR _r_o_u_t_e_f_i_l_e
+         The  route  file  name  becomes  _r_o_u_t_e_f_i_l_e  instead   of
+         `_state/routefile'.
+
+     ----SSSS[_s_t_a_t_e_f_i_l_e]
+         The local state file name becomes _s_t_a_t_e_f_i_l_e  instead  of
+         `_state/statefile'.    If  the  _s_t_a_t_e_f_i_l_e  parameter  is
+         missing, then this flag prevents _n_e_t_s_t_a_t_e  from  reading
+         the default state file.
+
+     ----TTTT[_l_e_v_e_l]
+         Turns on tracing at _l_e_v_e_l [default 1].   If  tracing  is
+         not compiled in, this flag will have no effect.
+
+     ----UUUU[_l_e_v_e_l]
+         Turns on tracing for commands at _l_e_v_e_l [default 1].   If
+         tracing  is  not  compiled  in,  this  flag will have no
+         effect.
+
+     ----ZZZZ _t_i_m_e-_t_o-_d_i_e
+         Any routing message generated will be discarded  on  any
+         route  which  takes more than _t_i_m_e-_t_o-_d_i_e seconds before
+         delivery.  The default for all broadcast messages is one
+         week, but this option may be used to shorten the message
+         life further.
+
+     ----????  Explain argument options and exit.
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEESSSS
+     Remake the routing tables after  changing  the  contents  of
+     _c_o_m_m_a_n_d_s_f_i_l_e:
+
+         _bin/netstate -rsxC
+
+     Recover a corrupted _s_t_a_t_e_f_i_l_e:
+
+         _bin/netstate -esC
+
+     Output a state file from some new commands:
+
+         _bin/netstate -oncS <test.cmds >test.state
+
+CCCCOOOOMMMMMMMMAAAANNNNDDDDSSSS
+     Modifications to the state file are made with commands which
+     take the format:
+
+         command<_s_e_p>[region[,region]]<_s_e_p>[parameter[,...]]
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    2
+
+
+
+
+
+
+Maintenance Procedures                                NETSTATE(8)
+
+
+
+     Tab or space characters separate fields of the command.  The
+     `####'  character  may be used to cause the input to be ignored
+     up to the next unescaped newline.  Newline, tab, space, `####',
+     and  escape characters may be escaped by preceding them with
+     `\\\\'.  Commands may be extended over many lines  by  starting
+     continuation lines with leading tabs or spaces.  The maximum
+     length of a command is 1022 characters.
+
+     OOOOnnnncccceeee aaaa  ccccoooommmmmmmmaaaannnndddd  hhhhaaaassss  ttttaaaakkkkeeeennnn  eeeeffffffffeeeecccctttt,,,,  iiiitttt  iiiissss  _r_e_m_e_m_b_e_r_e_d  iiiinnnn
+     ````ssssttttaaaatttteeeeffffiiiilllleeee'''',,,,  ssssoooo  iiiitttt mmmmuuuusssstttt bbbbeeee uuuunnnnddddoooonnnneeee eeeexxxxpppplllliiiicccciiiittttllllyyyy ttttoooo rrrreeeemmmmoooovvvveeee iiiittttssss
+     eeeeffffffffeeeecccctttt....  IIIIeeee:::: jjjjuuuusssstttt rrrreeeemmmmoooovvvviiiinnnngggg  aaaa  ccccoooommmmmmmmaaaannnndddd  ffffrrrroooommmm  ````ccccoooommmmmmmmaaaannnnddddssssffffiiiilllleeee''''
+     wwwwiiiillllllll nnnnooootttt rrrreeeevvvveeeerrrrsssseeee iiiittttssss eeeeffffffffeeeecccctttt....
+
+     Note that the way to reverse the effect of any command  that
+     takes  an  optional  parameter  is to leave out the optional
+     parameter, so the way to  undo  an  earlier  command  is  to
+     remove the parameter.  The only exceptions are:
+
+     _l_i_c_e_n_c_e__n_u_m_b_e_r  which isn't remembered in  the  state  file,
+                     and must always be present.
+
+     _n_o_r_o_u_t_e         which isn't remembered in the state file;
+
+     _x_a_l_i_a_s          which is  a  single-parameter  command  that
+                     needs an additional parameter to reverse its
+                     effect;
+
+     If a parameter is the name of a program, then  a  full  path
+     name  is  required,  or  a path name relative to the network
+     spooling directory [SPOOLDIR - see _n_e_t_p_a_r_a_m_s(5)].
+
+     Region names are limited to characters from the set
+         [[[[<<<<ssssppppaaaacccceeee>>>>----....0000----9999====AAAA----ZZZZ____aaaa----zzzz]]]]
+     (case is not significant, and <space> must be  escaped)  and
+     take the format
+         _d_o_m_a_i_n[...._d_o_m_a_i_n ...]
+     where each _d_o_m_a_i_n takes the form
+         _t_y_p_e====_n_a_m_e
+     _T_y_p_e can be any of the default types (see _o_r_d_e_r_t_y_p_e_s below),
+     or  any  that  previously  have  been  _m_a_p_p_e_d.   _T_y_p_e may be
+     ommitted if a previously mapped typed-domain name  is  used.
+     The   routing  software  translates  all  types  into  their
+     internal form that consists of a digit in the range  `0'  to
+     `9'.  Domains may occur in any order.
+
+     Any link between two regions is unidirectional, and  so  two
+     links are needed for a bi-directional connection between two
+     regions.
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    3
+
+
+
+
+
+
+Maintenance Procedures                                NETSTATE(8)
+
+
+
+     The commands are as follows:
+
+     aaaadddddddd _r_e_g_i_o_n
+         Add a new region.
+
+     aaaaddddddddrrrreeeessssssss _r_e_g_i_o_n
+         Give the region name for `home'.  If this command causes
+         an  address  change, then the old address will become an
+         exported _a_l_i_a_s for the new  one,  and  the  old  region,
+         together  with  any  associated aliases will be removed.
+         This command, if used, must precede any  other  commands
+         except oooorrrrddddeeeerrrrttttyyyyppppeeeessss, mmmmaaaapppp _d_o_m_a_i_n, and mmmmaaaapppp _t_y_p_e.
+
+     bbbbrrrreeeeaaaakkkk _R_1,_R_2
+         Break both the links between _R_1 and _R_2.
+
+     bbbbrrrreeeeaaaakkkkaaaallllllll _r_e_g_i_o_n
+         Break all the links to or from this region.
+
+     bbbbrrrreeeeaaaakkkkppppsssseeeeuuuuddddoooo [_r_e_g_i_o_n]
+         Break all the  `pseudo'  links  from  this  region.   If
+         _r_e_g_i_o_n   is  missing,  them  remove  all  pseudo  links.
+         (_P_s_e_u_d_o links between sites are  created  when  a  state
+         message  from  some  site  indicates  that it knows of a
+         route to another site, but no  other  information  about
+         the second site is available.)
+
+     ccccaaaalllllllleeeerrrr _r_e_g_i_o_n [_p_r_o_g_r_a_m]
+         Set the name of a program to be invoked to  establish  a
+         virtual circuit for the link to _r_e_g_i_o_n.
+
+     cccchhhheeeeaaaapppprrrroooouuuutttteeee _R_1 [_R_2]
+         Force all _c_h_e_a_p routes to _R_1 (and its sub-regions) to go
+         via _R_2, which must be linked to `home'.
+
+     cccclllleeeeaaaarrrr _r_e_g_i_o_n
+         Zero the `state date' for _r_e_g_i_o_n.  This date is the  one
+         recorded  as  the time a state message was last received
+         from _r_e_g_i_o_n.
+
+     ccccoooommmmmmmmeeeennnntttt [_r_e_m_a_r_k_s]
+         Set the `remarks' field  in  the  site  description  for
+         `home'.  The total length of all site description fields
+         must not exceed 1022 characters.
+
+     ccccoooosssstttt _R_1,_R_2 _c_o_s_t
+         Set a nominal _c_o_s_t  (decimal  number  in  the  range  0-
+         1,000,000)  for the link from _R_1 to _R_2.  You should only
+         set costs on links  from  `home',  so  you  will  get  a
+         warning message if _R_1 is not `home'.
+
+     ddddeeeellllaaaayyyy _R_1,_R_2 _d_e_l_a_y
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    4
+
+
+
+
+
+
+Maintenance Procedures                                NETSTATE(8)
+
+
+
+         Set the queueing delay in  seconds  (maximum  1  week  =
+         604,800)  for  the  link from _R_1 to _R_2.  You should only
+         set delays on links to `home', so you will get a warning
+         message if _R_2 is not `home'.
+
+     eeeemmmmaaaaiiiillll____aaaaddddddddrrrreeeessssssss [_a_d_d_r_e_s_s]
+         Set the `e-mail address' for the site  administrator  in
+         the   site   description  for  `home'.   This  field  is
+         mandatory at initial setup.
+
+     ffffaaaassssttttrrrroooouuuutttteeee _R_1 [_R_2]
+         Force all _f_a_s_t routes to _R_1 (and its sub-regions) to  go
+         via _R_2, which must be linked to `home'.
+
+     ffffiiiilllltttteeeerrrr _r_e_g_i_o_n [_p_r_o_g_r_a_m]
+         Set the name of a program to be used to _f_i_l_t_e_r  messages
+         arriving or departing on the link to _r_e_g_i_o_n.
+
+     ffffllllaaaagggg _R_1,_R_2 [+|-]_f_l_a_g[,...]
+         Set (+) [default], or unset (-), routing  flags  on  the
+         link from _R_1 to _R_2.  The flags are enumerated below.
+
+     ffffoooorrrrwwwwaaaarrrrdddd _a_d_d_r_e_s_s [_r_e_g_i_o_n]
+         Arrange for addresses matching _a_d_d_r_e_s_s to  be  forwarded
+         to  _r_e_g_i_o_n.   _A_d_d_r_e_s_s may be a region name, or a locally
+         unresolvable address that can be resolved in _r_e_g_i_o_n.
+
+     ffffoooorrrrwwwwaaaarrrrdddd ****...._r_e_g_i_o_n_1 [_r_e_g_i_o_n_2]
+         Arrange  for  any  address  ending  in  _r_e_g_i_o_n_1  to   be
+         forwarded to _r_e_g_i_o_n_2 - provided that the address doesn't
+         appear in  the  routing  tables.   _r_e_g_i_o_n_1  may  be  any
+         locally  unresolvable typed address that can be resolved
+         in _r_e_g_i_o_n_2.  If _r_e_g_i_o_n_2 is equal to the  local  address,
+         then all matched addresses will become equivalent to the
+         local address.  If _r_e_g_i_o_n_1 is blank (meaning the  world-
+         level region, *WORLD*), _t_h_e_n _a_l_l _a_d_d_r_e_s_s_e_s _a_r_e _m_a_t_c_h_e_d.
+
+     hhhhaaaallllffffbbbbrrrreeeeaaaakkkk _R_1,_R_2
+         Remove the link from _R_1 to _R_2.
+
+     hhhhaaaallllfffflllliiiinnnnkkkk _R_1,_R_2 [+|-]_f_l_a_g[,...]
+         Make a uni-directional link from _R_1 to _R_2.  The optional
+         _f_l_a_g_s are as for the ffffllllaaaagggg command.
+
+     iiiiaaaalllliiiiaaaassss _a_l_i_a_s [_r_e_g_i_o_n]
+         Attribute an _a_l_i_a_s for _r_e_g_i_o_n.  _A_l_i_a_s must be  a  region
+         name  and  will be _o_w_n_e_d by _r_e_g_i_o_n - which may therefore
+         reset it.
+
+     lllliiiicccceeeennnncccceeee____nnnnuuuummmmbbbbeeeerrrr [_n_u_m_b_e_r]
+         Set the `licence number' field for the site  description
+         for  `home'.  This command is mandatory.  In fact, after
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    5
+
+
+
+
+
+
+Maintenance Procedures                                NETSTATE(8)
+
+
+
+         initial setup, it is the only command that  must  always
+         be present.
+
+     lllliiiinnnnkkkk _R_1,_R_2 [+|-]_f_l_a_g[,...]
+         Make both links between _R_1 and _R_2.  The  optional  _f_l_a_g_s
+         are  as  for  the ffffllllaaaagggg command, except that they will be
+         applied to both links.
+
+     lllliiiinnnnkkkknnnnaaaammmmeeee _r_e_g_i_o_n [_p_a_t_h_n_a_m_e]
+         Set a local path name for _r_e_g_i_o_n, which must  be  _l_i_n_k_e_d
+         to `home'.  Path names are appended to the network spool
+         directory name.  The default path name is  the  reversed
+         typed  region  name, with each domain separator replaced
+         by `/'.
+
+     llllooooccccaaaattttiiiioooonnnn [_l_o_c_a_t_i_o_n]
+         Set the `location' field in  the  site  description  for
+         `home'.
+
+     mmmmaaaapppp _a_d_d_r_e_s_s [_r_e_g_i_o_n]
+         Map an arbitrary  address  to  a  _r_e_g_i_o_n.   _R_e_g_i_o_n  will
+         replace _a_d_d_r_e_s_s when the address is resolved locally.
+
+     mmmmaaaapppp _d_o_m_a_i_n [_t_y_p_e_d-_d_o_m_a_i_n]
+         Map an arbitrary domain name to  a  typed  domain  name.
+         _T_y_p_e_d-_d_o_m_a_i_n  will  replace  _d_o_m_a_i_n  when the address is
+         resolved locally.
+
+     mmmmaaaapppp _t_y_p_e_1 [_t_y_p_e_2]
+         _T_y_p_e_1 is made a synonym for _t_y_p_e_2.   _T_y_p_e_2  must  be  an
+         internal type (digit in the range `0' to `9'), a default
+         type  (see  oooorrrrddddeeeerrrrttttyyyyppppeeeessss  below),  or  one  introduced  by
+         oooorrrrddddeeeerrrrttttyyyyppppeeeessss.  _T_y_p_e_1 may not be an internal type.
+
+     nnnnoooorrrroooouuuutttteeee _r_e_g_i_o_n
+         Mark _r_e_g_i_o_n as having no known route.  This will prevent
+         it  or  any of its aliases from appearing in the routing
+         tables.  However, all its details will be remembered  in
+         the state file.
+
+     oooorrrrddddeeeerrrrttttyyyyppppeeeessss _t_y_p_e;_t_y_p_e;_t_y_p_e;_t_y_p_e...;_t_y_p_e
+         Give ordering  for  preferred  typenames.   The  default
+         types are:
+         CCCC;;;;AAAA;;;;PPPP;;;;OOOO;;;;OOOOUUUU1111;;;;OOOOUUUU2222;;;;OOOOUUUU3333;;;;OOOOUUUU4444;;;;OOOOUUUU5555;;;;NNNN
+         A minimum of 5 types must be specified, up to a  maximum
+         of 10.  The first nnnn----1111 types will become synonyms for the
+         first nnnn----1111 default types, and the nnnnth type will match  NNNN.
+         The  first type is for a country identifier, the last is
+         for a network  node.   None  of  the  types  may  be  an
+         _i_n_t_e_r_n_a_l  type  (digit  in  range  '0'  to  '9').  These
+         typenames will be used when expanding addresses, instead
+         of  the  defaults.   This  command,  if  used, mmmmuuuusssstttt ccccoooommmmeeee
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    6
+
+
+
+
+
+
+Maintenance Procedures                                NETSTATE(8)
+
+
+
+         ffffiiiirrrrsssstttt.   Alternatives  for  these   typenames   may   be
+         specified with the mmmmaaaapppp command.
+
+     oooorrrrggggaaaannnniiiissssaaaattttiiiioooonnnn [_o_r_g_a_n_i_s_a_t_i_o_n]
+         Set the `organisation' field in the site description for
+         `home'.  This field is mandatory at initial setup.
+
+     oooorrrrggggaaaannnniiiizzzzaaaattttiiiioooonnnn [_o_r_g_a_n_i_z_a_t_i_o_n]
+         An alternative for `organisation'.
+
+     ppppeeeerrrrssssoooonnnn [_c_o_n_t_a_c_t _p_e_r_s_o_n]
+         Set the `contact person' field in the  site  description
+         for `home'.  This field is mandatory at initial setup.
+
+     ppppoooossssttttaaaallll____aaaaddddddddrrrreeeessssssss [_a_d_d_r_e_s_s]
+         Set the `postal address' field in the  site  description
+         for `home'.  This field is mandatory at initial setup.
+
+     rrrreeeemmmmaaaarrrrkkkkssss [_r_e_m_a_r_k_s]
+         An alternative for ccccoooommmmmmmmeeeennnntttt.
+
+     rrrreeeemmmmoooovvvveeee _r_e_g_i_o_n
+         Remove _r_e_g_i_o_n and all regions contained in it,  and  any
+         _a_l_i_a_s_e_s  associated  with  them.   Note  that  you can't
+         remove a region that is part of your address, or that is
+         directly linked to your site (use `breakall' first).
+
+     rrrreeeemmmmoooovvvveeeemmmmaaaappppssss [_n_a_m_e]
+         Remove _n_a_m_e and any _a_l_i_a_s_e_s associated with it from  the
+         mapping  tables.   If  _n_a_m_e  is missing, then remove all
+         maps.
+
+     rrrreeeessssttttrrrriiiicccctttt _R_1,_R_2 [_R_3]
+         Restrict the level of traffic allowed to pass  over  the
+         link from _R_1 to _R_2.  Messages with destination addresses
+         outside _R_3 will not  be  routed  over  this  link.   For
+         example, if there are more than one link from _R_2, and _R_3
+         is the same as _R_2, then the link will be prevented  from
+         carrying  any  _t_h_r_o_u_g_h  traffic.   You  should  only set
+         restrictions on links to  `home',  so  you  will  get  a
+         warning message if _R_2 is not `home'.
+
+     rrrroooouuuutttteeee _R_1 [_R_2]
+         Force both _f_a_s_t and _c_h_e_a_p routes to  _R_1  (and  its  sub-
+         regions) to go via _R_2, which must be linked to `home'.
+
+     ssssppppoooooooolllleeeerrrr _r_e_g_i_o_n [_p_r_o_g_r_a_m]
+         Set the name  of  a  program  to  be  invoked  to  _s_p_o_o_l
+         messages for the link to _r_e_g_i_o_n.  The link is probably a
+         gateway to a foreign network.
+
+     ssssyyyysssstttteeeemmmm [_s_y_s_t_e_m _t_y_p_e]
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    7
+
+
+
+
+
+
+Maintenance Procedures                                NETSTATE(8)
+
+
+
+         Set the `system type' field in the site description  for
+         `home'.
+
+     tttteeeellllnnnnoooo ['_p_h_o_n_e _n_o.]
+         Set the `phone number' for the site administrator in the
+         site description for `home'.  This field is mandatory at
+         initial setup.
+
+     uuuunnnnlllliiiinnnnkkkk _R_1,_R_2
+         A synonym for bbbbrrrreeeeaaaakkkk.
+
+     uuuunnnnlllliiiinnnnkkkkaaaallllllll _r_e_g_i_o_n
+         A synonym for bbbbrrrreeeeaaaakkkkaaaallllllll.
+
+     vvvviiiissssiiiibbbblllleeee _R_1 [_R_2]
+         Set the `visible region' for _R_1 to be _R_2.  _R_1  (normally
+         `home')  will not propagate its site details outside _R_2,
+         and will indicate to other sites that it  is  unable  to
+         route  addresses  not  contained  in _R_2, unless they are
+         _o_u_t-_b_o_u_n_d messages (those travelling from lower  regions
+         to  higher  ones).   If  _R_2 is blank, the visible region
+         will become the world-level region, *WORLD*.
+
+     xxxxaaaalllliiiiaaaassss _r_e_g_i_o_n [_r_e_m_o_v_e]
+         Enter _r_e_g_i_o_n as an exported _a_l_i_a_s for  `home'.   If  the
+         optional  second  parameter  is  present, then the alias
+         will be removed.  _R_e_g_i_o_n must not exist (or be otherwise
+         used as an alias).
+
+  FFFFllllaaaaggggssss
+     Where the parameters are required  to  be  _l_i_n_k  flags,  the
+     possible flags and their meanings are:
+
+     ccccaaaallllllll     The link is _c_a_l_l-_o_n-_d_e_m_a_n_d.   The  routing  program
+              will   automatically   invoke   a  virtual  circuit
+              establishment program whenever a message is spooled
+              for  the  link  and  there  is  no active transport
+              daemon, provided that a file named _c_a_l_l  exists  in
+              the  link's  queue  directory, or an alternate call
+              program has been specified via the command  _c_a_l_l_e_r.
+              Otherwise  the  routing  program  will  invoke  the
+              program _n_e_t_c_o_n_t_r_o_l(8) with  the  arguments:  `start
+              <link>'  where  _l_i_n_k  is  the type-less name of the
+              link.
+
+     ddddeeeeaaaadddd     The link is marked as _d_e_a_d (inactive for more  than
+              a  week).   This  also means that _b_r_o_a_d_c_a_s_t network
+              state information will not be passed to it.
+
+     ddddoooowwwwnnnn     The link is marked as _d_o_w_n (inactive for more  than
+              a day).
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    8
+
+
+
+
+
+
+Maintenance Procedures                                NETSTATE(8)
+
+
+
+     ffffoooorrrreeeeiiiiggggnnnn  The link is to a foreign network.  This means  that
+              network state information will not be passed to it.
+
+     nnnnoooocccchhhhaaaannnnggggeeee This flag prevents changes to parameters  for  this
+              link  from  generating  state  messages.   It  also
+              prevents  network  programs  from  making   dynamic
+              changes to the link parameters.
+
+CCCCOOOOMMMMMMMMAAAANNNNDDDD EEEEXXXXAAAAMMMMPPPPLLLLEEEESSSS
+     The following commands could become permanent by  installing
+     them in __s_t_a_t_e/_c_o_m_m_a_n_d_s_f_i_l_e.
+
+     _bin/netstate -rsxc <<!
+     # Preferred types:
+     ordertypes     COUNTRY;ADMD;PRMD;ORG;DEPT;NODE
+     # Map an extra shorthand type.
+     map            C              COUNTRY
+     map            D              DEPT
+     map            N              NODE
+     map            O              ORG
+     map            P              PRMD
+     # Map domain names:
+     map            au             C=au
+     map            cs             D=cs
+     map            oz             P=oz
+     map            su             O=su
+     map            castor         N=castor
+     # `home' address:
+     address        castor.cs.su.oz.au
+     # Export an alias, and map a `typo':
+     xalias         N=pollux.cs.su.oz.au
+     map            catsor
+                    castor.cs.su.oz.au
+     # Restrict knowledge of `home' to the department:
+     visible        castor.cs.su.oz.au
+                    cs.su.oz.au
+     # Site details:
+     organization   Sydney University Computer Science
+     postal_address Department of Computer Science\
+                    Madsen Building, F09\
+                    Sydney University\
+                    N.S.W. 2006\
+                    Australia
+     location       33 53 25.0 S / 151 11 18.7 E
+     remarks        SUN IV R&D
+     system         MIPS 3230, Risc/OS 4.51
+     person         Piers Lauder
+     email_address  piers@cs.su.oz.au
+     telno          +61-2-692-3423
+     # Add a link (domains can be in any order):
+     add            N=cluster.cs.su.oz.au
+     link           au.oz.su.cs.castor,
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                    9
+
+
+
+
+
+
+Maintenance Procedures                                NETSTATE(8)
+
+
+
+                    cs.au.su.N=cluster.oz
+     # with a simple directory name:
+     linkname       N=cluster.cs.su.oz.au
+                    cluster
+     # castor calls cluster every 8 hours:
+     delay          N=cluster.cs.su.oz.au,
+                    castor.cs.su.oz.au
+                    28800
+     # a uni-directional link to us:
+     add            N=ipso.D=rss.O=ips.oz.au
+     halflink       N=ipso.D=rss.O=ips.oz.au,
+                    castor.cs.su.oz.au
+     # Forward incomplete region addresses
+     # to sites with regional people data-bases:
+     forward        cs.su.oz.au
+                    N=basser.cs.su.oz.au
+     forward        su.oz.au
+                    N=metro.D=ucc.su.oz.au
+     forward        oz.au
+                    N=munnari.D=cs.O=mu.oz.au
+     # Forward unresolvable addresses
+     # to sites with suitable gateways:
+     forward        *.
+                    N=munnari.D=cs.O=mu.oz.au
+     !
+
+PPPPRRRROOOOPPPPAAAAGGGGAAAATTTTIIIIOOOONNNN
+     If  the  site  details  for  `home'  are  altered   in   any
+     significant  way, then _n_e_t_s_t_a_t_e will invoke _n_e_t_r_e_q_u_e_s_t(8) to
+     propagate the  changes.   _S_i_g_n_i_f_i_c_a_n_c_e  is  defined  by  any
+     change in the following attributes for `home':
+       address or visible region;
+       links (dead,  down,  cost,  delay,  restriction,  new,  or
+       removed).
+     Conflicts in commands affecting these parameters will  cause
+     an error exit from _n_e_t_s_t_a_t_e.
+
+     Changes are broadcast to  all  regions  in  `home's  visible
+     region, and each region linked to `home'.
+
+     Note that if changes are made to the comment fields,  or  to
+     the `exported aliases', and you wish to propagate them, then
+     _n_e_t_s_t_a_t_e must be  invoked  with  the  flag  `----xxxx'  to  update
+     _s_i_t_e_f_i_l_e   and   _e_x_p_o_r_t_f_i_l_e.    Then  use  _n_e_t_r_e_q_u_e_s_t(8)  to
+     propagate the new information.
+
+RRRROOOOUUUUTTTTIIIINNNNGGGG
+     The routing algorithm finds the _c_h_e_a_p_e_s_t and  _f_a_s_t_e_s_t  paths
+     between  regions.   The  _c_h_e_a_p_e_s_t  routes  differ  from  the
+     _f_a_s_t_e_s_t routes in that the _q_u_e_u_e_i_n_g delay for  the  link  is
+     multiplied by the _c_o_s_t parameter for the link.  The _c_h_e_a_p_e_s_t
+     routes are selected for messages  with  a  routing  priority
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                   10
+
+
+
+
+
+
+Maintenance Procedures                                NETSTATE(8)
+
+
+
+     larger  than  `4'.   A normal link is assumed to have a zero
+     queueing delay, zero operating costs, and an initial  _w_e_i_g_h_t
+     of  1.   The  routing  calculation  may be biased by several
+     parameters:
+
+       A link marked _d_e_a_d has its queueing delay increased by 100
+       days.
+
+       A link marked _d_o_w_n has its queueing delay increased  by  1
+       day.
+
+       A link bearing a region restriction will only be  used  on
+       routes to regions within the restriction.
+
+       A node with a _v_i_s_i_b_l_e _r_e_g_i_o_n will only be used  on  routes
+       to  regions within it.  (Unless it's visible region is the
+       same or `higher'  than  all  the  previous  nodes  in  the
+       route.)
+
+       Any queuing delay is added to the _w_e_i_g_h_t of the  link  for
+       both _f_a_s_t_e_s_t and _c_h_e_a_p_e_s_t routes.
+
+       Any cost is used  to  multiply  the  _w_e_i_g_h_t  to  find  the
+       _c_h_e_a_p_e_s_t routes.
+
+     Use the ----YYYY flag to _n_e_t_m_a_p(1) to find out the effect of  your
+     changes, if unsure.
+
+     The routing tables are coalesced out of  the  shortest  path
+     network,  such  that if the shortest path to a region is the
+     same as those to all the regions within it,  then  it  alone
+     will  appear  in  the  table.   The global region appears as
+     *WORLD* if reachable.
+
+AAAADDDDDDDDRRRREEEESSSSSSSS RRRREEEESSSSOOOOLLLLUUUUTTTTIIIIOOOONNNN
+     When a message is being routed, its addresses  are  resolved
+     by looking them up in the routing tables, where any mappings
+     are performed before the route is selected.   Addresses  may
+     be partially typed, in which case an attempt is made to type
+     the domains before routing.
+
+     There are several tables to aid this process:
+
+     _R_e_g_i_o_n _T_a_b_l_e
+         This is a table  containing  fully  typed  region  names
+         together   with   the  link  on  which  each  should  be
+         forwarded.  This table contains all  the  regions  which
+         are known locally.
+
+     _N_a_m_e _T_a_b_l_e
+         This table contains untyped names, one for  each  Region
+         Table  entry,  together with an index to the appropriate
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                   11
+
+
+
+
+
+
+Maintenance Procedures                                NETSTATE(8)
+
+
+
+         Region Table entry.
+
+     _F_o_r_w_a_r_d_i_n_g _T_a_b_l_e
+         This is a table of addresses, each  with  a  name  of  a
+         region  to  which it should be forwarded.  This table is
+         built up from the `forward' commands.
+
+     _M_a_p_p_i_n_g _T_a_b_l_e
+         A table of addresses, each with a name of  a  region  to
+         which the address should be mapped.  This table is built
+         up from the `map' commands.
+
+     _T_y_p_e _V_e_c_t_o_r
+         A  vector  of  the  local  hierarchy,  with  each  level
+         containing all domains known at that level.  This vector
+         is built up by splitting domains  found  in  the  Region
+         Table.
+
+     The address resolution process follows these steps:
+
+     (1) Untyped addresses are looked up in the  Name  Table  and
+         replaced by any match (a fully typed region).
+
+     (2) Untyped addresses are looked up in the Mapping Table and
+         replaced  by  a  match  provided  it is a region address
+         ending in a country code.
+
+     (3) Domains are now looked  up  in  the  Mapping  Table  for
+         domain  matches,  and  replaced  if  matched (by a typed
+         domain).  Domains are then sorted  and  matched  against
+         the  Type  Vector  top  down,  and  if  matched, missing
+         domains are filled in and  the  domains  are  re-sorted.
+         The  address  is  now  split into a typed and an untyped
+         form.
+
+     (4) If not so far mapped, the untyped address is  looked  up
+         in the Mapping Table.  If matched, it is replaced by the
+         match, and the resolution restarted at step (3).
+
+     (5) If not so far mapped, and the only  typed  part  of  the
+         address  matches  the  local  `visible region' (from the
+         _v_i_s_i_b_l_e command), and if the prefix matches an entry  in
+         the  Mapping  Table,  and  the  match  ends in the local
+         `visible region', then the address is  replaced  by  the
+         match.
+
+     (6) The typed address is now looked  up  in  the  Forwarding
+         Table,  and if matched, then the address is converted to
+         an `explicit routing' address with the forwarded  region
+         prepended.
+
+     (7) If step (6) failed, then the lookup is retried with  the
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                   12
+
+
+
+
+
+
+Maintenance Procedures                                NETSTATE(8)
+
+
+
+         untyped address.
+
+     Finally, the resolved address is looked  up  in  the  Region
+     Table.   If  there is no match, the first domain is ignored,
+     and a match attempted on the remainder, and so  on  until  a
+     match  is  made.  If there is no match after all domains are
+     exhausted, the address resolution  fails.   If  there  is  a
+     match, then it yields either the name of a link on which the
+     address should be forwarded, or it  has  matched  the  local
+     address.
+
+SSSSUUUUNNNN IIIIIIIIIIII SSSSTTTTAAAATTTTEEEE
+     _N_e_t_s_t_a_t_e will  process  SUN  III  state  messages,  however,
+     because  of  deficiencies in SUN III state message contents,
+     certain assumptions are made about names.  In particular, it
+     is  assumed  that  all  nodes  without  explicit _h_i_e_r_a_r_c_h_i_e_s
+     belong to the region `PRMD=oz.COUNTRY=au'.   Similarly,  all
+     nodes  without  explicit  _p_r_i_m_a_r_y  _d_o_m_a_i_n_s are assumed to be
+     visible throughout  the  region  `PRMD=oz.COUNTRY=au'.   All
+     nodes  whose  top-level _d_o_m_a_i_n is `oz' are assumed to belong
+     to the region `PRMD=oz.COUNTRY=au'.   Consult  the  SUN  III
+     state  program  manual  for  explanations  of the italicized
+     terms above.
+
+  LLLLiiiinnnnkkkk RRRReeeessssttttrrrriiiiccccttttiiiioooonnnnssss
+     SUN III can not handle address restrictions on links, and so
+     marks  such  links  with  maximum  cost and minimum speed in
+     order to avoid choosing them if any alternate path exists.
+
+  LLLLiiiinnnnkkkk DDDDeeeellllaaaayyyyssss
+     _N_e_t_s_t_a_t_e assumes that any link in a SUN  III  state  message
+     marked  _i_n_t_e_r_m_i_t_t_e_n_t  has a fixed delay of 86400 (24 hours).
+     Conversely, SUN III interprets any link delay  greater  than
+     3599 (>= 1 hour) as meaning an _i_n_t_e_r_m_i_t_t_e_n_t link.
+
+     NNNNBBBB:::: sites participating in networks containing sites running
+     SUN III should be aware that in order to avoid routing loops
+     caused by the different link characteristics, they must only
+     set link delays of exactly 86400, or less than 3600.
+
+FFFFIIIILLLLEEEESSSS
+     _state/commandsfile  Default  commands  to  configure  local
+                          details   and  control  incoming  state
+                          data.
+     _state/exportfile    State  file  for  use  in  replying  to
+                          requests  for  state  information  from
+                          other sites.
+     _state/log           Log for routing broadcasts generated by
+                          _n_e_t_s_t_a_t_e    provided    the   parameter
+                          NETADMIN has a value of 1 or greater.
+     _state/routefile     Routing tables.
+     _state/sitefile      State  file  for  use  in  broadcasting
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                   13
+
+
+
+
+
+
+Maintenance Procedures                                NETSTATE(8)
+
+
+
+                          local link changes to other sites.
+     _state/statefile     Local state information.
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _n_e_t_m_a_p(1), _n_e_t_w_o_r_k(7), _n_e_t_r_e_q_u_e_s_t(8).
+
+DDDDIIIIAAAAGGGGNNNNOOOOSSSSTTTTIIIICCCCSSSS
+     _N_e_t_s_t_a_t_e will complain if the routing tables reduce in  size
+     by  more  than 25%, and send mail to the person nominated in
+     the parameter NCC_ADMIN. (Note: this will happen  the  first
+     time you convert from MHSnet Vn. 1.1 to 1.2)
+
+     Netstate errors usually indicate command syntax errors,  but
+     it can also issue warnings to do with routing problems:
+
+     Duplicate shortest paths:
+         This means that there  is  more  than  one  `best'  path
+         between  your  site and the named region.  If it matters
+         to you which one is chosen, you should arrange to  alter
+         the  link  parameters  on  one of the routes to bias the
+         choice.  Use _n_e_t_m_a_p(1) to find the complete route:
+             netmap -lYA _r_e_g_i_o_n
+
+     Identical names in ...
+         Almost always caused by routing information incorporated
+         from  non-MHSnet  sites  with  type-less  domains.   The
+         problem is usually two regions  sharing  the  same  name
+         except  that  one  pair of domains have different types.
+         You can ignore the  warning,  or  `remove'  one  of  the
+         regions,  preferably  the  one  with  the lowest domain.
+         Find out the real names with:
+             netmap -rvm|grep _n_a_m_e
+
+     _n_u_m_b_e_r nodes unreachable
+         A warning message if any nodes become unreachable.   See
+         below for possible explanations.
+
+     Region `xxx' unreachable
+         These normally can be ignored safely.  They are  usually
+         caused  by  regions  claiming low _v_i_s_i_b_i_l_i_t_y whose outer
+         regions are themselves not directly addressable,  or  by
+         links  to  these  regions  having  lower restrictions on
+         them.  However, sometimes they  are  caused  by  a  site
+         whose  link/visibility restrictions prevent routes being
+         found to other sites it claims knowledge of.   If  these
+         sites  are  important to you, you should attempt to have
+         the restrictions lifted.
+
+     Source region `xxx' unreachable
+         These errors  are  caused  when  incorrectly  configured
+         state  information  from the site `xxx' is received, and
+         the subsequent _r_e_a_c_h_a_b_i_l_i_t_y test fails.  They are  often
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                   14
+
+
+
+
+
+
+Maintenance Procedures                                NETSTATE(8)
+
+
+
+         caused  by  the  fact  that  the  site  has misnamed its
+         link(s)  to  the  outside  world,  or  for  the  reasons
+         mentioned  above.   `xxx'  is probably a `foreign' (non-
+         MHSnet) site, since MHSnet link  names  are  checked  at
+         connection time.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6            Last change: MHSnet 1.3                   15
+
+
+

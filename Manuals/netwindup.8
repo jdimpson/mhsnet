@@ -1,0 +1,82 @@
+.ds S1 NETWINDUP
+.ds S2 \fINetwindup\fP
+.ds S3 \fInetwindup\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 _bin/netwindup
+.TH \*(S1 8 "\*(S4 1.8" \^
+.nh
+.SH NAME
+netwindup \- terminate network operations gracefully
+.SH SYNOPSIS
+.BI \*(S6
+.br
+.BI _bin/netpause
+.br
+.BI _bin/netresume
+.SH DESCRIPTION
+\*(S2
+is a shell program that stops all network links,
+terminates the routing process after the current routing queue is emptied,
+and then shuts down the network.
+Mail is sent to the network administrator signalling the shutdown.
+.PP
+\*(S2 scans the output of the 
+.if t \f(CWnetcontrol status\fP
+.if n `netcontrol status'
+command for processes beginning with
+.if t \f(CWadmin\fP
+.if n `admin'
+or
+.if t \f(CWrouter\fP
+.if n `router'
+and
+.if t \f(CWcurtails\fP
+.if n `curtails'
+them,
+all other processes are
+.if t \f(CWstopped.\fP
+.if n `stopped'.
+.PP
+\*(S2 must be invoked with `root' or
+.SM NETUSERNAME
+privileges to stop the network.
+.PP
+\fBNote:\fP
+\*(S3 assumes a certain format for entries in
+.if n `_lib/initfile'
+.if t \f(CW_lib/initfile\fP
+as reported by
+.if n `netcontrol\ status'.
+.if t \f(CWnetcontrol\ status\fP.
+Each entry should begin with an identifier of the form:
+.IB type \- name
+\(em where
+.I type
+is common to entries of the same type.
+.PP
+If invoked as
+.I netpause
+then only the routing daemons will be curtailed
+\(em resumed by
+.IR netresume .
+These two commands are useful to allow message transmission to continue,
+but to stop local message delivery during backups.
+.SH FILES
+.PD 0
+.TP "\w'_state/routefileXX'u"
+_route/STOP
+The creation of this file causes 
+.IR netrouter (8)
+to terminate after one further pass of the routing queue.
+.TP
+_route/lock
+This file is removed by the router when it terminates,
+so \*(S3 waits for it to disappear before shutting down the network.
+.PD
+.SH "SEE ALSO"
+.IR netmail (1),
+.IR \*(S5 (7),
+.IR netcontrol (8),
+.IR netinit (8),
+.IR netrouter (8).

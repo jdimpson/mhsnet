@@ -1,0 +1,66 @@
+
+
+
+User Commands                                       NETDATENUM(1)
+
+
+
+NNNNAAAAMMMMEEEE
+     netdatenum - print modify time of file as number
+
+SSSSYYYYNNNNOOOOPPPPSSSSIIIISSSS
+     nnnneeeettttddddaaaatttteeeennnnuuuummmm [-[cccc][dddd][tttt]] [_f_i_l_e|_n_u_m_b_e_r]
+
+DDDDEEEESSSSCCCCRRRRIIIIPPPPTTTTIIIIOOOONNNN
+     _N_e_t_d_a_t_e_n_u_m prints out the modify time of a file as a decimal
+     number.  If no filename is given, the current system time is
+     printed.  If a number is given instead of a file, then it is
+     converted to a standard time string.
+
+     The optional parameters have meanings as follows:
+
+     ----cccc  The output is in standard time format  (as  returned  by
+         _d_a_t_e(1)).
+
+     ----dddd  The output is in the form YYMMDDHHMMSS.
+
+     ----tttt  The output is in the format required by _t_o_u_c_h(1).
+
+EEEEXXXXAAAAMMMMPPPPLLLLEEEESSSS
+     Copy modify time of one file to another file:
+
+       touch `netdatenum -t file1` file2
+
+     The following:
+
+       netdatenum -c file
+
+     is equivalent to:
+
+       netdatenum `netdatenum file`
+
+SSSSEEEEEEEE AAAALLLLSSSSOOOO
+     _d_a_t_e(1), _t_o_u_c_h(1).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SunOS 5.6               Last change: 1.3                        1
+
+
+

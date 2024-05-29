@@ -1,0 +1,83 @@
+.ds S1 NETCHECKDB
+.ds S2 \fINetcheckdb\fP
+.ds S3 \fInetcheckdb\fP
+.ds S4 MHSnet
+.ds S5 network
+.ds S6 _bin/netcheckdb
+.TH \*(S1 8 "\*(S4 1.8" \^
+.nh
+.SH NAME
+netcheckdb \- clean up broadcast message tracking database
+.SH SYNOPSIS
+.BI \*(S6
+.RI [\- flags \|]
+.SH DESCRIPTION
+\*(S2
+removes timed-out records from the broadcast message tracking database,
+and creates a (possibly) sparser copy.
+.PP
+The database maintains a list of
+message-\s-1ID\s0/source address pairs
+that enable the routing program to reject duplicate broadcast messages.
+The data-base is maintained as a direct access sparse file with a 15-bit
+key produced by hashing the message-\s-1ID\s0 and source address.
+Each key defines a
+.I bucket
+that can hold up to four records of 32 bytes each,
+allowing the data base to track a maximum 128K messages,
+reaching a maximum size of 4 megabytes.
+Since all broadcast messages have time-outs set (at around one week),
+the entries in the data-base expire after a certain time, leaving holes.
+.PP
+Periodic rewriting may save file-system space,
+but is otherwise unnecessary.
+.PP
+The optional flags are:
+.if n .ds tw 4
+.if t .ds tw \w'\fB\-O\fP\ \fIfilename\fPX'u
+.TP "\*(tw"
+.BI \-c
+Check data-base only.
+.TP
+.BI \-r
+Ignore routing daemon.
+Otherwise \*(S3 will refuse to modify the data-base
+if the routing daemon is running,
+unless the \fB\-c\fP or \fB\-O\fP flags are used.
+.TP
+.BI \-s
+Silent mode \(em don't show compaction statistics.
+.TP
+.BI \-v
+Verbose mode \(em show extra compaction statistics,
+and describe each active record found.
+.TP
+.BI \-O \ filename
+Write clean output to
+.I filename
+instead of rewriting the old database.
+.TP
+.BI \-T \fR[\fPlevel\fR]\fP
+Turns on tracing at
+.I level
+(default: 1).
+If tracing is not compiled in,
+this flag will have no effect.
+.TP
+.BI \-?
+Explain argument options and exit.
+.SH FILES
+.PD 0
+.TP "\w'_state/mesgsfileXX'u"
+_state/mesgsfile
+Broadcast messages database.
+Note that this is a
+.I sparse
+file (using fewer disk blocks than indicated by its size),
+and will be reported as such by
+.IR fsck (8).
+It is always safe to remove this file
+\(em the only effect will be to allow duplicate copies of broadcast messages.
+.PD
+.SH "SEE ALSO"
+.IR \*(S5 (7).
